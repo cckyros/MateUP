@@ -1,39 +1,210 @@
-# MateUP
+# 伴游 App - 代码结构说明
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+## 项目概述
 
-#### 软件架构
-软件架构说明
+- **项目名称**: 伴游
+- **技术栈**: React + Vite + React Router
+- **定位**: 游戏陪玩平台 App（移动端 H5）
+- **设计风格**: 暗黑主题 + 粉紫色系（#FF6B9D）
 
+## 目录结构
 
-#### 安装教程
+```
+my-react-app/
+├── src/
+│   ├── main.jsx          # 入口文件
+│   ├── App.jsx          # 根组件 + 路由配置
+│   ├── App.css          # 根样式
+│   ├── index.css        # 全局样式
+│   └── pages/          # 页面组件
+│
+├── pages/ 页面清单
+│
+├── CoverPage.jsx       # 封面页（启动页）
+├── LoginPage.jsx        # 登录/注册页
+├── HomePage.jsx         # 首页（陪玩师列表） - 入口
+├── PlayerDetailPage.jsx # 陪玩师详情页
+├── SearchPage.jsx      # 搜索筛选页
+├── OrdersPage.jsx      # 订单列表页
+├── OrderDetailPage.jsx # 订单详情页
+├── PaymentPage.jsx      # 支付页
+├── ChatPage.jsx        # 聊天列表 + 聊天房间
+├── ProfilePage.jsx     # 个人中心
+├── NotificationPage.jsx # 通知消息页
+└── SettingsPage.jsx   # 设置页
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 路由结构
 
-#### 使用说明
+| 路径 | 页面 | TabBar |
+|------|------|--------|
+| `/` | 封面页 | 无 |
+| `/login` | 登录/注册 | 无 |
+| `/home` | 首页（陪玩列表） | 显示 |
+| `/player/:id` | 陪玩师详情 | 无 |
+| `/search` | 搜索筛选 | 无 |
+| `/orders` | 订单列表 | 显示 |
+| `/order-detail/:id` | 订单详情 | 无 |
+| `/payment` | 支付页 | 无 |
+| `/chat` | 聊天 | 显示 |
+| `/profile` | 个人中心 | 显示 |
+| `/notifications` | 通知 | 无 |
+| `/settings` | 设置 | 无 |
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 页面功能说明
 
-#### 参与贡献
+### 1. CoverPage（封面页）
+- App 启动展示页
+- Logo + 欢迎语 + 功能特性介绍
+- 两个按钮：「立即登录」→ 登录页，「先逛逛」→ 首页
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+### 2. LoginPage（登录/注册）
+- 手机号 + 验证码登录
+- 密码设置（注册时）
+- 第三方登录（占位）
+- 登录/注册模式切换
 
+### 3. PlayerListPage（首页 - 陪玩列表）
+- 搜索框
+- 游戏分类 Tab（王者荣耀、和平精英等）
+- 快捷筛选标签（在线陪玩、金牌陪玩等）
+- 陪玩师卡片列表（头像、名字、段位、价格、预约按钮）
+- 点击卡片 → 陪玩师详情页
 
-#### 特技
+### 4. PlayerDetailPage（陪玩师详情）
+- 陪玩师头部信息（头像、等级、评分）
+- 游戏选择
+- 时长选择
+- 价格计算
+- 擅长标签
+- 个人简介
+- 用户评价
+- 底部操作栏（聊天 + 立即预约）
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+### 5. SearchPage（筛选页）
+- 搜索框
+- 游戏多选
+- 价格区间滑块
+- 段位筛选
+- 陪玩风格标签多选
+- 在线状态开关
+- 查看结果按钮
+
+### 6. OrdersPage（订单列表）
+- 收益统计卡片
+- Tab 筛选（全部/待接单/进行中/已完成）
+- 订单卡片列表
+- 点击订单卡片 → 订单详情
+
+### 7. OrderDetailPage（订单详情）
+- 订单状态展示
+- 陪玩师信息卡片
+- 订单信息（编号、游戏、段位、时长、时间）
+- 费用明细
+- 底部操作（取消/修改/联系陪玩/确认完成）
+- 取消订单弹窗
+
+### 8. PaymentPage（支付页）
+- 支付倒计时
+- 订单摘要
+- 支付方式选择（微信/支付宝/银行卡）
+- 金额展示
+- 确认支付按钮
+
+### 9. ChatPage（聊天）
+- Tab 切换（聊天/好友/匹配）
+- 聊天列表（头像、名字、最新消息、时间、未读数）
+- 在线状态标识
+- 点击进入聊天房间
+- 聊天房间：消息气泡、输入框、发送按钮
+
+### 10. ProfilePage（个人中心）
+- 用户头部信息（头像、昵称、VIP等级）
+- 数据统计（余额、订单数、评分、陪玩时长）
+- 荣誉徽章
+- 功能菜单（消息通知、设置、帮助反馈等）
+- 退出登录
+
+### 11. NotificationPage（通知页）
+- Tab 切换（全部/订单/消息/系统）
+- 通知列表（图标、标题、内容、时间、未读标识）
+- 无消息空状态
+
+### 12. SettingsPage（设置页）
+- 通知设置（订单/消息/活动/声音/震动 开关）
+- 其他设置菜单（账号安全、隐私、帮助、关于）
+- 退出登录按钮
+
+## 全局组件
+
+### TabBar（底部导航栏）
+- 4个Tab：首页、订单、聊天、我的
+- 高亮当前页面
+- 特定页面隐藏（如登录页、详情页）
+
+## 样式规范
+
+- **主色**: #FF6B9D（粉紫色）
+- **背景色**: #16213e（深蓝黑）
+- **卡片背景**: rgba(255,255,255,0.06)
+- **文字色**: #fff（主文字）、rgba(255,255,255,0.6)（次文字）
+- **字体**: 系统默认字体栈
+- **圆角**: 12-16px（卡片）、25px（按钮）
+- **阴影**: rgba(255,107,157,0.4)（按钮）
+
+## 数据结构（Mock）
+
+### 陪玩师
+```js
+{
+  id: 1,
+  name: '小美',
+  avatar: '👩',
+  game: '王者荣耀',
+  rank: '星耀3',
+  tags: ['御姐音', '连胜王', '野王'],
+  price: 45,
+  rating: 4.9,
+  orders: 328,
+  online: true,
+  level: '金牌陪玩'
+}
+```
+
+### 订单
+```js
+{
+  id: 'PG20260324001',
+  status: '进行中', // 待接单/进行中/已完成/已取消
+  game: '王者荣耀',
+  booster: '小美',
+  level: '星耀3 → 星耀2',
+  duration: 2,
+  price: 80,
+  total: 160
+}
+```
+
+## 开发命令
+
+```bash
+npm run dev    # 开发服务器 http://localhost:5173
+npm run build  # 生产构建
+npm run preview # 预览构建结果
+```
+
+## 后续开发建议
+
+1. **状态管理**: 可引入 Zustand 替代 prop drilling
+2. **接口层**: 封装 api/ 目录，统一 axios 实例
+3. **Hooks**: 抽取 useAuth, useOrder 等自定义 Hook
+4. **动画**: 添加页面切换过渡动画（参考 Telegram 风格）
+5. **SSR/小程序**: 可考虑 Taro、UniApp 跨端输出
+
+## 文件修改记录
+
+| 日期 | 内容 |
+|------|------|
+| 2026-03-24 | 初始创建，包含全部页面基础 UI |
+| 2026-03-24 | 统一暗黑风格 + 粉紫色系 |
+| 2026-03-24 | 完成所有可交互控件的页面跳转逻辑 |
