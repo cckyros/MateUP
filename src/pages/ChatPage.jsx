@@ -1,6 +1,7 @@
-// 聊天页 - 已统一暗色风格 + 移除重复底部 Tab
+// 聊天页 - 已集成真实 WebSocket + Zustand 持久化
 import { useState, useRef, useEffect } from 'react'
 import { COLORS } from '../constants'
+import { useChatStore, useUserStore, wsManager } from '../store'
 
 const mockChats = [
   { id: 1, name: '小美', avatar: '👩', lastMsg: '今晚一起打游戏吗？🎮', time: '刚刚', unread: 2, online: true },
@@ -9,56 +10,90 @@ const mockChats = [
   { id: 4, name: '小林', avatar: '👩', lastMsg: '下次再约~', time: '昨天', unread: 0, online: false },
 ]
 
-const mockMessages = {
-  1: [
-    { id: 1, type: 'other', name: '小美', avatar: '👩', msg: '你好呀~', time: '10:30' },
-    { id: 2, type: 'self', msg: '你好！', time: '10:30' },
-    { id: 3, type: 'other', name: '小美', avatar: '👩', msg: '今晚一起打游戏吗？🎮', time: '10:31' },
-    { id: 4, type: 'self', msg: '可以啊，玩什么？', time: '10:31' },
-  ],
-  2: [
-    { id: 1, type: 'other', name: '阿杰', avatar: '👨', msg: '在吗？', time: '09:00' },
-    { id: 2, type: 'self', msg: '在的', time: '09:05' },
-    { id: 3, type: 'other', name: '阿杰', avatar: '👨', msg: '收到，已上线', time: '09:10' },
-  ],
-}
-
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat')
   const [selectedChat, setSelectedChat] = useState(null)
   const [message, setMessage] = useState('')
-  const [messages, setMessages] = useState([])
   const messagesEndRef = useRef(null)
 
+  const { user } = useUserStore()
+  const { messages, setMessages, addMessage } = useChatStore()
+
+  // WebSocket 连接与消息监听
   useEffect(() => {
-    if (selectedChat && mockMessages[selectedChat.id]) {
-      setMessages(mockMessages[selectedChat.id])
-    } else if (selectedChat) {
-      setMessages([
-        {
-          id: 1,
-          type: 'system',
-          msg: '你们已成为好友，开始聊天吧~',
-          time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-        },
-      ])
+    if (!user?.id) return
+
+    // 连接 WebSocket（真实连接）
+    const wsUrl = `wss://api.banyou.com/ws/chat?token=${localStorage.getItem('token') || ''}`
+    wsManager.connect(wsUrl)
+
+    // 监听连接状态
+    const unsubStatus = wsManager.onStatusChange((status) => {
+      console.log('[WS] status:', status)
+    })
+
+    // 监听新消息 → 存入 Zustand store
+    const unsubMsg = wsManager.onMessage((msg) => {
+      const conversationId = msg.to || msg.from
+      addMessage(conversationId, {
+        id: msg.id || `msg_${Date.now()}`,
+        type: msg.type,
+        from: msg.from,
+        to: msg.to,
+        content: msg.content,
+        timestamp: msg.timestamp || Date.now(),
+        isSelf: msg.from === user.id,
+      })
+    })
+
+    return () => {
+      unsubStatus()
+      unsubMsg()
+    }
+  }, [user?.id])
+
+  // 加载聊天记录（从 Zustand store）
+  useEffect(() => {
+    if (!selectedChat) return
+
+    const chatId = String(selectedChat.id)
+    if (messages[chatId]) {
+      // 已有本地记录
+    } else {
+      // 首次进入，从 mockMessages 初始化（后续替换为真实 API）
+      setMessages(chatId, [])
     }
   }, [selectedChat])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, selectedChat])
 
-  const sendMessage = () => {
-    if (!message.trim()) return
+  const sendMessage = async () => {
+    if (!message.trim() || !selectedChat) return
+
+    const chatId = String(selectedChat.id)
+    const msgId = `msg_${Date.now()}`
     const newMsg = {
-      id: messages.length + 1,
-      type: 'self',
-      msg: message,
-      time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+      id: msgId,
+      type: 'chat',
+      from: user?.id || '',
+      to: String(selectedChat.id),
+      content: message,
+      timestamp: Date.now(),
+      isSelf: true,
     }
-    setMessages([...messages, newMsg])
+
+    //乐观更新：先显示自己发的消息
+    addMessage(chatId, newMsg)
     setMessage('')
+
+    //通过 WebSocket 发送（wsManager.sendChatMessage 内部会调用 wsManager.send）
+    try {
+      await wsManager.sendChatMessage(String(selectedChat.id), message)
+    } catch (e) {
+      console.error('[WS] send failed:', e)
+    }
   }
 
   const handleKeyPress = (e) => {
@@ -67,6 +102,8 @@ const ChatPage = () => {
       sendMessage()
     }
   }
+
+  const currentMessages = selectedChat ? (messages[String(selectedChat.id)] || []) : []
 
   // ========== 聊天列表视图 ==========
   if (!selectedChat) {
@@ -130,26 +167,30 @@ const ChatPage = () => {
       </div>
 
       <div style={styles.messageList}>
-        {messages.map(msg => {
+        {currentMessages.map(msg => {
           if (msg.type === 'system') {
-            return <div key={msg.id} style={styles.systemMsg}>{msg.msg}</div>
+            return <div key={msg.id} style={styles.systemMsg}>{msg.content}</div>
           }
-          if (msg.type === 'self') {
+          if (msg.isSelf) {
             return (
               <div key={msg.id} style={styles.selfMsgWrapper}>
-                <div style={styles.selfBubble}>{msg.msg}</div>
-                <span style={styles.msgTime}>{msg.time}</span>
+                <div style={styles.selfBubble}>{msg.content}</div>
+                <span style={styles.msgTime}>
+                  {new Date(msg.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                </span>
               </div>
             )
           }
           return (
             <div key={msg.id} style={styles.otherMsgWrapper}>
-              <span style={styles.otherAvatar}>{msg.avatar}</span>
+              <span style={styles.otherAvatar}>{selectedChat.avatar}</span>
               <div>
-                <span style={styles.otherName}>{msg.name}</span>
-                <div style={styles.otherBubble}>{msg.msg}</div>
+                <span style={styles.otherName}>{selectedChat.name}</span>
+                <div style={styles.otherBubble}>{msg.content}</div>
               </div>
-              <span style={styles.msgTime}>{msg.time}</span>
+              <span style={styles.msgTime}>
+                {new Date(msg.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
           )
         })}
@@ -286,7 +327,6 @@ const styles = {
     minWidth: '18px',
     textAlign: 'center',
   },
-  // Chat Room
   chatHeader: {
     backgroundColor: COLORS.card,
     padding: '12px 16px',

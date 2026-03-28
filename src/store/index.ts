@@ -153,6 +153,28 @@ export interface ChatMessage {
   isSelf: boolean
 }
 
+// localStorage key for chat persistence
+const CHAT_STORAGE_KEY = 'banlv_chat_messages'
+
+// 从 localStorage 加载历史记录
+const loadChatFromStorage = (): Record<string, ChatMessage[]> => {
+  try {
+    const raw = localStorage.getItem(CHAT_STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+// 保存到 localStorage
+const saveChatToStorage = (messages: Record<string, ChatMessage[]>) => {
+  try {
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages))
+  } catch (e) {
+    console.warn('[ChatStore] failed to save to localStorage:', e)
+  }
+}
+
 interface ChatState {
   messages: Record<string, ChatMessage[]> // key: conversationId
   currentConversation: string | null
@@ -162,22 +184,24 @@ interface ChatState {
 }
 
 export const useChatStore = create<ChatState>((set) => ({
-  messages: {},
+  messages: loadChatFromStorage(),
   currentConversation: null,
   setMessages: (conversationId, messages) =>
-    set((state) => ({
-      messages: { ...state.messages, [conversationId]: messages },
-    })),
+    set((state) => {
+      const updated = { ...state.messages, [conversationId]: messages }
+      saveChatToStorage(updated)
+      return { messages: updated }
+    }),
   addMessage: (conversationId, message) =>
-    set((state) => ({
-      messages: {
+    set((state) => {
+      const existing = state.messages[conversationId] || []
+      const updated = {
         ...state.messages,
-        [conversationId]: [
-          ...(state.messages[conversationId] || []),
-          message,
-        ],
-      },
-    })),
+        [conversationId]: [...existing, message],
+      }
+      saveChatToStorage(updated)
+      return { messages: updated }
+    }),
   setCurrentConversation: (conversationId) =>
     set({ currentConversation: conversationId }),
 }))

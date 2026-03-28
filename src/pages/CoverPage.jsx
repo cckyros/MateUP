@@ -1,14 +1,20 @@
-// 封面页 - 已添加登录状态检测
+// 封面页 - 已统一暗色风格 + 登录状态检测 + 热门陪玩Banner
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../store'
 import { COLORS } from '../constants'
 
+// 热门陪玩师 Mock 数据（后续替换为真实 API: GET /api/players/hot）
+const hotPlayers = [
+  { id: 1, name: '小美', avatar: '👩', level: '金牌陪玩', rating: 4.9, ordersCount: 892, game: '王者荣耀', price: 80 },
+  { id: 2, name: '阿杰', avatar: '👨', level: '银牌陪玩', rating: 4.8, ordersCount: 564, game: '和平精英', price: 60 },
+  { id: 3, name: '小林', avatar: '👩', level: '金牌陪玩', rating: 5.0, ordersCount: 1203, game: '永劫无间', price: 100 },
+]
+
 const CoverPage = () => {
   const navigate = useNavigate()
   const { isLoggedIn } = useUserStore()
 
-  // 已登录则直接跳首页
   useEffect(() => {
     if (isLoggedIn) {
       navigate('/home', { replace: true })
@@ -54,6 +60,37 @@ const CoverPage = () => {
         </p>
       </div>
 
+      {/* 热门陪玩师 Banner */}
+      <div style={styles.hotSection}>
+        <div style={styles.hotHeader}>
+          <div style={styles.hotTitleRow}>
+            <span style={styles.hotFire}>🔥</span>
+            <span style={styles.hotTitle}>热门陪玩师</span>
+          </div>
+          <span style={styles.hotMore} onClick={() => navigate('/home')}>查看更多 →</span>
+        </div>
+        <div style={styles.hotList}>
+          {hotPlayers.map((player) => (
+            <div
+              key={player.id}
+              style={styles.hotCard}
+              onClick={() => navigate(`/player/${player.id}`)}
+            >
+              <span style={styles.hotAvatar}>{player.avatar}</span>
+              <span style={styles.hotOnlineDot} />
+              <div style={styles.hotInfo}>
+                <span style={styles.hotName}>{player.name}</span>
+                <span style={styles.hotLevel}>{player.level}</span>
+              </div>
+              <div style={styles.hotStats}>
+                <span style={styles.hotRating}>⭐ {player.rating}</span>
+                <span style={styles.hotOrders}>接单 {player.ordersCount}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* 特性卡片 */}
       <div style={styles.mainContent}>
         {features.map((f, i) => (
@@ -83,7 +120,6 @@ const CoverPage = () => {
         </button>
       </div>
 
-      {/* 下载提示 */}
       <p style={styles.downloadTip}>下载 App 获取更多功能</p>
     </div>
   )
@@ -99,7 +135,7 @@ const styles = {
   },
   banner: {
     background: `linear-gradient(135deg, ${COLORS.primary} 0%, #c44569 100%)`,
-    padding: '50px 24px 40px',
+    padding: '50px 24px 30px',
     color: '#fff',
   },
   logoArea: {
@@ -131,8 +167,96 @@ const styles = {
     fontWeight: 'bold',
     color: '#FFD700',
   },
+  // Hot Section
+  hotSection: {
+    padding: '16px 20px 8px',
+  },
+  hotHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '12px',
+  },
+  hotTitleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  hotFire: {
+    fontSize: '20px',
+  },
+  hotTitle: {
+    fontSize: '17px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  hotMore: {
+    fontSize: '13px',
+    color: COLORS.primary,
+    cursor: 'pointer',
+  },
+  hotList: {
+    display: 'flex',
+    gap: '10px',
+    overflowX: 'auto',
+    paddingBottom: '4px',
+    scrollbarWidth: 'none',
+  },
+  hotCard: {
+    flexShrink: 0,
+    width: '120px',
+    backgroundColor: COLORS.card,
+    borderRadius: '14px',
+    padding: '14px 10px',
+    textAlign: 'center',
+    border: `1px solid ${COLORS.border}`,
+    cursor: 'pointer',
+    position: 'relative',
+  },
+  hotAvatar: {
+    fontSize: '40px',
+    display: 'block',
+    marginBottom: '6px',
+  },
+  hotOnlineDot: {
+    position: 'absolute',
+    top: '16px',
+    right: '16px',
+    width: '10px',
+    height: '10px',
+    backgroundColor: COLORS.success,
+    borderRadius: '50%',
+    border: `2px solid ${COLORS.card}`,
+  },
+  hotInfo: {
+    marginBottom: '6px',
+  },
+  hotName: {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: '2px',
+  },
+  hotLevel: {
+    fontSize: '11px',
+    color: '#FFD700',
+  },
+  hotStats: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+  },
+  hotRating: {
+    fontSize: '12px',
+    color: '#FFD700',
+  },
+  hotOrders: {
+    fontSize: '11px',
+    color: COLORS.textSecondary,
+  },
   mainContent: {
-    padding: '24px 20px',
+    padding: '8px 20px 0',
     flex: 1,
   },
   card: {

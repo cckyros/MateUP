@@ -1,17 +1,19 @@
-// 订单详情页 - 已统一暗色风格
+// 订单详情页 - 已统一暗色风格 + 订单评价功能
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
+import OrderRating from '../components/OrderRating'
 
 const OrderDetailPage = () => {
   const navigate = useNavigate()
-  const [orderStatus, setOrderStatus] = useState('待接单')
+  const [orderStatus, setOrderStatus] = useState('已完成')
   const [showCancelModal, setShowCancelModal] = useState(false)
+  const [showRating, setShowRating] = useState(false)
 
   const order = {
     id: 'PG20260324002',
-    status: '待接单',
-    statusColor: '#FFD700',
+    status: '已完成',
+    statusColor: '#999999',
     game: '王者荣耀',
     gameIcon: '🎮',
     booster: {
@@ -28,11 +30,17 @@ const OrderDetailPage = () => {
     createTime: '2026-03-24 14:00',
     startTime: '今天 20:00',
     remark: '希望小姐姐能带我上分，心态好不骂人',
+    rating: null, // null=未评价, 1-5=已评价
   }
 
   const handleCancel = () => {
     setShowCancelModal(false)
     setOrderStatus('已取消')
+  }
+
+  const handleRateSubmit = ({ rating, comment }) => {
+    setOrderStatus('已评价')
+    setShowRating(false)
   }
 
   return (
@@ -49,18 +57,23 @@ const OrderDetailPage = () => {
         <div style={styles.statusIcon}>
           {orderStatus === '待接单' && '⏳'}
           {orderStatus === '进行中' && '🎮'}
-          {orderStatus === '已完成' && '✅'}
+          {(orderStatus === '已完成' || orderStatus === '已评价') && '✅'}
           {orderStatus === '已取消' && '❌'}
+          {orderStatus === '待支付' && '💳'}
         </div>
         <div style={styles.statusInfo}>
-          <span style={{ ...styles.statusText, color: orderStatus === '已取消' ? COLORS.textSecondary : order.statusColor }}>
+          <span style={{
+            ...styles.statusText,
+            color: orderStatus === '已取消' ? COLORS.textSecondary : order.statusColor
+          }}>
             {orderStatus}
           </span>
           <span style={styles.statusDesc}>
             {orderStatus === '待接单' && '陪玩师还未接单，可取消订单'}
             {orderStatus === '进行中' && '陪玩进行中，请耐心等待'}
-            {orderStatus === '已完成' && '订单已完成，感谢使用伴游'}
+            {(orderStatus === '已完成' || orderStatus === '已评价') && '订单已完成，感谢使用伴游'}
             {orderStatus === '已取消' && '订单已取消'}
+            {orderStatus === '待支付' && '请在30分钟内完成支付'}
           </span>
         </div>
       </div>
@@ -132,7 +145,19 @@ const OrderDetailPage = () => {
             💬 联系陪玩
           </div>
         )}
-        {orderStatus === '已完成' && (
+        {(orderStatus === '已完成') && (
+          <>
+            {order.rating === null && (
+              <div style={styles.rateBtn} onClick={() => setShowRating(true)}>
+                ⭐ 立即评价
+              </div>
+            )}
+            <div style={styles.reOrderBtn} onClick={() => navigate('/home')}>
+              再次预约
+            </div>
+          </>
+        )}
+        {orderStatus === '已评价' && (
           <div style={styles.reOrderBtn} onClick={() => navigate('/home')}>
             再次预约
           </div>
@@ -151,6 +176,16 @@ const OrderDetailPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 评价弹窗 */}
+      {showRating && (
+        <OrderRating
+          orderId={order.id}
+          playerName={order.booster.name}
+          onSubmit={handleRateSubmit}
+          onClose={() => setShowRating(false)}
+        />
       )}
     </div>
   )
@@ -391,6 +426,19 @@ const styles = {
     fontWeight: 'bold',
     cursor: 'pointer',
     border: 'none',
+  },
+  rateBtn: {
+    flex: 1,
+    padding: '14px',
+    borderRadius: '24px',
+    background: `linear-gradient(135deg, ${COLORS.warning} 0%, #ff9500 100%)`,
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: '15px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    border: 'none',
+    boxShadow: `0 4px 15px ${COLORS.warning}40`,
   },
   modalOverlay: {
     position: 'fixed',
