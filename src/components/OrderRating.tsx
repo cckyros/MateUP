@@ -13,7 +13,7 @@ const OrderRating = ({ orderId, playerName, onSubmit, onClose }) => {
     setSubmitting(true)
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`/api/order/${orderId}/rate`, {
+      const res = await fetch(`http://192.168.3.14:3000/api/orders/${orderId}/rate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

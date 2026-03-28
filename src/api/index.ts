@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useUserStore } from '../store'
 
 // ========== API Base 配置 ==========
-const BASE_URL = 'https://api.banyou.com' // 替换为实际后端地址
+const BASE_URL = 'http://192.168.3.14:3000' // 后端地址
 
 const api = axios.create({
   baseURL: BASE_URL,

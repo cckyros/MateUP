@@ -28,19 +28,19 @@ export interface Order {
 
 // 创建订单
 export const createOrder = (data: CreateOrderParams) =>
-  request.post<Order>('/api/order/create', data)
+  request.post<Order>('/api/orders', data)
 
 // 支付订单
 export const payOrder = (orderId: string, payMethod: 'mock' | 'iap' | 'stripe') =>
-  request.post<Order>(`/api/order/${orderId}/pay`, { payMethod })
+  request.post<Order>(`/api/orders/${orderId}/pay`, { payMethod })
 
 // 取消订单
 export const cancelOrder = (orderId: string, reason?: string) =>
-  request.post<Order>(`/api/order/${orderId}/cancel`, { reason })
+  request.post<Order>(`/api/orders/${orderId}/cancel`, { reason })
 
 // 确认完成订单
 export const completeOrder = (orderId: string) =>
-  request.post<Order>(`/api/order/${orderId}/complete`)
+  request.post<Order>(`/api/orders/${orderId}/complete`)
 
 // 获取订单列表
 export const getOrderList = (params?: {
@@ -53,16 +53,16 @@ export const getOrderList = (params?: {
     total: number
     page: number
     totalPages: number
-  }>('/api/order/list', params)
+  }>('/api/orders', params)
 
 // 获取订单详情
 export const getOrderDetail = (orderId: string) =>
-  request.get<Order>(`/api/order/${orderId}`)
+  request.get<Order>(`/api/orders/${orderId}`)
 
 // 陪玩师：接受订单
 export const acceptOrder = (orderId: string) =>
-  request.post<Order>(`/api/order/${orderId}/accept`)
+  request.post<Order>(`/api/orders/${orderId}/accept`)
 
 // 陪玩师：拒绝订单
 export const rejectOrder = (orderId: string, reason?: string) =>
-  request.post<Order>(`/api/order/${orderId}/reject`, { reason })
+  request.post<Order>(`/api/orders/${orderId}/reject`, { reason })

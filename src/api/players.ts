@@ -31,23 +31,23 @@ export const getPlayers = (filters?: PlayerFilters) =>
     players: Player[]
     nextCursor?: string
     total: number
-  }>('/api/players', filters)
+  }>('/api/playmates', filters)
 
 // 获取陪玩师详情
 export const getPlayerDetail = (playerId: string) =>
-  request.get<Player>(`/api/players/${playerId}`)
+  request.get<Player>(`/api/playmates/${playerId}`)
 
 // 搜索陪玩师
 export const searchPlayers = (keyword: string, filters?: PlayerFilters) =>
   request.get<{
     players: Player[]
     total: number
-  }>('/api/players/search', { keyword, ...filters })
+  }>('/api/playmates', { keyword, ...filters })
 
 // 热门陪玩师
 export const getHotPlayers = (limit: number = 10) =>
-  request.get<Player[]>(`/api/players/hot?limit=${limit}`)
+  request.get<Player[]>(`/api/playmates?sort=hot&limit=${limit}`)
 
 // 陪玩师评分
-export const ratePlayer = (playerId: string, rating: number) =>
-  request.post(`/api/players/${playerId}/rate`, { rating })
+export const ratePlayer = (playerId: string, rating: number, comment?: string) =>
+  request.post(`/api/orders/${playerId}/rate`, { rating, comment })

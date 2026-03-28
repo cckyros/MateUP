@@ -16,7 +16,7 @@ const normalizePlayer = (p) => ({
   isOnline: p.online,
   games: [p.game === '王者荣耀' ? 'honor' : p.game === '和平精英' ? 'apex' : p.game === '英雄联盟' ? 'lol' : 'yongjie'],
   ordersCount: p.orders,
-}))
+});
 
 const games = [
   { key: 'all', label: '全部', value: undefined },

@@ -24,7 +24,7 @@ const ChatPage = () => {
     if (!user?.id) return
 
     // 连接 WebSocket（真实连接）
-    const wsUrl = `wss://api.banyou.com/ws/chat?token=${localStorage.getItem('token') || ''}`
+    const wsUrl = `ws://192.168.3.14:3000/ws/chat?token=${localStorage.getItem('token') || ''}`
     wsManager.connect(wsUrl)
 
     // 监听连接状态

@@ -66,7 +66,7 @@ const LoginPage = () => {
 
       // 跳转到首页
       navigate('/home')
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || '登录失败')
     } finally {
       setLoading(false)

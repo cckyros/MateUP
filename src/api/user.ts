@@ -26,19 +26,19 @@ export const login = (data: LoginParams) =>
   request.post<{
     token: string
     user: UserProfile
-  }>('/api/login', data)
+  }>('/api/users/login', data)
 
 // 注册
 export const register = (data: RegisterParams) =>
   request.post<{
     token: string
     user: UserProfile
-  }>('/api/register', data)
+  }>('/api/users/register', data)
 
 // 获取用户信息
 export const getUserProfile = () =>
-  request.get<UserProfile>('/api/user/profile')
+  request.get<UserProfile>('/api/users')
 
 // 更新用户信息
 export const updateUserProfile = (data: Partial<UserProfile>) =>
-  request.put<UserProfile>('/api/user/profile', data)
+  request.put<UserProfile>('/api/users', data)
