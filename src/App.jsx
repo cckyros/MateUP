@@ -1,42 +1,65 @@
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import CoverPage from './pages/CoverPage';
-import LoginPage from './pages/LoginPage';
-import HomePage from './pages/PlayerListPage';
-import PlayerDetailPage from './pages/PlayerDetailPage';
-import OrdersPage from './pages/OrdersPage';
-import OrderDetailPage from './pages/OrderDetailPage';
-import ChatPage from './pages/ChatPage';
-import ProfilePage from './pages/ProfilePage';
-import SearchPage from './pages/SearchPage';
-import PaymentPage from './pages/PaymentPage';
-import NotificationPage from './pages/NotificationPage';
-import SettingsPage from './pages/SettingsPage';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import CoverPage from './pages/CoverPage'
+import LoginPage from './pages/LoginPage'
+import HomePage from './pages/PlayerListPage'
+import PlayerDetailPage from './pages/PlayerDetailPage'
+import OrdersPage from './pages/OrdersPage'
+import OrderDetailPage from './pages/OrderDetailPage'
+import ChatPage from './pages/ChatPage'
+import ProfilePage from './pages/ProfilePage'
+import SearchPage from './pages/SearchPage'
+import PaymentPage from './pages/PaymentPage'
+import NotificationPage from './pages/NotificationPage'
+import SettingsPage from './pages/SettingsPage'
+import ApplyPlayerPage from './pages/ApplyPlayerPage'
+import ApplyStatusPage from './pages/ApplyStatusPage'
+import PlayerHomePage from './pages/PlayerHomePage'
+import PlayerOrdersPage from './pages/PlayerOrdersPage'
+import PlayerProfilePage from './pages/PlayerProfilePage'
+import PlayerEarningsPage from './pages/PlayerEarningsPage'
+import PlayerReviewsPage from './pages/PlayerReviewsPage'
+import { useUserStore } from './store'
+
+// 路由守卫：陪玩师页面需要 isPlayer 才能访问
+const PlayerRouteGuard = ({ children }: { children: React.ReactNode }) => {
+  const user = useUserStore((s) => s.user)
+  const navigate = useNavigate()
+  if (!user?.isPlayer) {
+    navigate('/apply-player')
+    return null
+  }
+  return <>{children}</>
+}
 
 // 底部导航栏组件
 const TabBar = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
+  const user = useUserStore((s) => s.user)
 
   const tabs = [
     { path: '/home', label: '首页', icon: '🏠' },
     { path: '/orders', label: '订单', icon: '📋' },
     { path: '/chat', label: '聊天', icon: '💬' },
     { path: '/profile', label: '我的', icon: '👤' },
-  ];
+  ]
 
   // 这些页面不显示 tab bar
   const noTabPages = [
     '/', '/login', '/player', '/search',
-    '/order-detail', '/payment', '/notifications', '/settings'
-  ];
-  const shouldHide = noTabPages.some(p =>
-    location.pathname === p || location.pathname.startsWith('/player')
-  );
-  if (shouldHide) return null;
+    '/order-detail', '/payment', '/notifications', '/settings',
+    '/apply-player', '/apply-status',
+    '/player-home', '/player-orders', '/player-profile',
+    '/player-earnings', '/player-reviews',
+  ]
+  const shouldHide = noTabPages.some((p) =>
+    location.pathname === p || location.pathname.startsWith('/player-detail')
+  )
+  if (shouldHide) return null
 
   return (
     <div style={styles.tabBar}>
-      {tabs.map(tab => (
+      {tabs.map((tab) => (
         <div
           key={tab.path}
           style={{
@@ -50,43 +73,77 @@ const TabBar = () => {
         </div>
       ))}
     </div>
-  );
-};
+  )
+}
 
 function App() {
   return (
     <BrowserRouter>
       <div style={styles.app}>
         <Routes>
-          {/* 封面 */}
+          {/* 基础页面 */}
           <Route path="/" element={<CoverPage />} />
-          {/* 登录 */}
           <Route path="/login" element={<LoginPage />} />
-          {/* 首页 - 陪玩列表 */}
           <Route path="/home" element={<HomePage />} />
-          {/* 陪玩师详情 */}
           <Route path="/player/:id" element={<PlayerDetailPage />} />
-          {/* 订单列表 */}
           <Route path="/orders" element={<OrdersPage />} />
-          {/* 订单详情 */}
           <Route path="/order-detail/:id" element={<OrderDetailPage />} />
-          {/* 聊天 */}
           <Route path="/chat" element={<ChatPage />} />
-          {/* 个人中心 */}
           <Route path="/profile" element={<ProfilePage />} />
-          {/* 搜索筛选 */}
           <Route path="/search" element={<SearchPage />} />
-          {/* 支付 */}
           <Route path="/payment" element={<PaymentPage />} />
-          {/* 通知 */}
+          <Route path="/payment/:id" element={<PaymentPage />} />
           <Route path="/notifications" element={<NotificationPage />} />
-          {/* 设置 */}
           <Route path="/settings" element={<SettingsPage />} />
+
+          {/* Phase 7 - 角色系统 */}
+          <Route path="/apply-player" element={<ApplyPlayerPage />} />
+          <Route path="/apply-status" element={<ApplyStatusPage />} />
+          <Route
+            path="/player-home"
+            element={
+              <PlayerRouteGuard>
+                <PlayerHomePage />
+              </PlayerRouteGuard>
+            }
+          />
+          <Route
+            path="/player-orders"
+            element={
+              <PlayerRouteGuard>
+                <PlayerOrdersPage />
+              </PlayerRouteGuard>
+            }
+          />
+          <Route
+            path="/player-profile"
+            element={
+              <PlayerRouteGuard>
+                <PlayerProfilePage />
+              </PlayerRouteGuard>
+            }
+          />
+          <Route
+            path="/player-earnings"
+            element={
+              <PlayerRouteGuard>
+                <PlayerEarningsPage />
+              </PlayerRouteGuard>
+            }
+          />
+          <Route
+            path="/player-reviews"
+            element={
+              <PlayerRouteGuard>
+                <PlayerReviewsPage />
+              </PlayerRouteGuard>
+            }
+          />
         </Routes>
         <TabBar />
       </div>
     </BrowserRouter>
-  );
+  )
 }
 
 const styles = {
@@ -127,6 +184,6 @@ const styles = {
   tabLabel: {
     display: 'block',
   },
-};
+}
 
-export default App;
+export default App

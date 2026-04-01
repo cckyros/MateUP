@@ -1,35 +1,78 @@
-// 陪玩师详情页 - 已统一暗色风格
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+// 陪玩师详情页 - 已接入真实 API
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { COLORS } from '../constants'
+import { getPlayerDetail } from '../api/players'
+import { createOrder } from '../api/order'
+
+// 游戏名称映射
+const GAME_MAP = {
+  '王者荣耀': 'honor',
+  '和平精英': 'apex',
+  '英雄联盟': 'lol',
+  '永劫无间': 'yongjie',
+}
+const GAME_REVERSE_MAP = Object.fromEntries(Object.entries(GAME_MAP).map(([k, v]) => [v, k]))
+
+// 等级颜色
+const getLevelColor = (rank) => {
+  if (rank?.includes('王者')) return '#FFD700'
+  if (rank?.includes('大师')) return '#C0C0C0'
+  if (rank?.includes('钻石')) return '#B9F2F0'
+  return '#90EE90'
+}
 
 const PlayerDetailPage = () => {
   const navigate = useNavigate()
+  const { id } = useParams()
+  const [player, setPlayer] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState('')
   const [selectedHours, setSelectedHours] = useState(2)
   const [selectedGame, setSelectedGame] = useState('王者荣耀')
 
-  const player = {
-    id: 1,
-    name: '小美',
-    avatar: '👩',
-    game: '王者荣耀',
-    rank: '星耀3',
-    level: '金牌陪玩',
-    levelColor: '#FFD700',
-    rating: 4.9,
-    orders: 328,
-    online: true,
-    price: 45,
-    tags: ['御姐音', '连胜王', '野王', 'carry型', '心态好'],
-    photos: ['👩‍🎮', '🎮', '🔫', '⚔️', '🏆'],
-    bio: '专注野王3年，擅长李白、韩信、玄策等刺客英雄。声音好听心态稳，带你轻松上分！',
-    reviews: [
-      { id: 1, user: '玩家A', avatar: '👨', rating: 5, content: '太厉害了！2小时带我上了3颗星，小姐姐声音超好听~', time: '3天前' },
-      { id: 2, user: '玩家B', avatar: '👨', rating: 5, content: '打野意识很强，节奏带得飞起，下次还来！', time: '1周前' },
-    ],
-  }
+  useEffect(() => {
+    if (!id) return
+    const load = async () => {
+      try {
+        const data = await getPlayerDetail(id)
+        // 标准化数据
+        const normalized = {
+          ...data,
+          online: data.online ?? data.isOnline,
+          game: GAME_REVERSE_MAP[data.game] || data.games?.[0] || '王者荣耀',
+        }
+        setPlayer(normalized)
+        // 默认选中第一个游戏
+        if (data.games?.length > 0) {
+          setSelectedGame(GAME_REVERSE_MAP[data.games[0]] || data.games[0])
+        }
+      } catch (err) {
+        setError('加载失败')
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [id])
 
-  const hoursOptions = [1, 2, 3, 4, 5, 6]
+  const handleOrder = async () => {
+    if (!player) return
+    setCreating(true)
+    try {
+      const order = await createOrder({
+        playerId: id,
+        duration: selectedHours,
+        game: GAME_MAP[selectedGame] || selectedGame,
+      })
+      navigate(`/payment/${order.id}`)
+    } catch (err) {
+      alert(err?.response?.data?.message || '创建订单失败')
+    } finally {
+      setCreating(false)
+    }
+  }
 
   return (
     <div style={styles.container}>
@@ -43,21 +86,25 @@ const PlayerDetailPage = () => {
       {/* 个人信息区 */}
       <div style={styles.profileSection}>
         <div style={styles.avatarWrapper}>
-          <span style={styles.avatar}>{player.avatar}</span>
+          {player.avatar ? (
+            <img src={player.avatar} alt={player.name} style={styles.avatarImg} />
+          ) : (
+            <span style={styles.avatarEmoji}>💫</span>
+          )}
           {player.online && <span style={styles.onlineBadge}>在线</span>}
         </div>
         <div style={styles.profileInfo}>
           <div style={styles.nameRow}>
             <span style={styles.name}>{player.name}</span>
-            <span style={{ ...styles.level, color: player.levelColor }}>{player.level}</span>
+            <span style={{ ...styles.level, color: getLevelColor(player.rank) }}>{player.rank || '陪玩师'}</span>
           </div>
           <div style={styles.gameInfo}>
             <span style={styles.gameTag}>{player.game}</span>
             <span style={styles.rank}>{player.rank}</span>
           </div>
           <div style={styles.statsRow}>
-            <span>⭐ {player.rating}</span>
-            <span>接单 {player.orders}</span>
+            <span>⭐ {player.rating || '5.0'}</span>
+            <span>接单 {player.ordersCount || 0}</span>
             <span style={styles.priceTag}>¥{player.price}/小时</span>
           </div>
         </div>
@@ -110,45 +157,19 @@ const PlayerDetailPage = () => {
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>擅长标签</h3>
         <div style={styles.tags}>
-          {player.tags.map((tag, i) => (
+          {(player.tags || []).map((tag, i) => (
             <span key={i} style={styles.tag}>{tag}</span>
           ))}
         </div>
       </div>
 
       {/* 个人简介 */}
-      <div style={styles.section}>
-        <h3 style={styles.sectionTitle}>个人简介</h3>
-        <p style={styles.bio}>{player.bio}</p>
-      </div>
-
-      {/* 相册 */}
-      <div style={styles.section}>
-        <h3 style={styles.sectionTitle}>相册</h3>
-        <div style={styles.photos}>
-          {player.photos.map((photo, i) => (
-            <div key={i} style={styles.photoItem}>{photo}</div>
-          ))}
+      {player.description && (
+        <div style={styles.section}>
+          <h3 style={styles.sectionTitle}>个人简介</h3>
+          <p style={styles.bio}>{player.description}</p>
         </div>
-      </div>
-
-      {/* 用户评价 */}
-      <div style={styles.section}>
-        <h3 style={styles.sectionTitle}>用户评价 ({player.reviews.length})</h3>
-        {player.reviews.map(review => (
-          <div key={review.id} style={styles.reviewItem}>
-            <div style={styles.reviewHeader}>
-              <span style={styles.reviewerAvatar}>{review.avatar}</span>
-              <div style={styles.reviewerInfo}>
-                <span style={styles.reviewerName}>{review.user}</span>
-                <span style={styles.reviewRating}>⭐ {review.rating}</span>
-              </div>
-              <span style={styles.reviewTime}>{review.time}</span>
-            </div>
-            <p style={styles.reviewContent}>{review.content}</p>
-          </div>
-        ))}
-      </div>
+      )}
 
       {/* 底部操作栏 */}
       <div style={styles.bottomBar}>
@@ -156,8 +177,11 @@ const PlayerDetailPage = () => {
           <span style={styles.chatIcon}>💬</span>
           <span>聊天</span>
         </div>
-        <div style={styles.orderBtn} onClick={() => navigate('/payment')}>
-          立即预约
+        <div
+          style={{ ...styles.orderBtn, ...(creating ? styles.orderBtnDisabled : {}) }}
+          onClick={creating ? undefined : handleOrder}
+        >
+          {creating ? '创建中...' : '立即预约'}
         </div>
       </div>
     </div>
@@ -208,6 +232,16 @@ const styles = {
     flexShrink: 0,
   },
   avatar: {
+    fontSize: '72px',
+    display: 'block',
+  },
+  avatarImg: {
+    width: '72px',
+    height: '72px',
+    borderRadius: '50%',
+    objectFit: 'cover',
+  },
+  avatarEmoji: {
     fontSize: '72px',
     display: 'block',
   },
@@ -465,6 +499,10 @@ const styles = {
     cursor: 'pointer',
     boxShadow: `0 4px 15px ${COLORS.primary}40`,
     border: 'none',
+  },
+  orderBtnDisabled: {
+    opacity: 0.6,
+    cursor: 'not-allowed',
   },
 }
 

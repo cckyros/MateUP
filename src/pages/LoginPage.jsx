@@ -1,8 +1,8 @@
-// 登录页 - 已接入 Zustand store + mockApi
+// 登录页 - 已接入真实 API
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../store'
-import { mockApi } from '../api/mock'
+import { login, register } from '../api/user'
 import { COLORS } from '../constants'
 
 const LoginPage = () => {
@@ -43,13 +43,13 @@ const LoginPage = () => {
       return
     }
 
-    if (isLogin && !code) {
-      setError('请输入验证码')
+    if (!isLogin && password.length < 6) {
+      setError('密码不能少于6位')
       return
     }
 
-    if (!isLogin && (!code || password.length < 6)) {
-      setError('验证码和密码不能为空')
+    if (isLogin && !password) {
+      setError('请输入密码')
       return
     }
 
@@ -57,8 +57,12 @@ const LoginPage = () => {
     setLoading(true)
 
     try {
-      // mockApi 登录（手机号 13800138000，密码 123456）
-      const res = await mockApi.login(phone, password || '123456')
+      let res
+      if (isLogin) {
+        res = await login({ phone, password: password || '123456' })
+      } else {
+        res = await register({ phone, password, username: '用户_' + phone.slice(-4) })
+      }
 
       // 更新 store
       setToken(res.token)
@@ -67,7 +71,7 @@ const LoginPage = () => {
       // 跳转到首页
       navigate('/home')
     } catch (err) {
-      setError(err.message || '登录失败')
+      setError(err?.response?.data?.message || err?.message || '登录失败')
     } finally {
       setLoading(false)
     }

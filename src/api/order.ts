@@ -20,27 +20,28 @@ export interface Order {
   price: number
   status: OrderStatus
   createTime: number
-  payTime?: number
-  completeTime?: number
-  cancelTime?: number
-  cancelReason?: string
+  remark?: string
+  payTime?: number | null
+  completeTime?: number | null
+  cancelTime?: number | null
+  cancelReason?: string | null
 }
 
 // 创建订单
 export const createOrder = (data: CreateOrderParams) =>
-  request.post<Order>('/api/orders', data)
+  request.post<Order>('/api/order/create', data)
 
 // 支付订单
 export const payOrder = (orderId: string, payMethod: 'mock' | 'iap' | 'stripe') =>
-  request.post<Order>(`/api/orders/${orderId}/pay`, { payMethod })
+  request.post<Order>(`/api/order/${orderId}/pay`, { payMethod })
 
 // 取消订单
 export const cancelOrder = (orderId: string, reason?: string) =>
-  request.post<Order>(`/api/orders/${orderId}/cancel`, { reason })
+  request.post<Order>(`/api/order/${orderId}/cancel`, { reason })
 
 // 确认完成订单
 export const completeOrder = (orderId: string) =>
-  request.post<Order>(`/api/orders/${orderId}/complete`)
+  request.post<Order>(`/api/order/${orderId}/complete`)
 
 // 获取订单列表
 export const getOrderList = (params?: {
@@ -53,16 +54,20 @@ export const getOrderList = (params?: {
     total: number
     page: number
     totalPages: number
-  }>('/api/orders', params)
+  }>('/api/order/list', params)
 
 // 获取订单详情
 export const getOrderDetail = (orderId: string) =>
-  request.get<Order>(`/api/orders/${orderId}`)
+  request.get<Order>(`/api/order/${orderId}`)
 
 // 陪玩师：接受订单
 export const acceptOrder = (orderId: string) =>
-  request.post<Order>(`/api/orders/${orderId}/accept`)
+  request.post<Order>(`/api/order/${orderId}/accept`)
 
 // 陪玩师：拒绝订单
 export const rejectOrder = (orderId: string, reason?: string) =>
-  request.post<Order>(`/api/orders/${orderId}/reject`, { reason })
+  request.post<Order>(`/api/order/${orderId}/reject`, { reason })
+
+// 订单评分
+export const rateOrder = (orderId: string, rating: number, ratingComment?: string) =>
+  request.post(`/api/order/${orderId}/rate`, { rating, ratingComment })

@@ -3,12 +3,17 @@
 
 import { create } from 'zustand'
 
+// ========== 用户角色类型 ==========
+export type PlayerStatus = 'none' | 'pending' | 'approved' | 'rejected'
+
 // ========== 用户 Store ==========
-interface User {
+export interface User {
   id: string
   username: string
   avatar?: string
   phone?: string
+  isPlayer: boolean       // 是否已申请为陪玩师
+  playerStatus: PlayerStatus  // 陪玩师申请状态
 }
 
 interface UserState {
@@ -31,6 +36,7 @@ export const useUserStore = create<UserState>((set) => ({
   },
   logout: () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('playerStatus')
     set({ user: null, token: null, isLoggedIn: false })
   },
 }))
@@ -48,6 +54,11 @@ export interface Order {
   price: number
   status: OrderStatus
   createTime: number
+  remark?: string
+  payTime?: number | null
+  completeTime?: number | null
+  cancelTime?: number | null
+  cancelReason?: string | null
 }
 
 interface OrderState {
@@ -81,14 +92,15 @@ export const useOrderStore = create<OrderState>((set) => ({
 export interface Player {
   id: string
   name: string
-  avatar: string
-  rank: string
+  avatar: string | null
+  rank: string | null
   tags: string[]
   price: number
   isOnline: boolean
   games: string[]
   rating: number
   ordersCount: number
+  description?: string
 }
 
 interface PlayerState {
@@ -357,3 +369,88 @@ class WebSocketManager {
 }
 
 export const wsManager = new WebSocketManager()
+
+// ========== 陪玩师 Store (Phase 7) ==========
+export interface PlayerProfile {
+  id: string
+  name: string
+  avatar: string
+  games: string[]
+  price: number
+  rank: string
+  description: string
+  isOnline: boolean
+  rating: number
+  ordersCount: number
+  weeklyOrders: number
+  weeklyEarnings: number
+  balance: number
+  pendingWithdraw: number
+  totalEarnings: number
+}
+
+export interface PlayerOrder {
+  id: string
+  userId: string
+  userName: string
+  userAvatar: string
+  game: string
+  duration: number
+  price: number
+  status: OrderStatus
+  createTime: number
+  remark?: string
+}
+
+export interface Review {
+  id: string
+  orderId: string
+  userName: string
+  userAvatar: string
+  rating: number
+  comment: string
+  createTime: number
+  replied: boolean
+  reply?: string
+}
+
+interface PlayerStore {
+  profile: PlayerProfile | null
+  orders: PlayerOrder[]
+  reviews: Review[]
+  setProfile: (profile: PlayerProfile) => void
+  setOrders: (orders: PlayerOrder[]) => void
+  updateOrderStatus: (orderId: string, status: OrderStatus) => void
+  setReviews: (reviews: Review[]) => void
+}
+
+export const usePlayerStore = create<PlayerStore>((set) => ({
+  profile: null,
+  orders: [],
+  reviews: [],
+  setProfile: (profile) => set({ profile }),
+  setOrders: (orders) => set({ orders }),
+  updateOrderStatus: (orderId, status) =>
+    set((state) => ({
+      orders: state.orders.map((o) => (o.id === orderId ? { ...o, status } : o)),
+    })),
+  setReviews: (reviews) => set({ reviews }),
+}))
+
+// ========== 申请状态 Store (Phase 7) ==========
+interface ApplyState {
+  status: PlayerStatus // none | pending | approved | rejected
+  submittedAt: number | null
+  rejectedReason: string | null
+  setStatus: (status: PlayerStatus, submittedAt?: number, rejectedReason?: string) => void
+}
+
+export const useApplyStore = create<ApplyState>((set) => ({
+  status: (localStorage.getItem('playerStatus') as PlayerStatus) || 'none',
+  submittedAt: null,
+  rejectedReason: null,
+  setStatus: (status, submittedAt, rejectedReason) => {
+    localStorage.setItem('playerStatus', status)
+    set({ status, submittedAt: submittedAt || null, rejectedReason: rejectedReason || null })
+  },
+}))

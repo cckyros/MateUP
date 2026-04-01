@@ -1,38 +1,46 @@
-// 聊天页 - 已集成真实 WebSocket + Zustand 持久化
+// 聊天页 - 已集成真实 WebSocket + 会话列表 API
 import { useState, useRef, useEffect } from 'react'
 import { COLORS } from '../constants'
 import { useChatStore, useUserStore, wsManager } from '../store'
-
-const mockChats = [
-  { id: 1, name: '小美', avatar: '👩', lastMsg: '今晚一起打游戏吗？🎮', time: '刚刚', unread: 2, online: true },
-  { id: 2, name: '阿杰', avatar: '👨', lastMsg: '收到，已上线', time: '10分钟前', unread: 0, online: true },
-  { id: 3, name: '王者荣耀开黑群', avatar: '🎮', lastMsg: '阿珂：差一个人，来就来', time: '30分钟前', unread: 5, online: false, isGroup: true },
-  { id: 4, name: '小林', avatar: '👩', lastMsg: '下次再约~', time: '昨天', unread: 0, online: false },
-]
+import { getConversationList } from '../api/chat'
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat')
   const [selectedChat, setSelectedChat] = useState(null)
   const [message, setMessage] = useState('')
+  const [conversations, setConversations] = useState([])
+  const [loadingConv, setLoadingConv] = useState(true)
   const messagesEndRef = useRef(null)
 
   const { user } = useUserStore()
   const { messages, setMessages, addMessage } = useChatStore()
 
+  // 加载会话列表
+  useEffect(() => {
+    const loadConvs = async () => {
+      try {
+        const data = await getConversationList()
+        setConversations(data.conversations || [])
+      } catch {
+        setConversations([])
+      } finally {
+        setLoadingConv(false)
+      }
+    }
+    if (activeTab === 'chat') loadConvs()
+  }, [activeTab])
+
   // WebSocket 连接与消息监听
   useEffect(() => {
     if (!user?.id) return
 
-    // 连接 WebSocket（真实连接）
     const wsUrl = `ws://192.168.3.14:3000/ws/chat?token=${localStorage.getItem('token') || ''}`
     wsManager.connect(wsUrl)
 
-    // 监听连接状态
     const unsubStatus = wsManager.onStatusChange((status) => {
       console.log('[WS] status:', status)
     })
 
-    // 监听新消息 → 存入 Zustand store
     const unsubMsg = wsManager.onMessage((msg) => {
       const conversationId = msg.to || msg.from
       addMessage(conversationId, {
@@ -44,6 +52,10 @@ const ChatPage = () => {
         timestamp: msg.timestamp || Date.now(),
         isSelf: msg.from === user.id,
       })
+      // 更新会话列表的最近消息
+      setConversations(prev => prev.map(c =>
+        c.partnerId === conversationId ? { ...c, lastMessage: msg.content, lastTime: Date.now() } : c
+      ))
     })
 
     return () => {
@@ -52,15 +64,11 @@ const ChatPage = () => {
     }
   }, [user?.id])
 
-  // 加载聊天记录（从 Zustand store）
+  // 加载聊天记录
   useEffect(() => {
     if (!selectedChat) return
-
-    const chatId = String(selectedChat.id)
-    if (messages[chatId]) {
-      // 已有本地记录
-    } else {
-      // 首次进入，从 mockMessages 初始化（后续替换为真实 API）
+    const chatId = String(selectedChat.partnerId)
+    if (!messages[chatId]) {
       setMessages(chatId, [])
     }
   }, [selectedChat])
@@ -72,7 +80,7 @@ const ChatPage = () => {
   const sendMessage = async () => {
     if (!message.trim() || !selectedChat) return
 
-    const chatId = String(selectedChat.id)
+    const chatId = String(selectedChat.partnerId)
     const msgId = `msg_${Date.now()}`
     const newMsg = {
       id: msgId,
@@ -88,9 +96,8 @@ const ChatPage = () => {
     addMessage(chatId, newMsg)
     setMessage('')
 
-    //通过 WebSocket 发送（wsManager.sendChatMessage 内部会调用 wsManager.send）
     try {
-      await wsManager.sendChatMessage(String(selectedChat.id), message)
+      await wsManager.sendChatMessage(String(selectedChat.partnerId), message)
     } catch (e) {
       console.error('[WS] send failed:', e)
     }
@@ -103,7 +110,7 @@ const ChatPage = () => {
     }
   }
 
-  const currentMessages = selectedChat ? (messages[String(selectedChat.id)] || []) : []
+  const currentMessages = selectedChat ? (messages[String(selectedChat.partnerId)] || []) : []
 
   // ========== 聊天列表视图 ==========
   if (!selectedChat) {
@@ -127,28 +134,37 @@ const ChatPage = () => {
         </div>
 
         <div style={styles.chatList}>
-          {mockChats.map(chat => (
-            <div
-              key={chat.id}
-              style={styles.chatItem}
-              onClick={() => setSelectedChat(chat)}
-            >
-              <div style={styles.avatarWrapper}>
-                <span style={styles.avatar}>{chat.avatar}</span>
-                {chat.online && <span style={styles.onlineDot} />}
-              </div>
-              <div style={styles.chatContent}>
-                <div style={styles.chatTop}>
-                  <span style={styles.chatName}>{chat.name}</span>
-                  <span style={styles.chatTime}>{chat.time}</span>
-                </div>
-                <div style={styles.chatBottom}>
-                  <span style={styles.lastMsg}>{chat.lastMsg}</span>
-                  {chat.unread > 0 && <span style={styles.unreadBadge}>{chat.unread}</span>}
-                </div>
-              </div>
+          {loadingConv ? (
+            <div style={{ ...styles.chatItem, justifyContent: 'center', color: COLORS.textSecondary, fontSize: '13px', padding: '40px' }}>
+              加载中...
             </div>
-          ))}
+          ) : conversations.length === 0 ? (
+            <div style={{ ...styles.chatItem, justifyContent: 'center', color: COLORS.textSecondary, fontSize: '13px', padding: '40px' }}>
+              暂无会话
+            </div>
+          ) : (
+            conversations.map(conv => (
+              <div
+                key={conv.partnerId}
+                style={styles.chatItem}
+                onClick={() => setSelectedChat(conv)}
+              >
+                <div style={styles.avatarWrapper}>
+                  <span style={styles.avatar}>{conv.partnerAvatar || '💫'}</span>
+                </div>
+                <div style={styles.chatContent}>
+                  <div style={styles.chatTop}>
+                    <span style={styles.chatName}>{conv.partnerName}</span>
+                    <span style={styles.chatTime}>{conv.lastTime ? new Date(conv.lastTime).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                  </div>
+                  <div style={styles.chatBottom}>
+                    <span style={styles.lastMsg}>{conv.lastMessage}</span>
+                    {conv.unreadCount > 0 && <span style={styles.unreadBadge}>{conv.unreadCount}</span>}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     )
@@ -160,8 +176,7 @@ const ChatPage = () => {
       <div style={styles.chatHeader}>
         <span style={styles.backBtn} onClick={() => setSelectedChat(null)}>←</span>
         <div style={styles.chatHeaderInfo}>
-          <span style={styles.chatHeaderName}>{selectedChat.name}</span>
-          <span style={styles.chatHeaderStatus}>{selectedChat.online ? '在线' : '离线'}</span>
+          <span style={styles.chatHeaderName}>{selectedChat.partnerName}</span>
         </div>
         <span style={styles.moreBtn}>⋮</span>
       </div>
@@ -183,9 +198,9 @@ const ChatPage = () => {
           }
           return (
             <div key={msg.id} style={styles.otherMsgWrapper}>
-              <span style={styles.otherAvatar}>{selectedChat.avatar}</span>
+              <span style={styles.otherAvatar}>{selectedChat.partnerAvatar || '💫'}</span>
               <div>
-                <span style={styles.otherName}>{selectedChat.name}</span>
+                <span style={styles.otherName}>{selectedChat.partnerName}</span>
                 <div style={styles.otherBubble}>{msg.content}</div>
               </div>
               <span style={styles.msgTime}>

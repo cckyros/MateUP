@@ -16,7 +16,7 @@ export interface RegisterParams {
 export interface UserProfile {
   id: string
   username: string
-  avatar: string
+  avatar: string | null
   phone: string
   createTime: number
 }
@@ -26,19 +26,19 @@ export const login = (data: LoginParams) =>
   request.post<{
     token: string
     user: UserProfile
-  }>('/api/users/login', data)
+  }>('/api/login', data)
 
 // 注册
 export const register = (data: RegisterParams) =>
   request.post<{
     token: string
     user: UserProfile
-  }>('/api/users/register', data)
+  }>('/api/register', data)
 
 // 获取用户信息
 export const getUserProfile = () =>
-  request.get<UserProfile>('/api/users')
+  request.get<UserProfile>('/api/user/profile')
 
 // 更新用户信息
 export const updateUserProfile = (data: Partial<UserProfile>) =>
-  request.put<UserProfile>('/api/users', data)
+  request.put<UserProfile>('/api/user/profile', data)

@@ -1,13 +1,8 @@
-// 优化版陪玩师列表页
-// - 已接入 Zustand store（筛选状态）
-// - 已接入 mockApi（真实模拟请求）
-// - 已移除重复底部 Tab（App.jsx 已有）
-// - FlatList 性能优化
-
+// 陪玩师列表页 - 已接入真实 API
 import { useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlayerStore, useChatStore } from '../store'
-import { mockApi } from '../api/mock'
+import { getPlayers } from '../api/players'
 import { COLORS, GAMES, GAME_NAMES } from '../constants'
 
 // 字段映射：旧字段 → 新字段（兼容性）
@@ -50,7 +45,7 @@ const PlayerListPage = () => {
   useEffect(() => {
     const loadPlayers = async () => {
       try {
-        const { players: rawList } = await mockApi.getPlayers()
+        const { players: rawList } = await getPlayers()
         // 统一字段
         const normalized = rawList.map(normalizePlayer)
         setPlayers(normalized)

@@ -1,9 +1,13 @@
 // 个人中心页 - 已统一暗色风格 + 移除重复底部 Tab
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
+import { useApplyStore } from '../store'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
+  const { status } = useApplyStore()
+  const isPlayer = status === 'approved'
+  const isPending = status === 'pending'
 
   const userData = {
     name: '小明同学',
@@ -17,6 +21,15 @@ const ProfilePage = () => {
     playTime: '126小时',
   }
 
+  // 陪玩师菜单
+  const playerMenuItems = [
+    { icon: '🏠', label: '陪玩师工作台', sub: '管理订单和收入', path: '/player-home' },
+    { icon: '💰', label: '收入中心', sub: '查看和提现收入', path: '/player-earnings' },
+    { icon: '⭐', label: '评价管理', sub: '查看和回复评价', path: '/player-reviews' },
+    { icon: '👤', label: '陪玩师资料', sub: '编辑接单信息', path: '/player-profile' },
+  ]
+
+  // 普通用户菜单
   const menuItems = [
     { icon: '💰', label: '我的钱包', sub: '余额 ¥856.00' },
     { icon: '🎁', label: '优惠券', sub: '5张可用' },
@@ -32,6 +45,8 @@ const ProfilePage = () => {
     { icon: '🔥', text: '连续30天在线' },
     { icon: '🏅', text: '准时达人' },
   ]
+
+  const activeMenuItems = isPlayer ? playerMenuItems : menuItems
 
   return (
     <div style={styles.container}>
@@ -85,11 +100,11 @@ const ProfilePage = () => {
 
       {/* 功能菜单 */}
       <div style={styles.menuSection}>
-        {menuItems.map((item, i) => (
+        {activeMenuItems.map((item: any, i: number) => (
           <div
             key={i}
             style={styles.menuItem}
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate(item.path || '/settings')}
           >
             <div style={styles.menuLeft}>
               <span style={styles.menuIcon}>{item.icon}</span>
@@ -101,6 +116,36 @@ const ProfilePage = () => {
             <span style={styles.menuArrow}>›</span>
           </div>
         ))}
+
+        {/* 申请陪玩师入口（普通用户可见） */}
+        {!isPlayer && !isPending && (
+          <div
+            style={styles.applyBanner}
+            onClick={() => navigate('/apply-player')}
+          >
+            <span style={styles.applyIcon}>🎮</span>
+            <div style={styles.applyInfo}>
+              <p style={styles.applyTitle}>成为陪玩师</p>
+              <p style={styles.applySub}>空闲时间接单，赚取额外收入</p>
+            </div>
+            <span style={styles.applyBtn}>申请</span>
+          </div>
+        )}
+
+        {/* 审核中入口 */}
+        {!isPlayer && isPending && (
+          <div
+            style={styles.applyBanner}
+            onClick={() => navigate('/apply-status')}
+          >
+            <span style={styles.applyIcon}>⏳</span>
+            <div style={styles.applyInfo}>
+              <p style={styles.applyTitle}>申请审核中</p>
+              <p style={styles.applySub}>您的申请正在审核，请耐心等待</p>
+            </div>
+            <span style={styles.applyBtn} onClick={() => navigate('/apply-status')}>查看</span>
+          </div>
+        )}
       </div>
 
       {/* 退出登录 */}
@@ -292,6 +337,43 @@ const styles = {
     borderRadius: '25px',
     fontSize: '15px',
     color: COLORS.textSecondary,
+    cursor: 'pointer',
+  },
+  applyBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '14px',
+    background: `linear-gradient(135deg, ${COLORS.primary}22 0%, ${COLORS.secondary}22 100%)`,
+    border: `1px solid ${COLORS.primary}44`,
+    borderRadius: '12px',
+    marginTop: '12px',
+    cursor: 'pointer',
+  },
+  applyIcon: {
+    fontSize: '28px',
+  },
+  applyInfo: {
+    flex: 1,
+  },
+  applyTitle: {
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+    margin: '0 0 2px 0',
+  },
+  applySub: {
+    fontSize: '12px',
+    color: COLORS.textSecondary,
+    margin: 0,
+  },
+  applyBtn: {
+    padding: '6px 16px',
+    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
+    borderRadius: '16px',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    color: '#fff',
     cursor: 'pointer',
   },
 }

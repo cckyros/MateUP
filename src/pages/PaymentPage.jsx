@@ -1,26 +1,57 @@
-// 支付页 - 已统一暗色风格
+// 支付页 - 已接入真实 API
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { COLORS } from '../constants'
+import { getOrderDetail, payOrder } from '../api/order'
+
+// 游戏中文名映射
+const GAME_NAMES = {
+  honor: '王者荣耀',
+  apex: '和平精英',
+  lol: '英雄联盟',
+  yongjie: '永劫无间',
+  danzai: '蛋仔派对',
+}
 
 const PaymentPage = () => {
   const navigate = useNavigate()
-  const [selectedMethod, setSelectedMethod] = useState('wechat')
+  const { id } = useParams()
+  const [order, setOrder] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [paying, setPaying] = useState(false)
+  const [selectedMethod, setSelectedMethod] = useState('mock') // mock支付
   const [countdown, setCountdown] = useState(15 * 60)
+
+  // 加载订单
+  useEffect(() => {
+    if (!id) {
+      setLoading(false)
+      return
+    }
+    const load = async () => {
+      try {
+        const data = await getOrderDetail(id)
+        setOrder(data)
+      } catch {
+        setOrder(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [id])
 
   // 倒计时
   useEffect(() => {
+    if (!order) return
     const timer = setInterval(() => {
       setCountdown(prev => {
-        if (prev <= 0) {
-          clearInterval(timer)
-          return 0
-        }
+        if (prev <= 0) { clearInterval(timer); return 0 }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [order])
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
@@ -28,23 +59,41 @@ const PaymentPage = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  const order = {
-    id: 'PG20260324002',
-    amount: 160,
-    booster: '小美',
-    game: '王者荣耀',
-    duration: 2,
+  const handlePay = async () => {
+    if (!order || paying) return
+    setPaying(true)
+    try {
+      await payOrder(order.id, selectedMethod)
+      alert('支付成功！')
+      navigate('/orders')
+    } catch (err) {
+      alert(err?.response?.data?.message || '支付失败')
+    } finally {
+      setPaying(false)
+    }
   }
 
+  const gameName = order ? (GAME_NAMES[order.game] || order.game) : ''
+
   const paymentMethods = [
-    { id: 'wechat', name: '微信支付', icon: '💳', desc: '推荐' },
-    { id: 'alipay', name: '支付宝', icon: '💰', desc: '' },
-    { id: 'bank', name: '银行卡', icon: '🏦', desc: '' },
+    { id: 'mock', name: '模拟支付', icon: '💳', desc: '测试用' },
   ]
 
-  const handlePay = () => {
-    alert('支付成功！')
-    navigate('/orders')
+  if (loading) {
+    return (
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: COLORS.textSecondary }}>加载中...</span>
+      </div>
+    )
+  }
+
+  if (!order) {
+    return (
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px' }}>
+        <span style={{ color: COLORS.error }}>订单不存在</span>
+        <span style={{ color: COLORS.textSecondary, fontSize: '13px', cursor: 'pointer' }} onClick={() => navigate('/home')}>返回首页</span>
+      </div>
+    )
   }
 
   return (
@@ -59,15 +108,15 @@ const PaymentPage = () => {
       {/* 倒计时 */}
       <div style={styles.countdownBar}>
         <span style={styles.countdownLabel}>剩余支付时间</span>
-        <span style={styles.countdownTime}>{formatTime(countdown)}</span>
+        <span style={styles.countdownTime}>{countdown > 0 ? formatTime(countdown) : '已过期'}</span>
       </div>
 
       {/* 订单摘要 */}
       <div style={styles.orderSummary}>
         {[
           { label: '订单编号', value: order.id },
-          { label: '陪玩师', value: order.booster },
-          { label: '游戏', value: order.game },
+          { label: '陪玩师', value: order.playerName },
+          { label: '游戏', value: gameName },
           { label: '时长', value: `${order.duration}小时` },
         ].map((item, i) => (
           <div key={i} style={styles.summaryRow}>
@@ -109,13 +158,17 @@ const PaymentPage = () => {
       {/* 支付金额 */}
       <div style={styles.amountSection}>
         <span style={styles.amountLabel}>支付金额</span>
-        <span style={styles.amountValue}>¥{order.amount}</span>
+        <span style={styles.amountValue}>¥{order.price}</span>
       </div>
 
       {/* 支付按钮 */}
       <div style={styles.bottomBar}>
-        <button style={styles.payBtn} onClick={handlePay}>
-          确认支付 ¥{order.amount}
+        <button
+          style={{ ...styles.payBtn, ...(paying ? styles.payBtnDisabled : {}) }}
+          onClick={handlePay}
+          disabled={paying}
+        >
+          {paying ? '支付中...' : `确认支付 ¥${order.price}`}
         </button>
       </div>
 
@@ -287,6 +340,10 @@ const styles = {
     fontWeight: 'bold',
     cursor: 'pointer',
     boxShadow: `0 4px 15px ${COLORS.primary}40`,
+  },
+  payBtnDisabled: {
+    opacity: 0.6,
+    cursor: 'not-allowed',
   },
   securityTip: {
     textAlign: 'center',

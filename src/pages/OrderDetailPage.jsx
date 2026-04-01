@@ -1,47 +1,120 @@
-// 订单详情页 - 已统一暗色风格 + 订单评价功能
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+// 订单详情页 - 已接入真实 API
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { COLORS } from '../constants'
+import { getOrderDetail, cancelOrder, completeOrder } from '../api/order'
 import OrderRating from '../components/OrderRating'
+
+const STATUS_MAP = {
+  CREATED: { label: '待支付', color: '#FFD700', desc: '请在规定时间内完成支付' },
+  WAIT_ACCEPT: { label: '待接单', color: '#FFD700', desc: '陪玩师还未接单，可取消订单' },
+  IN_PROGRESS: { label: '进行中', color: COLORS.primary, desc: '陪玩进行中，请耐心等待' },
+  COMPLETED: { label: '已完成', color: COLORS.success, desc: '订单已完成，感谢使用伴游' },
+  CANCELLED: { label: '已取消', color: COLORS.textSecondary, desc: '订单已取消' },
+}
+
+const GAME_NAMES = {
+  honor: '王者荣耀',
+  apex: '和平精英',
+  lol: '英雄联盟',
+  yongjie: '永劫无间',
+  danzai: '蛋仔派对',
+}
 
 const OrderDetailPage = () => {
   const navigate = useNavigate()
-  const [orderStatus, setOrderStatus] = useState('已完成')
+  const { id } = useParams()
+  const [order, setOrder] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [showCancelModal, setShowCancelModal] = useState(false)
+  const [actionLoading, setActionLoading] = useState(false)
   const [showRating, setShowRating] = useState(false)
+  const [rated, setRated] = useState(false) // 追踪是否已评价
 
-  const order = {
-    id: 'PG20260324002',
-    status: '已完成',
-    statusColor: '#999999',
-    game: '王者荣耀',
-    gameIcon: '🎮',
-    booster: {
-      name: '小美',
-      avatar: '👩',
-      level: '金牌陪玩',
-      rating: 4.9,
-      online: true,
-    },
-    levelUp: '星耀3 → 星耀2',
-    duration: 2,
-    price: 80,
-    total: 160,
-    createTime: '2026-03-24 14:00',
-    startTime: '今天 20:00',
-    remark: '希望小姐姐能带我上分，心态好不骂人',
-    rating: null, // null=未评价, 1-5=已评价
+  useEffect(() => {
+    if (!id) { setLoading(false); return }
+    const load = async () => {
+      try {
+        const data = await getOrderDetail(id)
+        setOrder(data)
+      } catch {
+        setOrder(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [id])
+
+  const handleCancel = async () => {
+    if (!order) return
+    setActionLoading(true)
+    try {
+      await cancelOrder(order.id)
+      const updated = await getOrderDetail(order.id)
+      setOrder(updated)
+      setShowCancelModal(false)
+    } catch (err) {
+      alert(err?.response?.data?.message || '取消失败')
+    } finally {
+      setActionLoading(false)
+    }
   }
 
-  const handleCancel = () => {
-    setShowCancelModal(false)
-    setOrderStatus('已取消')
+  const handleComplete = async () => {
+    if (!order) return
+    setActionLoading(true)
+    try {
+      await completeOrder(order.id)
+      const updated = await getOrderDetail(order.id)
+      setOrder(updated)
+    } catch (err) {
+      alert(err?.response?.data?.message || '操作失败')
+    } finally {
+      setActionLoading(false)
+    }
   }
 
-  const handleRateSubmit = ({ rating, comment }) => {
-    setOrderStatus('已评价')
+  const handleRate = async ({ rating, comment }) => {
     setShowRating(false)
+    setRated(true)
+    try {
+      const token = localStorage.getItem('token')
+      await fetch(`http://192.168.3.14:3000/api/order/${order.id}/rate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rating, comment }),
+      })
+      const updated = await getOrderDetail(order.id)
+      setOrder(updated)
+    } catch (err) {
+      alert(err?.response?.data?.message || '评价失败')
+    }
   }
+
+  if (loading) {
+    return (
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: COLORS.textSecondary }}>加载中...</span>
+      </div>
+    )
+  }
+
+  if (!order) {
+    return (
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px' }}>
+        <span style={{ color: COLORS.error }}>订单不存在</span>
+        <span style={{ color: COLORS.textSecondary, fontSize: '13px', cursor: 'pointer' }} onClick={() => navigate('/home')}>返回首页</span>
+      </div>
+    )
+  }
+
+  const statusInfo = STATUS_MAP[order.status] || { label: order.status, color: COLORS.textSecondary, desc: '' }
+  const gameName = GAME_NAMES[order.game] || order.game || '游戏'
+  const unitPrice = order.duration > 0 ? Math.round(order.price / order.duration) : order.price
 
   return (
     <div style={styles.container}>
@@ -55,26 +128,17 @@ const OrderDetailPage = () => {
       {/* 状态卡片 */}
       <div style={styles.statusCard}>
         <div style={styles.statusIcon}>
-          {orderStatus === '待接单' && '⏳'}
-          {orderStatus === '进行中' && '🎮'}
-          {(orderStatus === '已完成' || orderStatus === '已评价') && '✅'}
-          {orderStatus === '已取消' && '❌'}
-          {orderStatus === '待支付' && '💳'}
+          {order.status === 'WAIT_ACCEPT' && '⏳'}
+          {order.status === 'IN_PROGRESS' && '🎮'}
+          {order.status === 'COMPLETED' && '✅'}
+          {order.status === 'CANCELLED' && '❌'}
+          {order.status === 'CREATED' && '💳'}
         </div>
         <div style={styles.statusInfo}>
-          <span style={{
-            ...styles.statusText,
-            color: orderStatus === '已取消' ? COLORS.textSecondary : order.statusColor
-          }}>
-            {orderStatus}
+          <span style={{ ...styles.statusText, color: statusInfo.color }}>
+            {statusInfo.label}
           </span>
-          <span style={styles.statusDesc}>
-            {orderStatus === '待接单' && '陪玩师还未接单，可取消订单'}
-            {orderStatus === '进行中' && '陪玩进行中，请耐心等待'}
-            {(orderStatus === '已完成' || orderStatus === '已评价') && '订单已完成，感谢使用伴游'}
-            {orderStatus === '已取消' && '订单已取消'}
-            {orderStatus === '待支付' && '请在30分钟内完成支付'}
-          </span>
+          <span style={styles.statusDesc}>{statusInfo.desc}</span>
         </div>
       </div>
 
@@ -82,15 +146,13 @@ const OrderDetailPage = () => {
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>陪玩师</h3>
         <div style={styles.boosterCard}>
-          <div style={styles.boosterAvatar}>{order.booster.avatar}</div>
+          <div style={styles.boosterAvatar}>💫</div>
           <div style={styles.boosterInfo}>
-            <span style={styles.boosterName}>{order.booster.name}</span>
-            <span style={styles.boosterLevel}>{order.booster.level}</span>
-            <span style={styles.boosterRating}>⭐ {order.booster.rating}</span>
+            <span style={styles.boosterName}>{order.playerName}</span>
+            <span style={styles.boosterLevel}>陪玩师</span>
           </div>
           <div style={styles.boosterActions}>
             <div style={styles.chatBtn} onClick={() => navigate('/chat')}>💬</div>
-            <div style={styles.callBtn}>📞</div>
           </div>
         </div>
       </div>
@@ -101,12 +163,10 @@ const OrderDetailPage = () => {
         <div style={styles.infoGrid}>
           {[
             { label: '订单编号', value: order.id },
-            { label: '游戏', value: `${order.gameIcon} ${order.game}` },
-            { label: '段位要求', value: order.levelUp },
+            { label: '游戏', value: gameName },
             { label: '陪玩时长', value: `${order.duration}小时` },
-            { label: '预约时间', value: order.startTime },
-            { label: '下单时间', value: order.createTime },
-            { label: '备注', value: order.remark },
+            { label: '下单时间', value: new Date(order.createTime).toLocaleString('zh-CN') },
+            ...(order.remark ? [{ label: '备注', value: order.remark }] : []),
           ].map((item, i) => (
             <div key={i} style={styles.infoRow}>
               <span style={styles.infoLabel}>{item.label}</span>
@@ -122,32 +182,31 @@ const OrderDetailPage = () => {
         <div style={styles.priceCard}>
           <div style={styles.priceRow}>
             <span style={styles.priceLabel}>单价</span>
-            <span style={styles.priceText}>¥{order.price}/小时 × {order.duration}小时</span>
+            <span style={styles.priceText}>¥{unitPrice}/小时 × {order.duration}小时</span>
           </div>
           <div style={styles.priceDivider} />
           <div style={styles.priceRow}>
             <span style={styles.totalLabel}>应付总额</span>
-            <span style={styles.totalValue}>¥{order.total}</span>
+            <span style={styles.totalValue}>¥{order.price}</span>
           </div>
         </div>
       </div>
 
       {/* 操作按钮 */}
       <div style={styles.bottomBar}>
-        {orderStatus === '待接单' && (
+        {order.status === 'WAIT_ACCEPT' && (
           <>
             <div style={styles.cancelBtn} onClick={() => setShowCancelModal(true)}>取消订单</div>
-            <div style={styles.editBtn}>修改备注</div>
           </>
         )}
-        {orderStatus === '进行中' && (
+        {order.status === 'IN_PROGRESS' && (
           <div style={styles.chatMainBtn} onClick={() => navigate('/chat')}>
             💬 联系陪玩
           </div>
         )}
-        {(orderStatus === '已完成') && (
+        {order.status === 'COMPLETED' && (
           <>
-            {order.rating === null && (
+            {!rated && (
               <div style={styles.rateBtn} onClick={() => setShowRating(true)}>
                 ⭐ 立即评价
               </div>
@@ -156,11 +215,6 @@ const OrderDetailPage = () => {
               再次预约
             </div>
           </>
-        )}
-        {orderStatus === '已评价' && (
-          <div style={styles.reOrderBtn} onClick={() => navigate('/home')}>
-            再次预约
-          </div>
         )}
       </div>
 
@@ -172,7 +226,12 @@ const OrderDetailPage = () => {
             <p style={styles.modalDesc}>取消后将退还全部金额</p>
             <div style={styles.modalBtns}>
               <div style={styles.modalCancel} onClick={() => setShowCancelModal(false)}>暂不取消</div>
-              <div style={styles.modalConfirm} onClick={handleCancel}>确认取消</div>
+              <div
+                style={{ ...styles.modalConfirm, ...(actionLoading ? { opacity: 0.6 } : {}) }}
+                onClick={actionLoading ? undefined : handleCancel}
+              >
+                {actionLoading ? '取消中...' : '确认取消'}
+              </div>
             </div>
           </div>
         </div>
@@ -182,10 +241,31 @@ const OrderDetailPage = () => {
       {showRating && (
         <OrderRating
           orderId={order.id}
-          playerName={order.booster.name}
-          onSubmit={handleRateSubmit}
+          playerName={order.playerName}
+          onSubmit={handleRate}
           onClose={() => setShowRating(false)}
         />
+      )}
+    </div>
+  )
+
+      {/* 取消弹窗 */}
+      {showCancelModal && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modal}>
+            <h3 style={styles.modalTitle}>确认取消订单？</h3>
+            <p style={styles.modalDesc}>取消后将退还全部金额</p>
+            <div style={styles.modalBtns}>
+              <div style={styles.modalCancel} onClick={() => setShowCancelModal(false)}>暂不取消</div>
+              <div
+                style={{ ...styles.modalConfirm, ...(actionLoading ? { opacity: 0.6 } : {}) }}
+                onClick={actionLoading ? undefined : handleCancel}
+              >
+                {actionLoading ? '取消中...' : '确认取消'}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -1,80 +1,90 @@
-// 订单页 - 已统一暗色风格
-import { useState } from 'react'
+// 订单页 - 已接入真实 API
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
+import { getOrderList, cancelOrder, completeOrder } from '../api/order'
+import { OrderStatus } from '../store'
+
+// 状态映射：API状态值 → 显示标签 + 颜色
+const STATUS_MAP = {
+  CREATED: { label: '待支付', color: '#FFD700' },
+  WAIT_ACCEPT: { label: '待接单', color: '#FFD700' },
+  IN_PROGRESS: { label: '进行中', color: COLORS.primary },
+  COMPLETED: { label: '已完成', color: COLORS.success },
+  CANCELLED: { label: '已取消', color: COLORS.textSecondary },
+}
 
 const orderTabs = ['全部', '待接单', '进行中', '已完成']
 
-const mockOrders = [
-  {
-    id: 'PG20260324001',
-    status: '进行中',
-    statusColor: COLORS.primary,
-    type: '王者荣耀',
-    booster: '小美',
-    boosterAvatar: '👩',
-    level: '星耀3 → 星耀2',
-    duration: '2小时',
-    price: '¥80.00',
-    time: '今天 14:00 开始',
-    created: '30分钟前',
-    gameIcon: '🎮',
-  },
-  {
-    id: 'PG20260324002',
-    status: '待接单',
-    statusColor: '#FFD700',
-    type: '和平精英',
-    booster: '待分配',
-    boosterAvatar: '⏳',
-    level: '黄金 → 铂金',
-    duration: '3小时',
-    price: '¥120.00',
-    time: '明天 20:00',
-    created: '1小时前',
-    gameIcon: '🔫',
-  },
-  {
-    id: 'PG20260323003',
-    status: '已完成',
-    statusColor: COLORS.success,
-    type: '英雄联盟',
-    booster: '阿杰',
-    boosterAvatar: '👨',
-    level: '钻石3 → 钻石2',
-    duration: '4小时',
-    price: '¥200.00',
-    time: '昨天 已完成',
-    created: '昨天 15:00',
-    gameIcon: '⚔️',
-  },
-  {
-    id: 'PG20260323004',
-    status: '已完成',
-    statusColor: COLORS.success,
-    type: '王者荣耀',
-    booster: '小林',
-    boosterAvatar: '👩',
-    level: '星耀1 → 王者',
-    duration: '6小时',
-    price: '¥350.00',
-    time: '03-22 已完成',
-    created: '03-22',
-    gameIcon: '🎮',
-  },
-]
+// 游戏中文名
+const GAME_NAMES = {
+  honor: '王者荣耀',
+  apex: '和平精英',
+  lol: '英雄联盟',
+  yongjie: '永劫无间',
+  danzai: '蛋仔派对',
+}
+
+const formatTime = (ts) => {
+  const d = new Date(ts)
+  const now = new Date()
+  const diff = now - d
+  if (diff < 60000) return '刚刚'
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
+  return d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+}
 
 const OrdersPage = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('全部')
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const loadOrders = async () => {
+    try {
+      const data = await getOrderList()
+      setOrders(data.orders || [])
+    } catch {
+      setOrders([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadOrders()
+  }, [])
+
+  const handleCancel = async (orderId) => {
+    if (!confirm('确认取消订单？')) return
+    try {
+      await cancelOrder(orderId)
+      loadOrders()
+    } catch (err) {
+      alert(err?.response?.data?.message || '取消失败')
+    }
+  }
+
+  const handleComplete = async (orderId) => {
+    try {
+      await completeOrder(orderId)
+      loadOrders()
+    } catch (err) {
+      alert(err?.response?.data?.message || '操作失败')
+    }
+  }
 
   const getFilteredOrders = () => {
-    if (activeTab === '全部') return mockOrders
-    if (activeTab === '待接单') return mockOrders.filter(o => o.status === '待接单')
-    if (activeTab === '进行中') return mockOrders.filter(o => o.status === '进行中')
-    if (activeTab === '已完成') return mockOrders.filter(o => o.status === '已完成')
-    return mockOrders
+    let result = orders
+    if (activeTab === '待接单') result = result.filter(o => o.status === 'WAIT_ACCEPT')
+    else if (activeTab === '进行中') result = result.filter(o => o.status === 'IN_PROGRESS')
+    else if (activeTab === '已完成') result = result.filter(o => o.status === 'COMPLETED')
+    return result
   }
+
+  const getStatusInfo = (status) => STATUS_MAP[status] || { label: status, color: COLORS.textSecondary }
+  const getGameName = (game) => GAME_NAMES[game] || game || '游戏'
 
   return (
     <div style={styles.container}>
@@ -121,69 +131,81 @@ const OrdersPage = () => {
 
       {/* 订单列表 */}
       <div style={styles.orderList}>
-        {getFilteredOrders().length === 0 ? (
+        {loading ? (
+          <div style={{ ...styles.empty, color: COLORS.textSecondary }}>加载中...</div>
+        ) : getFilteredOrders().length === 0 ? (
           <div style={styles.empty}>
             <span style={styles.emptyIcon}>📋</span>
             <p style={styles.emptyText}>暂无订单</p>
           </div>
         ) : (
-          getFilteredOrders().map(order => (
-            <div
-              key={order.id}
-              style={styles.orderCard}
-              onClick={() => navigate(`/order-detail/${order.id}`)}
-            >
-              <div style={styles.orderTop}>
-                <span style={styles.gameTag}>
-                  <span style={styles.gameIcon}>{order.gameIcon}</span>
-                  {order.type}
-                </span>
-                <span style={{ ...styles.orderStatus, color: order.statusColor }}>
-                  {order.status}
-                </span>
-              </div>
+          getFilteredOrders().map(order => {
+            const statusInfo = getStatusInfo(order.status)
+            return (
+              <div
+                key={order.id}
+                style={styles.orderCard}
+                onClick={() => navigate(`/order-detail/${order.id}`)}
+              >
+                <div style={styles.orderTop}>
+                  <span style={styles.gameTag}>
+                    {getGameName(order.game)}
+                  </span>
+                  <span style={{ ...styles.orderStatus, color: statusInfo.color }}>
+                    {statusInfo.label}
+                  </span>
+                </div>
 
-              <div style={styles.boosterInfo}>
-                <span style={styles.boosterAvatar}>{order.boosterAvatar}</span>
-                <div style={styles.boosterDetail}>
-                  <span style={styles.boosterName}>{order.booster}</span>
-                  <span style={styles.boostLevel}>{order.level}</span>
+                <div style={styles.boosterInfo}>
+                  <span style={styles.boosterAvatar}>💫</span>
+                  <div style={styles.boosterDetail}>
+                    <span style={styles.boosterName}>{order.playerName}</span>
+                    <span style={styles.boostLevel}>{order.duration}小时</span>
+                  </div>
+                  <div style={styles.duration}>
+                    <span style={styles.durationLabel}>时长</span>
+                    <span style={styles.durationValue}>{order.duration}小时</span>
+                  </div>
                 </div>
-                <div style={styles.duration}>
-                  <span style={styles.durationLabel}>时长</span>
-                  <span style={styles.durationValue}>{order.duration}</span>
-                </div>
-              </div>
 
-              <div style={styles.orderBottom}>
-                <div style={styles.orderTime}>
-                  <span>📅 {order.time}</span>
+                <div style={styles.orderBottom}>
+                  <div style={styles.orderTime}>
+                    <span>📅 {formatTime(order.createTime)}</span>
+                  </div>
+                  <div style={styles.orderPrice}>
+                    <span style={styles.priceLabel}>总价</span>
+                    <span style={styles.priceValue}>¥{order.price}</span>
+                  </div>
                 </div>
-                <div style={styles.orderPrice}>
-                  <span style={styles.priceLabel}>总价</span>
-                  <span style={styles.priceValue}>{order.price}</span>
-                </div>
-              </div>
 
-              <div style={styles.orderFooter}>
-                <span style={styles.orderId}>订单号: {order.id}</span>
-                <span style={styles.orderCreated}>{order.created}</span>
-              </div>
+                <div style={styles.orderFooter}>
+                  <span style={styles.orderId}>订单号: {order.id}</span>
+                  <span style={styles.orderCreated}>{formatTime(order.createTime)}</span>
+                </div>
 
-              {order.status === '待接单' && (
-                <div style={styles.actionBar}>
-                  <span style={styles.cancelBtn}>取消订单</span>
-                  <span style={styles.editBtn}>修改需求</span>
-                </div>
-              )}
-              {order.status === '进行中' && (
-                <div style={styles.actionBar}>
-                  <span style={styles.chatBtn}>💬 联系陪玩</span>
-                  <span style={styles.finishBtn}>确认完成</span>
-                </div>
-              )}
-            </div>
-          ))
+                {order.status === 'WAIT_ACCEPT' && (
+                  <div style={styles.actionBar}>
+                    <span
+                      style={styles.cancelBtn}
+                      onClick={(e) => { e.stopPropagation(); handleCancel(order.id) }}
+                    >
+                      取消订单
+                    </span>
+                  </div>
+                )}
+                {order.status === 'IN_PROGRESS' && (
+                  <div style={styles.actionBar}>
+                    <span
+                      style={styles.finishBtn}
+                      onClick={(e) => { e.stopPropagation(); handleComplete(order.id) }}
+                    >
+                      确认完成
+                    </span>
+                  </div>
+                )}
+              </div>
+            )
+          })
         )}
       </div>
     </div>
