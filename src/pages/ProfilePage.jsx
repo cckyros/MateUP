@@ -1,13 +1,37 @@
 // 个人中心页 - 已统一暗色风格 + 移除重复底部 Tab
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { useApplyStore } from '../store'
+import { useUserStore } from '../store'
+import { getApplyStatus } from '../api/apply'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
-  const { status } = useApplyStore()
+  const { status, setStatus } = useApplyStore()
+  const user = useUserStore((s) => s.user)
+  const setUser = useUserStore((s) => s.setUser)
   const isPlayer = status === 'approved'
   const isPending = status === 'pending'
+
+  // 每次进入页面，同步最新的申请状态
+  useEffect(() => {
+    if (!user) return
+    getApplyStatus()
+      .then((res) => {
+        const statusMap: Record<number, string> = {
+          1: 'pending',
+          3: 'approved',
+          4: 'rejected',
+        }
+        const s = statusMap[res.step] || 'none'
+        setStatus(s as any, res.submittedAt || null, res.rejectedReason || null)
+        if (user) {
+          setUser({ ...user, playerStatus: s as any, isPlayer: s === 'approved' })
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const userData = {
     name: '小明同学',

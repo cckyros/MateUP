@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../store'
 import { login, register } from '../api/user'
+import { getApplyStatus } from '../api/apply'
 import { COLORS } from '../constants'
 
 const LoginPage = () => {
@@ -66,7 +67,20 @@ const LoginPage = () => {
 
       // 更新 store
       setToken(res.token)
-      setUser(res.user)
+
+      // 同步获取陪玩师申请状态
+      try {
+        const applyRes = await getApplyStatus()
+        const statusMap: Record<number, string> = {
+          1: 'pending',
+          3: 'approved',
+          4: 'rejected',
+        }
+        const playerStatus = statusMap[applyRes.step] || 'none'
+        setUser({ ...res.user, playerStatus: playerStatus as any, isPlayer: playerStatus === 'approved' })
+      } catch {
+        setUser({ ...res.user, playerStatus: 'none', isPlayer: false })
+      }
 
       // 跳转到首页
       navigate('/home')

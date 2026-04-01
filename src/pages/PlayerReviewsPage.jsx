@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { usePlayerStore } from '../store'
 import { mockApi } from '../api/mock'
+import { getPlayerReviews, replyReview } from '../api/playerApi'
 
 export default function PlayerReviewsPage() {
   const navigate = useNavigate()
@@ -12,13 +13,13 @@ export default function PlayerReviewsPage() {
   const [replyText, setReplyText] = useState('')
 
   useEffect(() => {
-    mockApi.getPlayerReviews().then((res) => setReviews(res.reviews))
+    getPlayerReviews().then((res) => setReviews(res.reviews)).catch(() => {})
   }, [])
 
   const handleReply = async (reviewId: string) => {
     if (!replyText.trim()) return
     setReplying(reviewId)
-    await mockApi.replyReview(reviewId, replyText)
+    await replyReview(reviewId, replyText)
     usePlayerStore.getState().setReviews(
       reviews.map((r) =>
         r.id === reviewId ? { ...r, replied: true, reply: replyText } : r

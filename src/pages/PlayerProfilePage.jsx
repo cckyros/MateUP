@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { COLORS, GAME_NAMES } from '../constants'
 import { usePlayerStore } from '../store'
 import { mockApi } from '../api/mock'
+import { getPlayerProfile, updatePlayerProfile } from '../api/playerApi'
 
 export default function PlayerProfilePage() {
   const navigate = useNavigate()
@@ -13,7 +14,7 @@ export default function PlayerProfilePage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    mockApi.getPlayerProfile().then((res) => {
+    getPlayerProfile().then((res) => {
       setProfile(res)
       setForm({
         price: res.price,
@@ -21,12 +22,12 @@ export default function PlayerProfilePage() {
         description: res.description,
         games: res.games,
       })
-    })
+    }).catch(() => {})
   }, [])
 
   const handleSave = async () => {
     setSaving(true)
-    await mockApi.updatePlayerProfile(form)
+    await updatePlayerProfile(form)
     setProfile({ ...profile!, ...form })
     setEditing(false)
     setSaving(false)

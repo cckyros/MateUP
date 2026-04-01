@@ -18,7 +18,9 @@ export interface UserProfile {
   username: string
   avatar: string | null
   phone: string
-  createTime: number
+  isPlayer: boolean
+  playerStatus: 'none' | 'pending' | 'approved' | 'rejected'
+  createTime?: number
 }
 
 // 登录
@@ -37,8 +39,8 @@ export const register = (data: RegisterParams) =>
 
 // 获取用户信息
 export const getUserProfile = () =>
-  request.get<UserProfile>('/api/user/profile')
+  request.get<UserProfile>('/api/profile')
 
 // 更新用户信息
 export const updateUserProfile = (data: Partial<UserProfile>) =>
-  request.put<UserProfile>('/api/user/profile', data)
+  request.put<UserProfile>('/api/profile', data)

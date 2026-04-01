@@ -1,11 +1,33 @@
 // 审核中状态页 - Phase 7
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { useApplyStore } from '../store'
+import { getApplyStatus } from '../api/apply'
 
 export default function ApplyStatusPage() {
   const navigate = useNavigate()
-  const { status, submittedAt } = useApplyStore()
+  const { status, submittedAt, setStatus } = useApplyStore()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // 从真实 API 获取最新状态
+    getApplyStatus()
+      .then((res) => {
+        // step: 1=PENDING, 3=APPROVED, 4=REJECTED
+        const statusMap: Record<number, string> = {
+          1: 'pending',
+          3: 'approved',
+          4: 'rejected',
+        }
+        const s = statusMap[res.step] || 'pending'
+        setStatus(s as any, res.submittedAt || null, res.rejectedReason || null)
+      })
+      .catch(() => {
+        // API 失败时用本地缓存状态
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
   const timeStr = submittedAt
     ? new Date(submittedAt).toLocaleString('zh-CN', { dateStyle: 'medium', timeStyle: 'short' })

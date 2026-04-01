@@ -3,7 +3,8 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { usePlayerStore } from '../store'
-import { mockApi } from '../api/mock'
+import { acceptOrder, rejectOrder } from '../api/order'
+import { getPlayerProfile, getPlayerOrders, setOnlineStatus } from '../api/playerApi'
 import { ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '../constants'
 
 export default function PlayerHomePage() {
@@ -11,8 +12,8 @@ export default function PlayerHomePage() {
   const { profile, orders, setProfile, setOrders } = usePlayerStore()
 
   useEffect(() => {
-    mockApi.getPlayerProfile().then((res) => setProfile(res))
-    mockApi.getPlayerOrders().then((res) => setOrders(res.orders))
+    getPlayerProfile().then((res) => setProfile(res)).catch(() => {})
+    getPlayerOrders().then((res) => setOrders(res.orders)).catch(() => {})
   }, [])
 
   const pendingOrders = orders.filter((o) => o.status === 'WAIT_ACCEPT')
@@ -103,7 +104,7 @@ export default function PlayerHomePage() {
               <div style={styles.orderActions}>
                 <button
                   style={styles.acceptBtn}
-                  onClick={() => mockApi.respondPlayerOrder(order.id, 'accept').then(() => {
+                  onClick={() => acceptOrder(order.id).then(() => {
                     usePlayerStore.getState().updateOrderStatus(order.id, 'IN_PROGRESS')
                   })}
                 >
@@ -111,7 +112,7 @@ export default function PlayerHomePage() {
                 </button>
                 <button
                   style={styles.rejectBtn}
-                  onClick={() => mockApi.respondPlayerOrder(order.id, 'reject').then(() => {
+                  onClick={() => rejectOrder(order.id).then(() => {
                     usePlayerStore.getState().updateOrderStatus(order.id, 'CANCELLED')
                   })}
                 >

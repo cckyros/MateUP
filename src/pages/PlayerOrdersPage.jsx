@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { COLORS, ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '../constants'
 import { usePlayerStore } from '../store'
 import { mockApi } from '../api/mock'
+import { getPlayerOrders } from '../api/playerApi'
+import { acceptOrder, rejectOrder, completeOrder } from '../api/order'
 
 const TABS = [
   { key: 'WAIT_ACCEPT', label: '待接单' },
@@ -18,17 +20,17 @@ export default function PlayerOrdersPage() {
   const [activeTab, setActiveTab] = useState('WAIT_ACCEPT')
 
   useEffect(() => {
-    mockApi.getPlayerOrders().then((res) => setOrders(res.orders))
+    getPlayerOrders().then((res) => setOrders(res.orders)).catch(() => {})
   }, [])
 
   const filtered = orders.filter((o) => o.status === activeTab)
 
   const handleAction = async (orderId: string, action: 'accept' | 'reject') => {
     if (action === 'accept') {
-      await mockApi.respondPlayerOrder(orderId, 'accept')
+      await acceptOrder(orderId)
       updateOrderStatus(orderId, 'IN_PROGRESS')
     } else {
-      await mockApi.respondPlayerOrder(orderId, 'reject')
+      await rejectOrder(orderId)
       updateOrderStatus(orderId, 'CANCELLED')
     }
   }
@@ -126,7 +128,7 @@ export default function PlayerOrdersPage() {
                   <button
                     style={styles.completeBtn}
                     onClick={() => {
-                      mockApi.respondPlayerOrder(order.id, 'complete')
+                      completeOrder(order.id)
                       updateOrderStatus(order.id, 'COMPLETED')
                     }}
                   >

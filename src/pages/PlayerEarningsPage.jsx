@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { mockApi } from '../api/mock'
+import { getEarningsOverview, getEarningsList, withdraw } from '../api/playerApi'
 
 export default function PlayerEarningsPage() {
   const navigate = useNavigate()
@@ -10,15 +11,25 @@ export default function PlayerEarningsPage() {
   const [withdrawing, setWithdrawing] = useState(false)
 
   useEffect(() => {
-    mockApi.getPlayerEarnings().then(setData)
+    Promise.all([
+      getEarningsOverview(),
+      getEarningsList(),
+    ]).then(([overview, listRes]) => {
+      setData({ ...overview, records: listRes.records })
+    }).catch(() => {})
   }, [])
 
   const handleWithdraw = async () => {
     if (!data || data.balance <= 0) return
     setWithdrawing(true)
-    await new Promise((r) => setTimeout(r, 800))
-    setWithdrawing(false)
-    alert('提现申请已提交，预计1-3个工作日到账')
+    try {
+      await withdraw(data.balance)
+      alert('提现申请已提交，预计1-3个工作日到账')
+    } catch (e) {
+      alert('提现失败，请重试')
+    } finally {
+      setWithdrawing(false)
+    }
   }
 
   if (!data) {
