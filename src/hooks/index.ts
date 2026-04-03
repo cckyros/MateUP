@@ -10,7 +10,7 @@ interface UsePaginationOptions<T> {
   pageSize?: number
 }
 
-interface UsePaginationResult {
+interface UsePaginationResult<T> {
   list: T[]
   loading: boolean
   refreshing: boolean
@@ -19,10 +19,10 @@ interface UsePaginationResult {
   refresh: () => void
 }
 
-export function usePagination<T>({
+export function usePagination<T extends object>({
   fetchFn,
   pageSize = 20,
-}: UsePaginationOptions<T>): UsePaginationResult {
+}: UsePaginationOptions<T>): UsePaginationResult<T> {
   const [list, setList] = useState<T[]>([])
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
@@ -77,7 +77,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
   fn: T,
   delay: number
 ) {
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   return useCallback(
     (...args: Parameters<T>) => {

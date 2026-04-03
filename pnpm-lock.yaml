@@ -11,6 +11,9 @@ importers:
       axios:
         specifier: ^1.14.0
         version: 1.14.0
+      csstype:
+        specifier: ^3.2.3
+        version: 3.2.3
       react:
         specifier: ^19.2.4
         version: 19.2.4

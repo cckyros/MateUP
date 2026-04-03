@@ -36,7 +36,7 @@ const GAME_NAMES = {
 const formatTime = (ts) => {
   const d = new Date(Number(ts))
   const now = new Date()
-  const diff = now - d
+  const diff = Number(now) - Number(d)
   if (diff < 60000) return '刚刚'
   if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
