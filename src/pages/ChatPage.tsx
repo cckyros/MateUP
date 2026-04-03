@@ -20,7 +20,7 @@ const ChatPage = () => {
     const loadConvs = async () => {
       try {
         const data = await getConversationList()
-        setConversations(data.conversations || [])
+        setConversations(data.data.conversations || [])
       } catch {
         setConversations([])
       } finally {

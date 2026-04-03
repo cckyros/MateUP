@@ -54,7 +54,7 @@ export const getOrderList = (params?: {
     total: number
     page: number
     totalPages: number
-  }>('/api/order/list', params)
+  }>('/api/order/list', { params })
 
 // 获取订单详情
 export const getOrderDetail = (orderId: string) =>

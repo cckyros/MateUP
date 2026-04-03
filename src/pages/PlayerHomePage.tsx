@@ -13,7 +13,7 @@ export default function PlayerHomePage() {
 
   useEffect(() => {
     getPlayerProfile().then((res) => setProfile(res)).catch(() => {})
-    getPlayerOrders().then((res) => setOrders(res.orders)).catch(() => {})
+    getPlayerOrders().then((res) => setOrders(res.orders as any)).catch(() => {})
   }, [])
 
   const pendingOrders = orders.filter((o) => o.status === 'WAIT_ACCEPT')
@@ -71,7 +71,7 @@ export default function PlayerHomePage() {
           <p style={styles.balanceValue}>¥{profile?.balance?.toFixed(2) || '0.00'}</p>
         </div>
         <div style={styles.withdrawInfo}>
-          <span style={styles.pendingWithdraw}>提现中 ¥{profile?.pendingWithdraw || 0}</span>
+          <span style={styles.pendingWithdraw}>提现中 ¥{profile?.pendingWithdrawal || 0}</span>
           <span style={styles.arrow}>›</span>
         </div>
       </div>

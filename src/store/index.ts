@@ -385,7 +385,7 @@ export interface PlayerProfile {
   weeklyOrders: number
   weeklyEarnings: number
   balance: number
-  pendingWithdraw: number
+  pendingWithdrawal: number
   totalEarnings: number
 }
 

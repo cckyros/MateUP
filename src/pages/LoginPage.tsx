@@ -76,7 +76,7 @@ const LoginPage = () => {
           3: 'approved',
           4: 'rejected',
         }
-        const playerStatus = statusMap[applyRes.step] || 'none'
+        const playerStatus = statusMap[applyRes.data.step] || 'none'
         setUser({ ...res.user, playerStatus, isPlayer: playerStatus === 'approved' })
       } catch {
         setUser({ ...res.user, playerStatus: 'none', isPlayer: false })

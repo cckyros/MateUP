@@ -40,14 +40,14 @@ const PlayerDetailPage = () => {
         const data = await getPlayerDetail(id)
         // 标准化数据
         const normalized = {
-          ...data,
-          online: data.online ?? data.isOnline,
-          game: GAME_REVERSE_MAP[data.game] || data.games?.[0] || '王者荣耀',
+          ...data.data,
+          online: data.data.online ?? data.data.isOnline,
+          game: GAME_REVERSE_MAP[data.data.game] || data.data.games?.[0] || '王者荣耀',
         }
         setPlayer(normalized)
         // 默认选中第一个游戏
-        if (data.games?.length > 0) {
-          setSelectedGame(GAME_REVERSE_MAP[data.games[0]] || data.games[0])
+        if (data.data.games?.length > 0) {
+          setSelectedGame(GAME_REVERSE_MAP[data.data.games[0]] || data.data.games[0])
         }
       } catch (err) {
         setError('加载失败')

@@ -34,7 +34,7 @@ const GAME_NAMES = {
 }
 
 const formatTime = (ts) => {
-  const d = new Date(ts)
+  const d = new Date(Number(ts))
   const now = new Date()
   const diff = now - d
   if (diff < 60000) return '刚刚'
@@ -52,7 +52,7 @@ const OrdersPage = () => {
   const loadOrders = async () => {
     try {
       const data = await getOrderList()
-      setOrders(data.orders || [])
+      setOrders(data.data.orders || [])
     } catch {
       setOrders([])
     } finally {

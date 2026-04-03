@@ -31,7 +31,7 @@ export const getChatHistory = (params: {
   request.get<{
     messages: ChatMessage[]
     hasMore: boolean
-  }>(`/api/chat/history/${params.partnerId}`, params)
+  }>(`/api/chat/history/${params.partnerId}`, { params })
 
 // 获取会话列表
 export const getConversationList = (limit?: number) =>
@@ -44,4 +44,4 @@ export const getConversationList = (limit?: number) =>
       lastTime: number
       unreadCount: number
     }>
-  }>('/api/chat/conversations', { limit })
+  }>('/api/chat/conversations', { params: { limit } })

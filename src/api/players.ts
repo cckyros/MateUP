@@ -30,7 +30,7 @@ export const getPlayers = (filters?: PlayerFilters) =>
     players: Player[]
     total: number
     nextCursor?: string
-  }>('/api/players', filters)
+  }>('/api/players', { params: filters })
 
 // 获取陪玩师详情
 export const getPlayerDetail = (playerId: string) =>
@@ -41,7 +41,7 @@ export const searchPlayers = (keyword: string, filters?: PlayerFilters) =>
   request.get<{
     players: Player[]
     total: number
-  }>('/api/players/search', { keyword, ...filters })
+  }>('/api/players/search', { params: { keyword, ...filters } })
 
 // 热门陪玩师
 export const getHotPlayers = () =>

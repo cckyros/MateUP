@@ -26,7 +26,7 @@ class WebSocketManager {
   private reconnectAttempts: number = 0
   private maxReconnectAttempts: number = 5
   private reconnectDelay: number = 3000
-  private heartbeatInterval: NodeJS.Timeout | null = null
+  private heartbeatInterval: ReturnType<typeof setTimeout> | null = null
   private messageHandlers: Set<MessageHandler> = new Set()
   private statusHandlers: Set<StatusHandler> = new Set()
   private pendingMessages: Map<string, (success: boolean) => void> = new Map()
