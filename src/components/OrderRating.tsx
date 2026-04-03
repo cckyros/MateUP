@@ -1,8 +1,15 @@
 // 订单评价组件 - 评分 + 文字 + 提交
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { COLORS } from '../constants'
 
-const OrderRating = ({ orderId, playerName, onSubmit, onClose }) => {
+interface OrderRatingProps {
+  orderId: string
+  playerName: string
+  onSubmit?: (data: { rating: number; comment: string }) => void
+  onClose?: () => void
+}
+
+const OrderRating: React.FC<OrderRatingProps> = ({ orderId, playerName, onSubmit, onClose }) => {
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)

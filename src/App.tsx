@@ -1,3 +1,4 @@
+import React from 'react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import CoverPage from './pages/CoverPage'
 import LoginPage from './pages/LoginPage'
@@ -21,7 +22,11 @@ import PlayerReviewsPage from './pages/PlayerReviewsPage'
 import { useUserStore } from './store'
 
 // 路由守卫：陪玩师页面需要 isPlayer 才能访问
-const PlayerRouteGuard = ({ children }) => {
+interface PlayerRouteGuardProps {
+  children: React.ReactNode
+}
+
+const PlayerRouteGuard: React.FC<PlayerRouteGuardProps> = ({ children }) => {
   const user = useUserStore((s) => s.user)
   const navigate = useNavigate()
   if (!user?.isPlayer) {

@@ -1,5 +1,5 @@
 // 陪玩师详情页 - 已接入真实 API
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { getPlayerDetail } from '../api/players'
@@ -31,6 +31,7 @@ const PlayerDetailPage = () => {
   const [error, setError] = useState('')
   const [selectedHours, setSelectedHours] = useState(2)
   const [selectedGame, setSelectedGame] = useState('王者荣耀')
+  const hoursOptions = [1, 2, 3, 4]
 
   useEffect(() => {
     if (!id) return
