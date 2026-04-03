@@ -45,9 +45,9 @@ const PlayerListPage = () => {
   useEffect(() => {
     const loadPlayers = async () => {
       try {
-        const { players: rawList } = await getPlayers()
+        const rawList: any[] = await getPlayers()
         // 统一字段
-        const normalized = rawList.map(normalizePlayer)
+        const normalized = (rawList as any[]).map(normalizePlayer)
         setPlayers(normalized)
       } catch (err) {
         console.error('加载陪玩列表失败:', err)
@@ -74,7 +74,7 @@ const PlayerListPage = () => {
     const sortOptions = ['comprehensive', 'price_asc', 'price_desc', 'rating']
     const currentIndex = sortOptions.indexOf(filters.sortBy || 'comprehensive')
     const nextSort = sortOptions[(currentIndex + 1) % sortOptions.length]
-    setFilters({ sortBy: nextSort })
+    setFilters({ sortBy: nextSort as any })
   }
 
   // 获取排序后的列表（前端排序）

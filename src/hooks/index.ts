@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 // ========== 分页加载 Hook ==========
 interface UsePaginationOptions<T> {
@@ -64,10 +64,10 @@ export function usePagination<T>({
   }, [fetchData])
 
   // 初始化
-  useState(() => {
+  useEffect(() => {
     setLoading(true)
     fetchData(1, true).finally(() => setLoading(false))
-  })
+  }, [fetchData])
 
   return { list, loading, refreshing, hasMore, loadMore, refresh }
 }
@@ -77,7 +77,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
   fn: T,
   delay: number
 ) {
-  const timerRef = useRef<NodeJS.Timeout>()
+  const timerRef = useRef<ReturnType<typeof setTimeout>>()
 
   return useCallback(
     (...args: Parameters<T>) => {
