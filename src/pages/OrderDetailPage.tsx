@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { getOrderDetail, cancelOrder, completeOrder } from '../api/order'
 import OrderRating from '../components/OrderRating'
+import { Styles } from '@/utils/styles'
 
 const STATUS_MAP = {
   CREATED: { label: '待支付', color: '#FFD700', desc: '请在规定时间内完成支付' },
@@ -270,7 +271,7 @@ const OrderDetailPage = () => {
 }
 
 // ========== 暗色风格 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

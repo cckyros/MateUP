@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { useApplyStore } from '../store'
 import { getApplyStatus } from '../api/apply'
+import { Styles } from '@/utils/styles'
 
 export default function ApplyStatusPage() {
   const navigate = useNavigate()
@@ -132,7 +133,7 @@ export default function ApplyStatusPage() {
   )
 }
 
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { getOrderList, cancelOrder, completeOrder } from '../api/order'
+import { Styles } from '@/utils/styles'
 
 // 订单状态
 const ORDER_STATUS = {
@@ -221,7 +222,7 @@ const OrdersPage = () => {
 }
 
 // ========== 暗色风格样式 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

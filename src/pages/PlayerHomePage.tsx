@@ -6,6 +6,7 @@ import { usePlayerProfileStore } from '../store'
 import { acceptOrder, rejectOrder } from '../api/order'
 import { getPlayerProfile, getPlayerOrders, setOnlineStatus } from '../api/playerApi'
 import { ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '../constants'
+import { Styles } from '@/utils/styles'
 
 export default function PlayerHomePage() {
   const navigate = useNavigate()
@@ -171,7 +172,7 @@ export default function PlayerHomePage() {
   )
 }
 
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

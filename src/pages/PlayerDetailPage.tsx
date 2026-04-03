@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { getPlayerDetail } from '../api/players'
 import { createOrder } from '../api/order'
+import { Styles } from '@/utils/styles'
 
 // 游戏名称映射
 const GAME_MAP = {
@@ -190,7 +191,7 @@ const PlayerDetailPage = () => {
 }
 
 // ========== 暗色风格 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

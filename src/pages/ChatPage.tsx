@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { COLORS } from '../constants'
 import { useChatStore, useUserStore, wsManager } from '../store'
 import { getConversationList } from '../api/chat'
+import { Styles } from '@/utils/styles'
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat')
@@ -229,7 +230,7 @@ const ChatPage = () => {
 }
 
 // ========== 暗色风格 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

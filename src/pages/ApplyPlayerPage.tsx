@@ -1,5 +1,5 @@
 // 申请陪玩师页 - Phase 7
-import { useState } from 'react'
+import { useState, CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS, GAMES, GAME_NAMES } from '../constants'
 import { useApplyStore } from '../store'
@@ -166,7 +166,7 @@ export default function ApplyPlayerPage() {
   )
 }
 
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

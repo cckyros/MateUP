@@ -6,6 +6,7 @@ import { usePlayerProfileStore } from '../store'
 import { mockApi } from '../api/mock'
 import { getPlayerOrders } from '../api/playerApi'
 import { acceptOrder, rejectOrder, completeOrder } from '../api/order'
+import { Styles } from '@/utils/styles'
 
 const TABS = [
   { key: 'WAIT_ACCEPT', label: '待接单' },
@@ -144,7 +145,7 @@ export default function PlayerOrdersPage() {
   )
 }
 
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

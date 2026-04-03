@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { getOrderDetail, payOrder } from '../api/order'
+import { Styles } from '@/utils/styles'
 
 // 游戏中文名映射
 const GAME_NAMES = {
@@ -181,7 +182,7 @@ const PaymentPage = () => {
 }
 
 // ========== 暗色风格 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

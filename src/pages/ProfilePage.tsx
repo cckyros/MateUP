@@ -5,6 +5,7 @@ import { COLORS } from '../constants'
 import { useApplyStore } from '../store'
 import { useUserStore } from '../store'
 import { getApplyStatus } from '../api/apply'
+import { Styles } from '@/utils/styles'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
@@ -181,7 +182,7 @@ const ProfilePage = () => {
 }
 
 // ========== 暗色风格 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

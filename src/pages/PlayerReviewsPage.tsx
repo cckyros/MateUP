@@ -5,6 +5,7 @@ import { COLORS } from '../constants'
 import { usePlayerProfileStore } from '../store'
 import { mockApi } from '../api/mock'
 import { getPlayerReviews, replyReview } from '../api/playerApi'
+import { Styles } from '@/utils/styles'
 
 export default function PlayerReviewsPage() {
   const navigate = useNavigate()
@@ -129,7 +130,7 @@ export default function PlayerReviewsPage() {
   )
 }
 
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

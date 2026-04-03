@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { usePlayerStore, useChatStore } from '../store'
 import { getPlayers } from '../api/players'
 import { COLORS, GAMES, GAME_NAMES } from '../constants'
+import { Styles } from '@/utils/styles'
 
 // 字段映射：旧字段 → 新字段（兼容性）
 const normalizePlayer = (p) => ({
@@ -257,7 +258,7 @@ const PlayerListPage = () => {
 }
 
 // ========== 样式 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

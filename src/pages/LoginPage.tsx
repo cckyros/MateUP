@@ -5,6 +5,7 @@ import { useUserStore } from '../store'
 import { login, register } from '../api/user'
 import { getApplyStatus } from '../api/apply'
 import { COLORS } from '../constants'
+import { Styles } from '@/utils/styles'
 
 const LoginPage = () => {
   const navigate = useNavigate()
@@ -205,7 +206,7 @@ const LoginPage = () => {
 }
 
 // ========== 样式 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

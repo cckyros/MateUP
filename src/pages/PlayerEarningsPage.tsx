@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { mockApi } from '../api/mock'
 import { getEarningsOverview, getEarningsList, withdraw } from '../api/playerApi'
+import { Styles } from '@/utils/styles'
 
 export default function PlayerEarningsPage() {
   const navigate = useNavigate()
@@ -129,7 +130,7 @@ export default function PlayerEarningsPage() {
   )
 }
 
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,

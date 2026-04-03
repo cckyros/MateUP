@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
+import { Styles } from '@/utils/styles'
 
 const SettingsPage = () => {
   const navigate = useNavigate()
@@ -106,7 +107,7 @@ const SettingsPage = () => {
 }
 
 // ========== 暗色风格 ==========
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,
