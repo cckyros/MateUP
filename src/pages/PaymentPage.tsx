@@ -63,7 +63,7 @@ const PaymentPage = () => {
     if (!order || paying) return
     setPaying(true)
     try {
-      await payOrder(order.id, selectedMethod)
+      await payOrder(order.id, selectedMethod as any)
       alert('支付成功！')
       navigate('/orders')
     } catch (err) {

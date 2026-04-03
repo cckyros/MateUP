@@ -39,10 +39,10 @@ const PlayerDetailPage = () => {
       try {
         const data = await getPlayerDetail(id)
         // 标准化数据
-        const normalized = {
+        const normalized: any = {
           ...data.data,
-          online: data.data.online ?? data.data.isOnline,
-          game: GAME_REVERSE_MAP[data.data.game] || data.data.games?.[0] || '王者荣耀',
+          online: (data.data as any).online ?? (data.data as any).isOnline,
+          game: GAME_REVERSE_MAP[(data.data as any).game] || (data.data as any).games?.[0] || '王者荣耀',
         }
         setPlayer(normalized)
         // 默认选中第一个游戏
@@ -67,7 +67,7 @@ const PlayerDetailPage = () => {
         duration: selectedHours,
         game: GAME_MAP[selectedGame] || selectedGame,
       })
-      navigate(`/payment/${order.id}`)
+      navigate(`/payment/${(order as any).id}`)
     } catch (err) {
       alert(err?.response?.data?.message || '创建订单失败')
     } finally {

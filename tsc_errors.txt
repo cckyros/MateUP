@@ -1,0 +1,411 @@
+src/App.tsx(66,10): error TS2322: Type '{ position: string; bottom: number; left: number; right: number; maxWidth: string; margin: string; backgroundColor: string; display: string; justifyContent: string; padding: string; borderTop: string; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/App.tsx(70,11): error TS2322: Type '{ color: "#FF6B9D" | "rgba(255,255,255,0.4)"; textAlign: string; fontSize: string; cursor: string; flex: number; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/App.tsx(87,12): error TS2322: Type '{ fontFamily: string; maxWidth: string; margin: string; backgroundColor: string; minHeight: string; position: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/components/OrderRating.tsx(47,12): error TS2322: Type '{ position: string; top: number; left: number; right: number; bottom: number; backgroundColor: string; display: string; alignItems: string; justifyContent: string; zIndex: number; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/components/OrderRating.tsx(48,14): error TS2322: Type '{ backgroundColor: "#1a1a2e"; borderRadius: string; padding: string; width: string; maxWidth: string; textAlign: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/components/OrderRating.tsx(67,10): error TS2322: Type '{ position: string; top: number; left: number; right: number; bottom: number; backgroundColor: string; display: string; alignItems: string; justifyContent: string; zIndex: number; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/components/OrderRating.tsx(92,14): error TS2322: Type '{ display: string; flexWrap: string; gap: string; marginBottom: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/components/OrderRating.tsx(99,11): error TS2322: Type '{ width: string; backgroundColor: "#16213e"; border: string; borderRadius: string; padding: string; color: "#FFFFFF"; fontSize: string; resize: string; outline: string; boxSizing: string; marginBottom: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/components/OrderRating.tsx(106,14): error TS2322: Type '{ fontSize: string; color: "rgba(255,255,255,0.6)"; textAlign: string; marginBottom: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/main.tsx(3,8): error TS2882: Cannot find module or type declarations for side-effect import of './index.css'.
+src/pages/ApplyPlayerPage.tsx(68,16): error TS2322: Type '{ display: string; flexWrap: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/ApplyPlayerPage.tsx(111,16): error TS2322: Type '{ display: string; flexWrap: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/ApplyPlayerPage.tsx(135,13): error TS2322: Type '{ width: string; backgroundColor: "#1a1a2e"; border: string; borderRadius: string; padding: string; fontSize: string; color: "#FFFFFF"; resize: string; outline: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/ApplyPlayerPage.tsx(142,14): error TS2322: Type '{ textAlign: string; fontSize: string; color: "rgba(255,255,255,0.6)"; marginTop: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ApplyPlayerPage.tsx(153,12): error TS2322: Type '{ position: string; bottom: number; left: number; right: number; maxWidth: string; margin: string; padding: string; backgroundColor: "#16213e"; borderTop: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/ApplyStatusPage.tsx(44,14): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/ApplyStatusPage.tsx(46,15): error TS2322: Type '{ fontSize: string; fontWeight: string; color: "#FFFFFF"; margin: string; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ApplyStatusPage.tsx(47,14): error TS2322: Type '{ fontSize: string; color: "rgba(255,255,255,0.6)"; textAlign: string; lineHeight: number; margin: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ApplyStatusPage.tsx(67,14): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/ApplyStatusPage.tsx(69,15): error TS2322: Type '{ fontSize: string; fontWeight: string; color: "#FFFFFF"; margin: string; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ApplyStatusPage.tsx(70,14): error TS2322: Type '{ fontSize: string; color: "rgba(255,255,255,0.6)"; textAlign: string; lineHeight: number; margin: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ApplyStatusPage.tsx(90,12): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/ApplyStatusPage.tsx(94,13): error TS2322: Type '{ fontSize: string; fontWeight: string; color: "#FFFFFF"; margin: string; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ApplyStatusPage.tsx(95,12): error TS2322: Type '{ fontSize: string; color: "rgba(255,255,255,0.6)"; textAlign: string; lineHeight: number; margin: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ApplyStatusPage.tsx(108,26): error TS2322: Type '{ display: string; alignItems: string; gap: string; marginBottom: string; position: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/ApplyStatusPage.tsx(115,30): error TS2322: Type '{ backgroundColor: "#00D9A6" | "rgba(255,255,255,0.1)"; position: string; left: string; top: string; width: string; height: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/ChatPage.tsx(96,24): error TS2345: Argument of type '{ id: string; type: string; from: string; to: string; content: string; timestamp: number; isSelf: boolean; }' is not assignable to parameter of type 'ChatMessage'.
+  Types of property 'type' are incompatible.
+    Type 'string' is not assignable to type '"chat" | "system"'.
+src/pages/ChatPage.tsx(118,12): error TS2322: Type '{ minHeight: string; backgroundColor: "#16213e"; color: "#FFFFFF"; display: string; flexDirection: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/ChatPage.tsx(152,22): error TS2322: Type '{ position: string; marginRight: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/ChatPage.tsx(162,52): error TS2322: Type '{ backgroundColor: "#FF6B9D"; color: string; fontSize: string; padding: string; borderRadius: string; minWidth: string; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ChatPage.tsx(175,10): error TS2322: Type '{ minHeight: string; backgroundColor: "#16213e"; color: "#FFFFFF"; display: string; flexDirection: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/ChatPage.tsx(187,38): error TS2322: Type '{ textAlign: string; fontSize: string; color: "rgba(255,255,255,0.6)"; margin: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/CoverPage.tsx(48,10): error TS2322: Type '{ minHeight: string; backgroundColor: "#16213e"; display: string; flexDirection: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/CoverPage.tsx(58,12): error TS2322: Type '{ fontSize: string; textAlign: string; margin: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/CoverPage.tsx(72,14): error TS2322: Type '{ display: string; gap: string; overflowX: string; paddingBottom: string; scrollbarWidth: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'overflowX' are incompatible.
+    Type 'string' is not assignable to type 'OverflowX'.
+src/pages/CoverPage.tsx(76,15): error TS2322: Type '{ flexShrink: number; width: string; backgroundColor: "#1a1a2e"; borderRadius: string; padding: string; textAlign: string; border: string; cursor: string; position: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/CoverPage.tsx(80,21): error TS2322: Type '{ position: string; top: string; right: string; width: string; height: string; backgroundColor: "#00D9A6"; borderRadius: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/CoverPage.tsx(85,20): error TS2322: Type '{ display: string; flexDirection: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/CoverPage.tsx(123,10): error TS2322: Type '{ textAlign: string; fontSize: string; color: string; paddingBottom: string; margin: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/LoginPage.tsx(109,12): error TS2322: Type '{ textAlign: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/LoginPage.tsx(165,24): error TS2322: Type '{ color: "#FF4757"; fontSize: string; marginBottom: string; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/LoginPage.tsx(187,16): error TS2322: Type '{ flex: number; padding: string; background: string; borderRadius: string; textAlign: string; fontSize: string; color: string; cursor: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/LoginPage.tsx(188,16): error TS2322: Type '{ flex: number; padding: string; background: string; borderRadius: string; textAlign: string; fontSize: string; color: string; cursor: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/LoginPage.tsx(193,10): error TS2322: Type '{ textAlign: string; fontSize: string; color: string; marginTop: string; padding: string; lineHeight: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/LoginPage.tsx(200,12): error TS2322: Type '{ textAlign: string; fontSize: string; color: "#00D9A6"; marginTop: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/NotificationPage.tsx(33,35): error TS2322: Type '{ backgroundColor: "#FF6B9D"; color: string; fontSize: string; padding: string; borderRadius: string; minWidth: string; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/NotificationPage.tsx(56,16): error TS2322: Type '{ textAlign: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/NotificationPage.tsx(64,15): error TS2322: Type '{ backgroundColor: string; display: string; alignItems: string; padding: string; borderBottom: string; gap: string; position: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/NotificationPage.tsx(77,38): error TS2322: Type '{ position: string; top: string; right: string; width: string; height: string; borderRadius: string; backgroundColor: "#FF6B9D"; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/OrderDetailPage.tsx(196,12): error TS2322: Type '{ position: string; bottom: number; left: number; right: number; maxWidth: string; margin: string; backgroundColor: "#1a1a2e"; padding: string; display: string; gap: string; borderTop: string; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/OrderDetailPage.tsx(199,18): error TS2322: Type '{ flex: number; padding: string; borderRadius: string; border: string; color: "rgba(255,255,255,0.6)"; textAlign: string; fontSize: string; cursor: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(203,16): error TS2322: Type '{ flex: number; padding: string; borderRadius: string; background: string; color: string; textAlign: string; fontSize: string; fontWeight: string; cursor: string; boxShadow: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(210,20): error TS2322: Type '{ flex: number; padding: string; borderRadius: string; background: string; color: string; textAlign: string; fontSize: string; fontWeight: string; cursor: string; border: string; boxShadow: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(214,18): error TS2322: Type '{ flex: number; padding: string; borderRadius: string; backgroundColor: "#FF6B9D"; color: string; textAlign: string; fontSize: string; fontWeight: string; cursor: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(223,14): error TS2322: Type '{ position: string; top: number; left: number; right: number; bottom: number; backgroundColor: string; display: string; alignItems: string; justifyContent: string; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/OrderDetailPage.tsx(225,17): error TS2322: Type '{ fontSize: string; fontWeight: string; color: "#FFFFFF"; textAlign: string; margin: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(226,16): error TS2322: Type '{ fontSize: string; color: "rgba(255,255,255,0.6)"; textAlign: string; margin: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(228,20): error TS2322: Type '{ flex: number; padding: string; borderRadius: string; border: string; color: "rgba(255,255,255,0.6)"; textAlign: string; fontSize: string; cursor: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(230,17): error TS2322: Type '{ opacity?: number; flex: number; padding: string; borderRadius: string; backgroundColor: "#FF6B9D"; color: string; textAlign: string; fontSize: string; fontWeight: string; cursor: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(252,14): error TS2322: Type '{ position: string; top: number; left: number; right: number; bottom: number; backgroundColor: string; display: string; alignItems: string; justifyContent: string; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/OrderDetailPage.tsx(254,17): error TS2322: Type '{ fontSize: string; fontWeight: string; color: "#FFFFFF"; textAlign: string; margin: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(255,16): error TS2322: Type '{ fontSize: string; color: "rgba(255,255,255,0.6)"; textAlign: string; margin: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(257,20): error TS2322: Type '{ flex: number; padding: string; borderRadius: string; border: string; color: "rgba(255,255,255,0.6)"; textAlign: string; fontSize: string; cursor: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrderDetailPage.tsx(259,17): error TS2322: Type '{ opacity?: number; flex: number; padding: string; borderRadius: string; backgroundColor: "#FF6B9D"; color: string; textAlign: string; fontSize: string; fontWeight: string; cursor: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrdersPage.tsx(112,14): error TS2322: Type '{ display: string; flexDirection: string; justifyContent: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/OrdersPage.tsx(129,13): error TS2322: Type '{ color: "#FF6B9D" | "rgba(255,255,255,0.6)"; borderBottomColor?: "#FF6B9D"; fontWeight?: string; flex: number; textAlign: string; padding: string; fontSize: string; cursor: string; borderBottom: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrdersPage.tsx(143,16): error TS2322: Type '{ color: "rgba(255,255,255,0.6)"; textAlign: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrdersPage.tsx(145,16): error TS2322: Type '{ textAlign: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrdersPage.tsx(173,24): error TS2322: Type '{ textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/OrdersPage.tsx(183,24): error TS2322: Type '{ textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PaymentPage.tsx(66,32): error TS2345: Argument of type 'string' is not assignable to parameter of type '"mock" | "iap" | "stripe"'.
+src/pages/PaymentPage.tsx(176,10): error TS2322: Type '{ textAlign: string; fontSize: string; color: "rgba(255,255,255,0.6)"; padding: string; margin: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerDetailPage.tsx(44,29): error TS2551: Property 'online' does not exist on type 'Player'. Did you mean 'isOnline'?
+src/pages/PlayerDetailPage.tsx(45,44): error TS2551: Property 'game' does not exist on type 'Player'. Did you mean 'games'?
+src/pages/PlayerDetailPage.tsx(70,34): error TS2339: Property 'id' does not exist on type 'AxiosResponse<Order, any, {}>'.
+src/pages/PlayerDetailPage.tsx(81,12): error TS2322: Type '{ backgroundColor: "#1a1a2e"; padding: string; display: string; alignItems: string; justifyContent: string; position: string; top: number; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/PlayerDetailPage.tsx(89,14): error TS2322: Type '{ position: string; flexShrink: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/PlayerDetailPage.tsx(91,56): error TS2322: Type '{ width: string; height: string; borderRadius: string; objectFit: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'objectFit' are incompatible.
+    Type 'string' is not assignable to type 'ObjectFit'.
+src/pages/PlayerDetailPage.tsx(95,35): error TS2322: Type '{ position: string; bottom: string; left: string; transform: string; backgroundColor: "#00D9A6"; color: string; fontSize: string; padding: string; borderRadius: string; whiteSpace: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/PlayerDetailPage.tsx(117,14): error TS2322: Type '{ display: string; gap: string; flexWrap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/PlayerDetailPage.tsx(140,15): error TS2322: Type '{ borderColor?: "#FF6B9D"; backgroundColor: string; flex: number; padding: string; borderRadius: string; textAlign: string; cursor: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerDetailPage.tsx(160,14): error TS2322: Type '{ display: string; gap: string; flexWrap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/PlayerDetailPage.tsx(176,12): error TS2322: Type '{ position: string; bottom: number; left: number; right: number; maxWidth: string; margin: string; backgroundColor: "#1a1a2e"; padding: string; display: string; gap: string; borderTop: string; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/PlayerDetailPage.tsx(177,14): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; justifyContent: string; padding: string; borderRadius: string; background: string; color: string; fontSize: string; gap: string; cursor: string; boxShadow: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/PlayerDetailPage.tsx(182,11): error TS2322: Type '{ opacity?: number; cursor: string; flex: number; background: string; color: string; padding: string; borderRadius: string; textAlign: string; fontSize: string; fontWeight: string; boxShadow: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerEarningsPage.tsx(85,33): error TS2322: Type '{ backgroundColor: "#1a1a2e"; padding: string; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerEarningsPage.tsx(96,16): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; backgroundColor: "#1a1a2e"; borderRadius: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/PlayerHomePage.tsx(15,49): error TS2345: Argument of type 'import("D:/Repository/MateUP/src/api/playerApi").PlayerProfile' is not assignable to parameter of type 'import("D:/Repository/MateUP/src/store/index").PlayerProfile'.
+  Type 'PlayerProfile' is missing the following properties from type 'PlayerProfile': weeklyOrders, weeklyEarnings
+src/pages/PlayerHomePage.tsx(36,39): error TS2322: Type '{ width: string; height: string; objectFit: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'objectFit' are incompatible.
+    Type 'string' is not assignable to type 'ObjectFit'.
+src/pages/PlayerHomePage.tsx(50,16): error TS2322: Type '{ textAlign: string; flex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerHomePage.tsx(55,16): error TS2322: Type '{ textAlign: string; flex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerHomePage.tsx(60,16): error TS2322: Type '{ textAlign: string; flex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerHomePage.tsx(88,16): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; backgroundColor: "#1a1a2e"; borderRadius: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/PlayerHomePage.tsx(96,45): error TS2322: Type '{ width: string; height: string; borderRadius: string; objectFit: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'objectFit' are incompatible.
+    Type 'string' is not assignable to type 'ObjectFit'.
+src/pages/PlayerHomePage.tsx(134,16): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; backgroundColor: "#1a1a2e"; borderRadius: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/PlayerHomePage.tsx(142,45): error TS2322: Type '{ width: string; height: string; borderRadius: string; objectFit: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'objectFit' are incompatible.
+    Type 'string' is not assignable to type 'ObjectFit'.
+src/pages/PlayerHomePage.tsx(164,32): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; backgroundColor: "#1a1a2e"; cursor: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/PlayerListPage.tsx(48,15): error TS2740: Type 'AxiosResponse<{ players: Player[]; total: number; nextCursor?: string; }, any, {}>' is missing the following properties from type 'any[]': length, pop, push, concat, and 28 more.
+src/pages/PlayerListPage.tsx(118,12): error TS2322: Type '{ backgroundColor: "#1a1a2e"; padding: string; display: string; gap: string; alignItems: string; position: string; top: number; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/PlayerListPage.tsx(132,12): error TS2322: Type '{ display: string; gap: string; padding: string; overflowX: string; backgroundColor: "#1a1a2e"; }' is not assignable to type 'CSSProperties'.
+  Types of property 'overflowX' are incompatible.
+    Type 'string' is not assignable to type 'OverflowX'.
+src/pages/PlayerListPage.tsx(148,12): error TS2322: Type '{ display: string; gap: string; padding: string; backgroundColor: "#1a1a2e"; alignItems: string; overflowX: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'overflowX' are incompatible.
+    Type 'string' is not assignable to type 'OverflowX'.
+src/pages/PlayerListPage.tsx(180,20): error TS2322: Type '{ position: string; flexShrink: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/PlayerListPage.tsx(184,19): error TS2322: Type '{ width: string; height: string; borderRadius: string; objectFit: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'objectFit' are incompatible.
+    Type 'string' is not assignable to type 'ObjectFit'.
+src/pages/PlayerListPage.tsx(186,43): error TS2322: Type '{ position: string; bottom: string; right: string; width: string; height: string; backgroundColor: "#00D9A6"; borderRadius: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/PlayerListPage.tsx(189,20): error TS2322: Type '{ flex: number; display: string; flexDirection: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/PlayerListPage.tsx(205,22): error TS2322: Type '{ display: string; gap: string; flexWrap: string; marginTop: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/PlayerListPage.tsx(215,20): error TS2322: Type '{ textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerListPage.tsx(219,20): error TS2322: Type '{ textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerListPage.tsx(223,20): error TS2322: Type '{ textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerOrdersPage.tsx(23,47): error TS2345: Argument of type 'import("D:/Repository/MateUP/src/api/playerApi").PlayerOrder[]' is not assignable to parameter of type 'import("D:/Repository/MateUP/src/store/index").PlayerOrder[]'.
+  Type 'import("D:/Repository/MateUP/src/api/playerApi").PlayerOrder' is not assignable to type 'import("D:/Repository/MateUP/src/store/index").PlayerOrder'.
+    Types of property 'status' are incompatible.
+      Type 'string' is not assignable to type 'OrderStatus'.
+src/pages/PlayerOrdersPage.tsx(52,13): error TS2322: Type '{ borderBottom: string; color: "#FF6B9D" | "rgba(255,255,255,0.6)"; flex: number; textAlign: string; padding: string; fontSize: string; cursor: string; display: string; alignItems: string; justifyContent: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerOrdersPage.tsx(75,16): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/PlayerOrdersPage.tsx(94,45): error TS2322: Type '{ width: string; height: string; borderRadius: string; objectFit: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'objectFit' are incompatible.
+    Type 'string' is not assignable to type 'ObjectFit'.
+src/pages/PlayerOrdersPage.tsx(104,22): error TS2322: Type '{ textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerProfilePage.tsx(18,18): error TS2345: Argument of type 'import("D:/Repository/MateUP/src/api/playerApi").PlayerProfile' is not assignable to parameter of type 'import("D:/Repository/MateUP/src/store/index").PlayerProfile'.
+  Type 'PlayerProfile' is missing the following properties from type 'PlayerProfile': weeklyOrders, weeklyEarnings
+src/pages/PlayerProfilePage.tsx(57,35): error TS2322: Type '{ width: string; height: string; borderRadius: string; objectFit: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'objectFit' are incompatible.
+    Type 'string' is not assignable to type 'ObjectFit'.
+src/pages/PlayerProfilePage.tsx(71,14): error TS2322: Type '{ flex: number; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerProfilePage.tsx(76,14): error TS2322: Type '{ flex: number; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerProfilePage.tsx(81,14): error TS2322: Type '{ flex: number; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerProfilePage.tsx(103,21): error TS2322: Type '{ fontSize: string; fontWeight: string; color: "#FF6B9D"; minWidth: string; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerProfilePage.tsx(110,18): error TS2322: Type '{ display: string; flexWrap: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/PlayerProfilePage.tsx(130,18): error TS2322: Type '{ display: string; flexWrap: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/PlayerProfilePage.tsx(158,15): error TS2322: Type '{ width: string; backgroundColor: "#1a1a2e"; border: string; borderRadius: string; padding: string; fontSize: string; color: "#FFFFFF"; resize: string; outline: string; boxSizing: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/PlayerReviewsPage.tsx(47,14): error TS2322: Type '{ flex: number; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerReviewsPage.tsx(52,14): error TS2322: Type '{ flex: number; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerReviewsPage.tsx(57,14): error TS2322: Type '{ flex: number; textAlign: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/PlayerReviewsPage.tsx(70,16): error TS2322: Type '{ display: string; flexDirection: string; alignItems: string; padding: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexDirection' are incompatible.
+    Type 'string' is not assignable to type 'FlexDirection'.
+src/pages/PlayerReviewsPage.tsx(78,46): error TS2322: Type '{ width: string; height: string; borderRadius: string; objectFit: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'objectFit' are incompatible.
+    Type 'string' is not assignable to type 'ObjectFit'.
+src/pages/PlayerReviewsPage.tsx(98,21): error TS2322: Type '{ width: string; backgroundColor: "#16213e"; border: string; borderRadius: string; padding: string; fontSize: string; color: "#FFFFFF"; resize: string; outline: string; boxSizing: string; marginBottom: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'boxSizing' are incompatible.
+    Type 'string' is not assignable to type 'BoxSizing'.
+src/pages/ProfilePage.tsx(27,33): error TS2339: Property 'step' does not exist on type 'AxiosResponse<ApplyStatusResponse, any, {}>'.
+src/pages/ProfilePage.tsx(28,26): error TS2339: Property 'submittedAt' does not exist on type 'AxiosResponse<ApplyStatusResponse, any, {}>'.
+src/pages/ProfilePage.tsx(28,51): error TS2339: Property 'rejectedReason' does not exist on type 'AxiosResponse<ApplyStatusResponse, any, {}>'.
+src/pages/ProfilePage.tsx(80,16): error TS2322: Type '{ position: string; flexShrink: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/ProfilePage.tsx(82,18): error TS2322: Type '{ position: string; bottom: string; right: string; width: string; height: string; borderRadius: string; backgroundColor: string; display: string; alignItems: string; justifyContent: string; fontSize: string; boxShadow: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/ProfilePage.tsx(104,26): error TS2322: Type '{ textAlign: string; flex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.
+src/pages/ProfilePage.tsx(115,14): error TS2322: Type '{ display: string; gap: string; flexWrap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/ProfilePage.tsx(131,42): error TS2339: Property 'path' does not exist on type '{ icon: string; label: string; sub: string; }'.
+src/pages/SearchPage.tsx(42,12): error TS2322: Type '{ backgroundColor: "#1a1a2e"; padding: string; display: string; alignItems: string; justifyContent: string; position: string; top: number; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/SearchPage.tsx(64,14): error TS2322: Type '{ display: string; flexWrap: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/SearchPage.tsx(110,14): error TS2322: Type '{ display: string; flexWrap: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/SearchPage.tsx(129,14): error TS2322: Type '{ display: string; flexWrap: string; gap: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'flexWrap' are incompatible.
+    Type 'string' is not assignable to type 'FlexWrap'.
+src/pages/SearchPage.tsx(165,12): error TS2322: Type '{ position: string; bottom: number; left: number; right: number; maxWidth: string; margin: string; backgroundColor: "#1a1a2e"; padding: string; display: string; gap: string; borderTop: string; zIndex: number; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/SettingsPage.tsx(56,17): error TS2322: Type '{ backgroundColor: string; borderColor?: "#FF6B9D"; width: string; height: string; borderRadius: string; padding: string; cursor: string; transition: string; position: string; border: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'position' are incompatible.
+    Type 'string' is not assignable to type 'Position'.
+src/pages/SettingsPage.tsx(103,10): error TS2322: Type '{ textAlign: string; fontSize: string; color: "rgba(255,255,255,0.6)"; marginTop: string; }' is not assignable to type 'CSSProperties'.
+  Types of property 'textAlign' are incompatible.
+    Type 'string' is not assignable to type 'TextAlign'.

@@ -45,9 +45,9 @@ const PlayerListPage = () => {
   useEffect(() => {
     const loadPlayers = async () => {
       try {
-        const rawList: any[] = await getPlayers()
+        const rawList = await getPlayers()
         // 统一字段
-        const normalized = (rawList as any[]).map(normalizePlayer)
+        const normalized = ((rawList as any).players || []).map(normalizePlayer)
         setPlayers(normalized)
       } catch (err) {
         console.error('加载陪玩列表失败:', err)

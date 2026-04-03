@@ -84,7 +84,7 @@ const ChatPage = () => {
     const msgId = `msg_${Date.now()}`
     const newMsg = {
       id: msgId,
-      type: 'chat',
+      type: 'chat' as const,
       from: user?.id || '',
       to: String(selectedChat.id),
       content: message,

@@ -24,8 +24,8 @@ const ProfilePage = () => {
           3: 'approved',
           4: 'rejected',
         }
-        const s = statusMap[res.step] || 'none'
-        setStatus(s, res.submittedAt || null, res.rejectedReason || null)
+        const s = statusMap[(res as any).step] || 'none'
+        setStatus(s, (res as any).submittedAt || null, (res as any).rejectedReason || null)
         if (user) {
           setUser({ ...user, playerStatus: s, isPlayer: s === 'approved' })
         }
@@ -128,7 +128,7 @@ const ProfilePage = () => {
           <div
             key={i}
             style={styles.menuItem}
-            onClick={() => navigate(item.path || '/settings')}
+            onClick={() => navigate((item as any).path || '/settings')}
           >
             <div style={styles.menuLeft}>
               <span style={styles.menuIcon}>{item.icon}</span>
