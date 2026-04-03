@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS, ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '../constants'
-import { usePlayerStore } from '../store'
+import { usePlayerProfileStore } from '../store'
 import { mockApi } from '../api/mock'
 import { getPlayerOrders } from '../api/playerApi'
 import { acceptOrder, rejectOrder, completeOrder } from '../api/order'
@@ -16,7 +16,7 @@ const TABS = [
 
 export default function PlayerOrdersPage() {
   const navigate = useNavigate()
-  const { orders, setOrders, updateOrderStatus } = usePlayerStore()
+  const { orders, setOrders, updateOrderStatus } = usePlayerProfileStore()
   const [activeTab, setActiveTab] = useState('WAIT_ACCEPT')
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function PlayerOrdersPage() {
 
   const filtered = orders.filter((o) => o.status === activeTab)
 
-  const handleAction = async (orderId: string, action: 'accept' | 'reject') => {
+  const handleAction = async (orderId, action) => {
     if (action === 'accept') {
       await acceptOrder(orderId)
       updateOrderStatus(orderId, 'IN_PROGRESS')

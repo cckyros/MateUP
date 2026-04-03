@@ -2,15 +2,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS, GAME_NAMES } from '../constants'
-import { usePlayerStore } from '../store'
+import { usePlayerProfileStore } from '../store'
 import { mockApi } from '../api/mock'
 import { getPlayerProfile, updatePlayerProfile } from '../api/playerApi'
 
 export default function PlayerProfilePage() {
   const navigate = useNavigate()
-  const { profile, setProfile } = usePlayerStore()
+  const { profile, setProfile } = usePlayerProfileStore()
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState({ price: 40, rank: '钻石', description: '', games: [] as string[] })
+  const [form, setForm] = useState({ price: 40, rank: '钻石', description: '', games: [] })
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function PlayerProfilePage() {
   const handleSave = async () => {
     setSaving(true)
     await updatePlayerProfile(form)
-    setProfile({ ...profile!, ...form })
+    setProfile({ ...profile, ...form })
     setEditing(false)
     setSaving(false)
   }

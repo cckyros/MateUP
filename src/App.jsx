@@ -21,14 +21,14 @@ import PlayerReviewsPage from './pages/PlayerReviewsPage'
 import { useUserStore } from './store'
 
 // 路由守卫：陪玩师页面需要 isPlayer 才能访问
-const PlayerRouteGuard = ({ children }: { children: React.ReactNode }) => {
+const PlayerRouteGuard = ({ children }) => {
   const user = useUserStore((s) => s.user)
   const navigate = useNavigate()
   if (!user?.isPlayer) {
     navigate('/apply-player')
     return null
   }
-  return <>{children}</>
+  return children
 }
 
 // 底部导航栏组件

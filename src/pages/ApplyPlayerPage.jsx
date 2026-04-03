@@ -16,13 +16,13 @@ export default function ApplyPlayerPage() {
   const [loading, setLoading] = useState(false)
 
   const [form, setForm] = useState({
-    games: [] as string[],
+    games: [],
     price: 35,
     rank: '钻石',
     description: '',
   })
 
-  const toggleGame = (game: string) => {
+  const toggleGame = (game) => {
     setForm((f) => ({
       ...f,
       games: f.games.includes(game)

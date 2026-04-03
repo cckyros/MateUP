@@ -246,8 +246,6 @@ const OrderDetailPage = () => {
           onClose={() => setShowRating(false)}
         />
       )}
-    </div>
-  )
 
       {/* 取消弹窗 */}
       {showCancelModal && (

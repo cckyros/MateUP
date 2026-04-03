@@ -2,25 +2,25 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
-import { usePlayerStore } from '../store'
+import { usePlayerProfileStore } from '../store'
 import { mockApi } from '../api/mock'
 import { getPlayerReviews, replyReview } from '../api/playerApi'
 
 export default function PlayerReviewsPage() {
   const navigate = useNavigate()
-  const { reviews, setReviews } = usePlayerStore()
-  const [replying, setReplying] = useState<string | null>(null)
+  const { reviews, setReviews } = usePlayerProfileStore()
+  const [replying, setReplying] = useState(null)
   const [replyText, setReplyText] = useState('')
 
   useEffect(() => {
     getPlayerReviews().then((res) => setReviews(res.reviews)).catch(() => {})
   }, [])
 
-  const handleReply = async (reviewId: string) => {
+  const handleReply = async (reviewId) => {
     if (!replyText.trim()) return
     setReplying(reviewId)
     await replyReview(reviewId, replyText)
-    usePlayerStore.getState().setReviews(
+    usePlayerProfileStore.getState().setReviews(
       reviews.map((r) =>
         r.id === reviewId ? { ...r, replied: true, reply: replyText } : r
       )
@@ -29,7 +29,7 @@ export default function PlayerReviewsPage() {
     setReplying(null)
   }
 
-  const renderStars = (rating: number) => {
+  const renderStars = (rating) => {
     return '⭐'.repeat(rating) + '☆'.repeat(5 - rating)
   }
 

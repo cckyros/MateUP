@@ -7,7 +7,7 @@ import { getEarningsOverview, getEarningsList, withdraw } from '../api/playerApi
 
 export default function PlayerEarningsPage() {
   const navigate = useNavigate()
-  const [data, setData] = useState<any>(null)
+  const [data, setData] = useState(null)
   const [withdrawing, setWithdrawing] = useState(false)
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function PlayerEarningsPage() {
             <p style={styles.emptyText}>暂无记录</p>
           </div>
         ) : (
-          data.records.map((record: any) => (
+          data.records.map((record) => (
             <div key={record.id} style={styles.recordItem}>
               <div style={styles.recordLeft}>
                 <span style={{

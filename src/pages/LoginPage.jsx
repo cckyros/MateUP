@@ -71,13 +71,13 @@ const LoginPage = () => {
       // 同步获取陪玩师申请状态
       try {
         const applyRes = await getApplyStatus()
-        const statusMap: Record<number, string> = {
+        const statusMap = {
           1: 'pending',
           3: 'approved',
           4: 'rejected',
         }
         const playerStatus = statusMap[applyRes.step] || 'none'
-        setUser({ ...res.user, playerStatus: playerStatus as any, isPlayer: playerStatus === 'approved' })
+        setUser({ ...res.user, playerStatus, isPlayer: playerStatus === 'approved' })
       } catch {
         setUser({ ...res.user, playerStatus: 'none', isPlayer: false })
       }

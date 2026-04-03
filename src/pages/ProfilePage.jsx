@@ -19,15 +19,15 @@ const ProfilePage = () => {
     if (!user) return
     getApplyStatus()
       .then((res) => {
-        const statusMap: Record<number, string> = {
+        const statusMap = {
           1: 'pending',
           3: 'approved',
           4: 'rejected',
         }
         const s = statusMap[res.step] || 'none'
-        setStatus(s as any, res.submittedAt || null, res.rejectedReason || null)
+        setStatus(s, res.submittedAt || null, res.rejectedReason || null)
         if (user) {
-          setUser({ ...user, playerStatus: s as any, isPlayer: s === 'approved' })
+          setUser({ ...user, playerStatus: s, isPlayer: s === 'approved' })
         }
       })
       .catch(() => {})
@@ -124,7 +124,7 @@ const ProfilePage = () => {
 
       {/* 功能菜单 */}
       <div style={styles.menuSection}>
-        {activeMenuItems.map((item: any, i: number) => (
+        {activeMenuItems.map((item, i) => (
           <div
             key={i}
             style={styles.menuItem}

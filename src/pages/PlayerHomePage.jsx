@@ -2,14 +2,14 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
-import { usePlayerStore } from '../store'
+import { usePlayerProfileStore } from '../store'
 import { acceptOrder, rejectOrder } from '../api/order'
 import { getPlayerProfile, getPlayerOrders, setOnlineStatus } from '../api/playerApi'
 import { ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '../constants'
 
 export default function PlayerHomePage() {
   const navigate = useNavigate()
-  const { profile, orders, setProfile, setOrders } = usePlayerStore()
+  const { profile, orders, setProfile, setOrders } = usePlayerProfileStore()
 
   useEffect(() => {
     getPlayerProfile().then((res) => setProfile(res)).catch(() => {})
@@ -105,7 +105,7 @@ export default function PlayerHomePage() {
                 <button
                   style={styles.acceptBtn}
                   onClick={() => acceptOrder(order.id).then(() => {
-                    usePlayerStore.getState().updateOrderStatus(order.id, 'IN_PROGRESS')
+                    usePlayerProfileStore.getState().updateOrderStatus(order.id, 'IN_PROGRESS')
                   })}
                 >
                   接单
@@ -113,7 +113,7 @@ export default function PlayerHomePage() {
                 <button
                   style={styles.rejectBtn}
                   onClick={() => rejectOrder(order.id).then(() => {
-                    usePlayerStore.getState().updateOrderStatus(order.id, 'CANCELLED')
+                    usePlayerProfileStore.getState().updateOrderStatus(order.id, 'CANCELLED')
                   })}
                 >
                   拒单

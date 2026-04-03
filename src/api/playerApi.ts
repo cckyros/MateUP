@@ -1,4 +1,4 @@
-import request from '../api'
+import { request } from '../api'
 
 // ========== 陪玩师个人中心 API (Phase 7) ==========
 

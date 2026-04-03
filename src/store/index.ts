@@ -424,7 +424,7 @@ interface PlayerStore {
   setReviews: (reviews: Review[]) => void
 }
 
-export const usePlayerStore = create<PlayerStore>((set) => ({
+export const usePlayerProfileStore = create<PlayerStore>((set) => ({
   profile: null,
   orders: [],
   reviews: [],

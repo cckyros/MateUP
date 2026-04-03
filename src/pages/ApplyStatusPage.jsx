@@ -15,13 +15,13 @@ export default function ApplyStatusPage() {
     getApplyStatus()
       .then((res) => {
         // step: 1=PENDING, 3=APPROVED, 4=REJECTED
-        const statusMap: Record<number, string> = {
+        const statusMap = {
           1: 'pending',
           3: 'approved',
           4: 'rejected',
         }
         const s = statusMap[res.step] || 'pending'
-        setStatus(s as any, res.submittedAt || null, res.rejectedReason || null)
+        setStatus(s, res.submittedAt || null, res.rejectedReason || null)
       })
       .catch(() => {
         // API 失败时用本地缓存状态

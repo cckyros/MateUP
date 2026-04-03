@@ -3,7 +3,15 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
 import { getOrderList, cancelOrder, completeOrder } from '../api/order'
-import { OrderStatus } from '../store'
+
+// 订单状态
+const ORDER_STATUS = {
+  CREATED: 'CREATED',
+  WAIT_ACCEPT: 'WAIT_ACCEPT',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+}
 
 // 状态映射：API状态值 → 显示标签 + 颜色
 const STATUS_MAP = {
