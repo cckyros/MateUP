@@ -1,10 +1,12 @@
 // 陪玩师列表页 - 已接入真实 API
 import { useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { usePlayerStore, useChatStore } from '../store'
 import { getPlayers } from '../api/players'
 import { COLORS, GAMES, GAME_NAMES } from '../constants'
 import { Styles } from '@/utils/styles'
+import { listStagger, listItem, buttonTap } from '../utils/animations'
 
 // 字段映射：旧字段 → 新字段（兼容性）
 const normalizePlayer = (p) => ({
@@ -169,12 +171,20 @@ const PlayerListPage = () => {
       </div>
 
       {/* ========== 陪玩师列表 ========== */}
-      <div style={styles.playerList}>
+      <motion.div
+        style={styles.playerList}
+        variants={listStagger(0.07, 0.05)}
+        initial="initial"
+        animate="animate"
+      >
         {displayPlayers.map(player => (
-          <div
+          <motion.div
             key={player.id}
             style={styles.playerCard}
             onClick={() => navigate(`/player/${player.id}`)}
+            variants={listItem}
+            whileHover={{ scale: 1.015, boxShadow: '0px 8px 24px rgba(255,107,157,0.25)' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             {/* 头像 */}
             <div style={styles.cardHeader}>
@@ -240,19 +250,21 @@ const PlayerListPage = () => {
                 <span style={styles.price}>¥{player.price}</span>
                 <span style={styles.priceUnit}>/小时</span>
               </div>
-              <div
+              <motion.div
                 style={styles.orderBtn}
+                whileTap={{ scale: 0.96, opacity: 0.85 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 onClick={(e) => {
                   e.stopPropagation()
                   navigate(`/player/${player.id}`)
                 }}
               >
                 立即预约
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   )
 }

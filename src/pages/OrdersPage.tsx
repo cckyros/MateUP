@@ -1,9 +1,11 @@
 // 订单页 - 已接入真实 API
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { COLORS } from '../constants'
 import { getOrderList, cancelOrder, completeOrder } from '../api/order'
 import { Styles } from '@/utils/styles'
+import { listStagger, listItem, buttonTap } from '../utils/animations'
 
 // 订单状态
 const ORDER_STATUS = {
@@ -139,22 +141,30 @@ const OrdersPage = () => {
       </div>
 
       {/* 订单列表 */}
-      <div style={styles.orderList}>
+      <motion.div
+        style={styles.orderList}
+        variants={listStagger(0.06, 0.08)}
+        initial="initial"
+        animate="animate"
+      >
         {loading ? (
           <div style={{ ...styles.empty, color: COLORS.textSecondary }}>加载中...</div>
         ) : getFilteredOrders().length === 0 ? (
-          <div style={styles.empty}>
+          <motion.div style={styles.empty} variants={listItem}>
             <span style={styles.emptyIcon}>📋</span>
             <p style={styles.emptyText}>暂无订单</p>
-          </div>
+          </motion.div>
         ) : (
           getFilteredOrders().map(order => {
             const statusInfo = getStatusInfo(order.status)
             return (
-              <div
+              <motion.div
                 key={order.id}
                 style={styles.orderCard}
                 onClick={() => navigate(`/order-detail/${order.id}`)}
+                variants={listItem}
+                whileHover={{ scale: 1.01, boxShadow: '0px 6px 20px rgba(0,0,0,0.3)' }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               >
                 <div style={styles.orderTop}>
                   <span style={styles.gameTag}>
@@ -194,29 +204,33 @@ const OrdersPage = () => {
 
                 {order.status === 'WAIT_ACCEPT' && (
                   <div style={styles.actionBar}>
-                    <span
+                    <motion.span
                       style={styles.cancelBtn}
                       onClick={(e) => { e.stopPropagation(); handleCancel(order.id) }}
+                      whileTap={{ scale: 0.94, opacity: 0.7 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     >
                       取消订单
-                    </span>
+                    </motion.span>
                   </div>
                 )}
                 {order.status === 'IN_PROGRESS' && (
                   <div style={styles.actionBar}>
-                    <span
+                    <motion.span
                       style={styles.finishBtn}
                       onClick={(e) => { e.stopPropagation(); handleComplete(order.id) }}
+                      whileTap={{ scale: 0.94, opacity: 0.8 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     >
                       确认完成
-                    </span>
+                    </motion.span>
                   </div>
                 )}
-              </div>
+              </motion.div>
             )
           })
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

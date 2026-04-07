@@ -1,18 +1,15 @@
 import React, { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { Player } from '../store'
 import { COLORS } from '../constants'
-
-// ========== 陪玩师卡片组件（已优化） ==========
-// - React.memo 避免不必要的重渲染
-// - getItemLayout 配合 FlatList 实现精准定位
+import { cardHoverProps } from '../utils/animations'
 
 interface PlayerCardProps {
   player: Player
   onPress?: (player: Player) => void
 }
 
-// 使用 memo 优化，配合 FlatList 的 memoization
 export const PlayerCard = memo(function PlayerCard({
   player,
   onPress,
@@ -24,7 +21,11 @@ export const PlayerCard = memo(function PlayerCard({
   }
 
   return (
-    <div style={styles.card} onClick={handlePress}>
+    <motion.div
+      {...cardHoverProps}
+      style={styles.card}
+      onClick={handlePress}
+    >
       {/* 头像区域 */}
       <div style={styles.avatarWrapper}>
         <img src={player.avatar} alt={player.name} style={styles.avatar} />
@@ -54,9 +55,9 @@ export const PlayerCard = memo(function PlayerCard({
           <span style={styles.orders}>{player.ordersCount}单</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
-})
+}, (prev, next) => prev.player.id === next.player.id && prev.onPress === next.onPress)
 
 // 导出固定高度，用于 FlatList getItemLayout
 export const PLAYER_CARD_HEIGHT = 100

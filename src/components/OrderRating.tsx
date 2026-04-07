@@ -1,6 +1,8 @@
 // 订单评价组件 - 评分 + 文字 + 提交
 import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { COLORS } from '../constants'
+import { modalAnimate, overlayAnimate } from '../utils/animations'
 
 interface OrderRatingProps {
   orderId: string
@@ -44,8 +46,14 @@ const OrderRating: React.FC<OrderRatingProps> = ({ orderId, playerName, onSubmit
 
   if (submitted) {
     return (
-      <div style={styles.container}>
-        <div style={styles.successCard}>
+      <motion.div
+        style={styles.container}
+        variants={overlayAnimate}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+      >
+        <motion.div style={styles.successCard} variants={modalAnimate} initial="initial" animate="animate" exit="exit">
           <div style={styles.successIcon}>✅</div>
           <h3 style={styles.successTitle}>评价成功</h3>
           <p style={styles.successDesc}>感谢您的反馈，期待下次相遇~</p>
@@ -58,30 +66,49 @@ const OrderRating: React.FC<OrderRatingProps> = ({ orderId, playerName, onSubmit
             ))}
           </div>
           <button style={styles.closeBtn2} onClick={onClose}>关闭</button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     )
   }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
+    <motion.div
+      style={styles.container}
+      variants={overlayAnimate}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <motion.div
+        style={styles.card}
+        variants={modalAnimate}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+      >
         <div style={styles.header}>
           <h3 style={styles.title}>服务评价</h3>
-          <span style={styles.closeBtn} onClick={onClose}>×</span>
+          <motion.span
+            style={styles.closeBtn}
+            onClick={onClose}
+            whileTap={{ scale: 1.4, rotate: 90 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+          >×</motion.span>
         </div>
         <p style={styles.subtitle}>对陪玩师 {playerName} 的服务进行评价</p>
 
         <div style={styles.ratingSection}>
           <div style={styles.stars}>
             {[1, 2, 3, 4, 5].map(n => (
-              <span
+              <motion.span
                 key={n}
                 style={{ ...styles.star, color: n <= rating ? '#FFD700' : '#555' }}
                 onClick={() => setRating(n)}
+                whileTap={{ scale: 1.3 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
               >
                 ★
-              </span>
+              </motion.span>
             ))}
           </div>
           <span style={styles.ratingText}>
@@ -105,15 +132,17 @@ const OrderRating: React.FC<OrderRatingProps> = ({ orderId, playerName, onSubmit
         />
         <div style={styles.charCount}>{comment.length}/200</div>
 
-        <button
+        <motion.button
           style={{ ...styles.submitBtn, opacity: submitting ? 0.6 : 1 }}
           onClick={handleSubmit}
           disabled={submitting}
+          whileTap={{ scale: 0.96 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           {submitting ? '提交中...' : '提交评价'}
-        </button>
-      </div>
-    </div>
+        </motion.button>
+      </motion.div>
+    </motion.div>
   )
 }
 
