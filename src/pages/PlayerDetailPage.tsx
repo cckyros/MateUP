@@ -1,10 +1,12 @@
 // 陪玩师详情页 - 已接入真实 API
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { COLORS } from '../constants'
 import { getPlayerDetail } from '../api/players'
 import { createOrder } from '../api/order'
 import { Styles } from '@/utils/styles'
+import { buttonTap, fadeIn } from '../utils/animations'
 
 // 游戏名称映射
 const GAME_MAP = {
@@ -80,7 +82,14 @@ const PlayerDetailPage = () => {
     <div style={styles.container}>
       {/* 顶部返回栏 */}
       <div style={styles.header}>
-        <span style={styles.backBtn} onClick={() => navigate(-1)}>←</span>
+        <motion.span
+          style={styles.backBtn}
+          onClick={() => navigate(-1)}
+          whileTap={{ scale: 0.85, opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          ←
+        </motion.span>
         <span style={styles.headerTitle}>陪玩师详情</span>
         <span style={styles.shareBtn}>分享</span>
       </div>
@@ -117,16 +126,18 @@ const PlayerDetailPage = () => {
         <h3 style={styles.sectionTitle}>选择游戏</h3>
         <div style={styles.gameOptions}>
           {['王者荣耀', '和平精英', '英雄联盟', '永劫无间'].map(game => (
-            <div
+            <motion.div
               key={game}
               style={{
                 ...styles.gameOption,
                 ...(selectedGame === game ? styles.gameOptionActive : {}),
               }}
               onClick={() => setSelectedGame(game)}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
               {game}
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -136,17 +147,20 @@ const PlayerDetailPage = () => {
         <h3 style={styles.sectionTitle}>选择时长</h3>
         <div style={styles.hoursOptions}>
           {hoursOptions.map(hour => (
-            <div
+            <motion.div
               key={hour}
               style={{
                 ...styles.hourOption,
                 ...(selectedHours === hour ? styles.hourOptionActive : {}),
               }}
               onClick={() => setSelectedHours(hour)}
+              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
               <span style={styles.hourValue}>{hour}</span>
               <span style={styles.hourLabel}>小时</span>
-            </div>
+            </motion.div>
           ))}
         </div>
         <div style={styles.priceSummary}>
@@ -175,16 +189,24 @@ const PlayerDetailPage = () => {
 
       {/* 底部操作栏 */}
       <div style={styles.bottomBar}>
-        <div style={styles.chatBtn} onClick={() => navigate('/chat')}>
+        <motion.div
+          style={styles.chatBtn}
+          onClick={() => navigate('/chat')}
+          whileTap={{ scale: 0.92, opacity: 0.8 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
           <span style={styles.chatIcon}>💬</span>
           <span>聊天</span>
-        </div>
-        <div
+        </motion.div>
+        <motion.button
           style={{ ...styles.orderBtn, ...(creating ? styles.orderBtnDisabled : {}) }}
           onClick={creating ? undefined : handleOrder}
+          disabled={creating}
+          whileTap={creating ? {} : { scale: 0.96, opacity: 0.85 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           {creating ? '创建中...' : '立即预约'}
-        </div>
+        </motion.button>
       </div>
     </div>
   )

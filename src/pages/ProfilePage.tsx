@@ -1,11 +1,13 @@
 // 个人中心页 - 已统一暗色风格 + 移除重复底部 Tab
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { COLORS } from '../constants'
 import { useApplyStore } from '../store'
 import { useUserStore } from '../store'
 import { getApplyStatus } from '../api/apply'
 import { Styles } from '@/utils/styles'
+import { listStagger, listItem } from '../utils/animations'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
@@ -124,12 +126,20 @@ const ProfilePage = () => {
       </div>
 
       {/* 功能菜单 */}
-      <div style={styles.menuSection}>
+      <motion.div
+        style={styles.menuSection}
+        variants={listStagger(0.04, 0.06)}
+        initial="initial"
+        animate="animate"
+      >
         {activeMenuItems.map((item, i) => (
-          <div
+          <motion.div
             key={i}
             style={styles.menuItem}
             onClick={() => navigate((item as any).path || '/settings')}
+            variants={listItem}
+            whileTap={{ opacity: 0.7, scale: 0.99 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             <div style={styles.menuLeft}>
               <span style={styles.menuIcon}>{item.icon}</span>
@@ -139,14 +149,17 @@ const ProfilePage = () => {
               </div>
             </div>
             <span style={styles.menuArrow}>›</span>
-          </div>
+          </motion.div>
         ))}
 
         {/* 申请陪玩师入口（普通用户可见） */}
         {!isPlayer && !isPending && (
-          <div
+          <motion.div
             style={styles.applyBanner}
             onClick={() => navigate('/apply-player')}
+            variants={listItem}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             <span style={styles.applyIcon}>🎮</span>
             <div style={styles.applyInfo}>
@@ -154,14 +167,17 @@ const ProfilePage = () => {
               <p style={styles.applySub}>空闲时间接单，赚取额外收入</p>
             </div>
             <span style={styles.applyBtn}>申请</span>
-          </div>
+          </motion.div>
         )}
 
         {/* 审核中入口 */}
         {!isPlayer && isPending && (
-          <div
+          <motion.div
             style={styles.applyBanner}
             onClick={() => navigate('/apply-status')}
+            variants={listItem}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             <span style={styles.applyIcon}>⏳</span>
             <div style={styles.applyInfo}>
@@ -169,9 +185,9 @@ const ProfilePage = () => {
               <p style={styles.applySub}>您的申请正在审核，请耐心等待</p>
             </div>
             <span style={styles.applyBtn} onClick={() => navigate('/apply-status')}>查看</span>
-          </div>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
       {/* 退出登录 */}
       <div style={styles.logoutArea}>

@@ -1,8 +1,10 @@
 // 设置页 - 已统一暗色风格
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { COLORS } from '../constants'
 import { Styles } from '@/utils/styles'
+import { listStagger, listItem } from '../utils/animations'
 
 const SettingsPage = () => {
   const navigate = useNavigate()
@@ -39,46 +41,68 @@ const SettingsPage = () => {
     <div style={styles.container}>
       {/* 顶部 */}
       <div style={styles.header}>
-        <span style={styles.backBtn} onClick={() => navigate(-1)}>←</span>
+        <motion.span
+          style={styles.backBtn}
+          onClick={() => navigate(-1)}
+          whileTap={{ scale: 0.85, opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          ←
+        </motion.span>
         <span style={styles.headerTitle}>设置</span>
       </div>
 
       {/* 通知设置 */}
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>通知设置</h3>
-        <div style={styles.toggleList}>
+        <motion.div
+          style={styles.toggleList}
+          variants={listStagger(0.04, 0.05)}
+          initial="initial"
+          animate="animate"
+        >
           {toggleSettings.map(item => (
-            <div key={item.key} style={styles.toggleItem}>
+            <motion.div key={item.key} style={styles.toggleItem} variants={listItem}>
               <div style={styles.toggleLeft}>
                 <span style={styles.toggleLabel}>{item.label}</span>
                 <span style={styles.toggleDesc}>{item.desc}</span>
               </div>
-              <div
+              <motion.div
                 style={{
                   ...styles.toggle,
                   ...(notifications[item.key] ? styles.toggleOn : {}),
                 }}
                 onClick={() => toggle(item.key)}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               >
                 <div style={{
                   ...styles.toggleDot,
                   ...(notifications[item.key] ? styles.toggleDotOn : {}),
                 }} />
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* 其他设置 */}
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>其他</h3>
-        <div style={styles.menuList}>
+        <motion.div
+          style={styles.menuList}
+          variants={listStagger(0.04, 0.05)}
+          initial="initial"
+          animate="animate"
+        >
           {menuItems.map((item, i) => (
-            <div
+            <motion.div
               key={i}
               style={styles.menuItem}
               onClick={item.action || (() => {})}
+              variants={listItem}
+              whileTap={{ opacity: 0.7, scale: 0.99 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
               <div style={styles.menuLeft}>
                 <span style={styles.menuIcon}>{item.icon}</span>
@@ -88,9 +112,9 @@ const SettingsPage = () => {
                 </div>
               </div>
               <span style={styles.menuArrow}>›</span>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* 退出登录 */}

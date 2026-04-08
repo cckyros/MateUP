@@ -1,8 +1,10 @@
 // 通知页 - 已统一暗色风格
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { COLORS } from '../constants'
 import { Styles } from '@/utils/styles'
+import { listStagger, listItem } from '../utils/animations'
 
 const NotificationPage = () => {
   const navigate = useNavigate()
@@ -29,7 +31,14 @@ const NotificationPage = () => {
     <div style={styles.container}>
       {/* 顶部 */}
       <div style={styles.header}>
-        <span style={styles.backBtn} onClick={() => navigate(-1)}>←</span>
+        <motion.span
+          style={styles.backBtn}
+          onClick={() => navigate(-1)}
+          whileTap={{ scale: 0.85, opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          ←
+        </motion.span>
         <span style={styles.headerTitle}>消息通知</span>
         {unreadCount > 0 && <span style={styles.unreadBadge}>{unreadCount}</span>}
       </div>
@@ -37,35 +46,48 @@ const NotificationPage = () => {
       {/* 标签栏 */}
       <div style={styles.tabBar}>
         {tabs.map(tab => (
-          <div
+          <motion.div
             key={tab}
             style={{
               ...styles.tab,
               ...(activeTab === tab ? styles.tabActive : {}),
             }}
             onClick={() => setActiveTab(tab)}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             {tab}
             {tab === '消息' && unreadCount > 0 && <span style={styles.tabBadge}>{unreadCount}</span>}
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* 通知列表 */}
-      <div style={styles.list}>
+      <motion.div
+        style={styles.list}
+        variants={listStagger(0.06, 0.1)}
+        initial="initial"
+        animate="animate"
+      >
         {filteredNotifications.length === 0 ? (
-          <div style={styles.empty}>
+          <motion.div
+            variants={listItem}
+            style={styles.empty}
+          >
             <span style={styles.emptyIcon}>🔔</span>
             <p style={styles.emptyText}>暂无消息</p>
-          </div>
+          </motion.div>
         ) : (
           filteredNotifications.map(notif => (
-            <div
+            <motion.div
               key={notif.id}
               style={{
                 ...styles.item,
                 ...(notif.unread ? styles.unreadItem : {}),
               }}
+              variants={listItem}
+              whileHover={{ backgroundColor: 'rgba(255,107,157,0.06)' }}
+              transition={{ duration: 0.15 }}
             >
               <div style={styles.itemIcon}>{notif.icon}</div>
               <div style={styles.itemContent}>
@@ -76,10 +98,10 @@ const NotificationPage = () => {
                 <p style={styles.itemDesc}>{notif.content}</p>
               </div>
               {notif.unread && <span style={styles.unreadDot} />}
-            </div>
+            </motion.div>
           ))
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 // 支付页 - 已接入真实 API
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { COLORS } from '../constants'
 import { getOrderDetail, payOrder } from '../api/order'
 import { Styles } from '@/utils/styles'
@@ -101,7 +102,14 @@ const PaymentPage = () => {
     <div style={styles.container}>
       {/* 顶部 */}
       <div style={styles.header}>
-        <span style={styles.backBtn} onClick={() => navigate(-1)}>←</span>
+        <motion.span
+          style={styles.backBtn}
+          onClick={() => navigate(-1)}
+          whileTap={{ scale: 0.85, opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          ←
+        </motion.span>
         <span style={styles.headerTitle}>订单支付</span>
         <span style={styles.placeholder} />
       </div>
@@ -131,13 +139,15 @@ const PaymentPage = () => {
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>选择支付方式</h3>
         {paymentMethods.map(method => (
-          <div
+          <motion.div
             key={method.id}
             style={{
               ...styles.methodItem,
               ...(selectedMethod === method.id ? styles.methodActive : {}),
             }}
             onClick={() => setSelectedMethod(method.id)}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             <div style={styles.methodLeft}>
               <span style={styles.methodIcon}>{method.icon}</span>
@@ -152,7 +162,7 @@ const PaymentPage = () => {
                 {selectedMethod === method.id && <div style={styles.radioInner} />}
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
@@ -164,13 +174,15 @@ const PaymentPage = () => {
 
       {/* 支付按钮 */}
       <div style={styles.bottomBar}>
-        <button
+        <motion.button
           style={{ ...styles.payBtn, ...(paying ? styles.payBtnDisabled : {}) }}
           onClick={handlePay}
           disabled={paying}
+          whileTap={paying ? {} : { scale: 0.97, opacity: 0.85 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           {paying ? '支付中...' : `确认支付 ¥${order.price}`}
-        </button>
+        </motion.button>
       </div>
 
       {/* 安全提示 */}

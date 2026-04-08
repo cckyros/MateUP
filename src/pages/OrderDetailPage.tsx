@@ -1,6 +1,7 @@
 // 订单详情页 - 已接入真实 API
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { COLORS } from '../constants'
 import { getOrderDetail, cancelOrder, completeOrder } from '../api/order'
 import OrderRating from '../components/OrderRating'
@@ -121,7 +122,14 @@ const OrderDetailPage = () => {
     <div style={styles.container}>
       {/* 顶部返回 */}
       <div style={styles.header}>
-        <span style={styles.backBtn} onClick={() => navigate(-1)}>←</span>
+        <motion.span
+          style={styles.backBtn}
+          onClick={() => navigate(-1)}
+          whileTap={{ scale: 0.85, opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          ←
+        </motion.span>
         <span style={styles.headerTitle}>订单详情</span>
         <span style={styles.moreBtn}>⋮</span>
       </div>
@@ -153,7 +161,14 @@ const OrderDetailPage = () => {
             <span style={styles.boosterLevel}>陪玩师</span>
           </div>
           <div style={styles.boosterActions}>
-            <div style={styles.chatBtn} onClick={() => navigate('/chat')}>💬</div>
+            <motion.div
+              style={styles.chatBtn}
+              onClick={() => navigate('/chat')}
+              whileTap={{ scale: 0.88, opacity: 0.8 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              💬
+            </motion.div>
           </div>
         </div>
       </div>
@@ -197,24 +212,46 @@ const OrderDetailPage = () => {
       <div style={styles.bottomBar}>
         {order.status === 'WAIT_ACCEPT' && (
           <>
-            <div style={styles.cancelBtn} onClick={() => setShowCancelModal(true)}>取消订单</div>
+            <motion.div
+              style={styles.cancelBtn}
+              onClick={() => setShowCancelModal(true)}
+              whileTap={{ scale: 0.95, opacity: 0.8 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              取消订单
+            </motion.div>
           </>
         )}
         {order.status === 'IN_PROGRESS' && (
-          <div style={styles.chatMainBtn} onClick={() => navigate('/chat')}>
+          <motion.div
+            style={styles.chatMainBtn}
+            onClick={() => navigate('/chat')}
+            whileTap={{ scale: 0.95, opacity: 0.85 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          >
             💬 联系陪玩
-          </div>
+          </motion.div>
         )}
         {order.status === 'COMPLETED' && (
           <>
             {!rated && (
-              <div style={styles.rateBtn} onClick={() => setShowRating(true)}>
+              <motion.div
+                style={styles.rateBtn}
+                onClick={() => setShowRating(true)}
+                whileTap={{ scale: 0.95, opacity: 0.85 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              >
                 ⭐ 立即评价
-              </div>
+              </motion.div>
             )}
-            <div style={styles.reOrderBtn} onClick={() => navigate('/home')}>
+            <motion.div
+              style={styles.reOrderBtn}
+              onClick={() => navigate('/home')}
+              whileTap={{ scale: 0.95, opacity: 0.85 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
               再次预约
-            </div>
+            </motion.div>
           </>
         )}
       </div>
