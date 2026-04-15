@@ -454,3 +454,68 @@ export const useApplyStore = create<ApplyState>((set) => ({
     set({ status, submittedAt: submittedAt || null, rejectedReason: rejectedReason || null })
   },
 }))
+// ========== 收藏 Store (Phase 8) ==========
+interface FavoriteItem {
+  id: string
+  playerId: string
+  playerName: string
+  playerAvatar: string | null
+  playerRank: string | null
+  playerGames: string[]
+  playerPrice: number
+  playerRating: number
+  playerOrdersCount: number
+  isOnline: boolean
+}
+
+interface FavoritesState {
+  favorites: FavoriteItem[]
+  favoriteIds: Set<string>
+  setFavorites: (favorites: FavoriteItem[]) => void
+  addFavorite: (item: FavoriteItem) => void
+  removeFavorite: (playerId: string) => void
+  isFavorited: (playerId: string) => boolean
+}
+
+const loadFavoriteIds = (): Set<string> => {
+  try {
+    const raw = localStorage.getItem('banlv_favorite_ids')
+    return raw ? new Set(JSON.parse(raw)) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+const saveFavoriteIds = (ids: Set<string>) => {
+  try {
+    localStorage.setItem('banlv_favorite_ids', JSON.stringify([...ids]))
+  } catch {}
+}
+
+export const useFavoritesStore = create<FavoritesState>((set, get) => ({
+  favorites: [],
+  favoriteIds: loadFavoriteIds(),
+  setFavorites: (favorites) => {
+    const ids = new Set(favorites.map((f) => f.playerId))
+    saveFavoriteIds(ids)
+    set({ favorites, favoriteIds: ids })
+  },
+  addFavorite: (item) => {
+    const state = get()
+    const newIds = new Set(state.favoriteIds)
+    newIds.add(item.playerId)
+    saveFavoriteIds(newIds)
+    set({ favorites: [item, ...state.favorites], favoriteIds: newIds })
+  },
+  removeFavorite: (playerId) => {
+    const state = get()
+    const newIds = new Set(state.favoriteIds)
+    newIds.delete(playerId)
+    saveFavoriteIds(newIds)
+    set({
+      favorites: state.favorites.filter((f) => f.playerId !== playerId),
+      favoriteIds: newIds,
+    })
+  },
+  isFavorited: (playerId) => get().favoriteIds.has(playerId),
+})) 

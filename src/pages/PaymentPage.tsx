@@ -1,13 +1,13 @@
-// 支付页 - 已接入真实 API
+// 支付页 - Phase 8: 下单须知浮层
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { COLORS } from '../constants'
 import { getOrderDetail, payOrder } from '../api/order'
 import { Styles } from '@/utils/styles'
 
 // 游戏中文名映射
-const GAME_NAMES = {
+const GAME_NAMES: Record<string, string> = {
   honor: '王者荣耀',
   apex: '和平精英',
   lol: '英雄联盟',
@@ -15,14 +15,45 @@ const GAME_NAMES = {
   danzai: '蛋仔派对',
 }
 
+// 下单须知规则
+const ORDER_RULES = [
+  {
+    icon: '💰',
+    title: '退款规则',
+    content: '支付后如需退款，请提前1小时联系客服。开始陪玩后不支持退款，因陪玩师原因导致无法服务可全额退款。',
+  },
+  {
+    icon: '⏰',
+    title: '服务时间',
+    content: '陪玩服务严格按预约时长进行，超时费用需额外支付。如陪玩师迟到超过10分钟，可联系客服处理。',
+  },
+  {
+    icon: '🚫',
+    title: '取消政策',
+    content: '支付后5分钟内可免费取消。超过5分钟取消将收取50%费用作为陪玩师空档补偿。',
+  },
+  {
+    icon: '✅',
+    title: '服务确认',
+    content: '服务完成后请在订单页确认完成，如服务期间遇到问题请保留凭证并第一时间联系客服。',
+  },
+  {
+    icon: '🔒',
+    title: '隐私保护',
+    content: '请勿向陪玩师透露账号密码、支付信息等敏感内容，一切交易通过平台进行。',
+  },
+]
+
 const PaymentPage = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
-  const [order, setOrder] = useState(null)
+  const { id } = useParams<{ id: string }>()
+  const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [paying, setPaying] = useState(false)
-  const [selectedMethod, setSelectedMethod] = useState('mock') // mock支付
+  const [selectedMethod, setSelectedMethod] = useState('mock')
   const [countdown, setCountdown] = useState(15 * 60)
+  const [showRules, setShowRules] = useState(false)
+  const [rulesAccepted, setRulesAccepted] = useState(false)
 
   // 加载订单
   useEffect(() => {
@@ -55,14 +86,20 @@ const PaymentPage = () => {
     return () => clearInterval(timer)
   }, [order])
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  const handlePay = async () => {
+  const handlePayClick = () => {
     if (!order || paying) return
+    setShowRules(true)
+    setRulesAccepted(false)
+  }
+
+  const handlePayConfirm = async () => {
+    if (!order || !rulesAccepted || paying) return
     setPaying(true)
     try {
       await payOrder(order.id, selectedMethod as any)
@@ -73,6 +110,11 @@ const PaymentPage = () => {
     } finally {
       setPaying(false)
     }
+  }
+
+  const closeRules = () => {
+    setShowRules(false)
+    setRulesAccepted(false)
   }
 
   const gameName = order ? (GAME_NAMES[order.game] || order.game) : ''
@@ -176,7 +218,7 @@ const PaymentPage = () => {
       <div style={styles.bottomBar}>
         <motion.button
           style={{ ...styles.payBtn, ...(paying ? styles.payBtnDisabled : {}) }}
-          onClick={handlePay}
+          onClick={handlePayClick}
           disabled={paying}
           whileTap={paying ? {} : { scale: 0.97, opacity: 0.85 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -189,6 +231,79 @@ const PaymentPage = () => {
       <p style={styles.securityTip}>
         🔒 支付安全由伴游平台保障，请勿泄露支付密码
       </p>
+
+      {/* 下单须知浮层 */}
+      <AnimatePresence>
+        {showRules && (
+          <>
+            <motion.div
+              style={styles.overlay}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={closeRules}
+            />
+            <motion.div
+              style={styles.bottomSheet}
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            >
+              <div style={styles.sheetHandle} />
+              <div style={styles.sheetHeader}>
+                <h3 style={styles.sheetTitle}>📋 下单须知</h3>
+                <motion.span
+                  style={styles.sheetClose}
+                  onClick={closeRules}
+                  whileTap={{ scale: 0.85, opacity: 0.7 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                >
+                  ✕
+                </motion.span>
+              </div>
+              <div style={styles.rulesList}>
+                {ORDER_RULES.map((rule, i) => (
+                  <div key={i} style={styles.ruleItem}>
+                    <div style={styles.ruleTitleRow}>
+                      <span style={styles.ruleIcon}>{rule.icon}</span>
+                      <span style={styles.ruleTitle}>{rule.title}</span>
+                    </div>
+                    <p style={styles.ruleContent}>{rule.content}</p>
+                  </div>
+                ))}
+              </div>
+              <motion.div
+                style={styles.agreeRow}
+                onClick={() => setRulesAccepted(!rulesAccepted)}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              >
+                <div style={{
+                  ...styles.checkbox,
+                  ...(rulesAccepted ? styles.checkboxChecked : {}),
+                }}>
+                  {rulesAccepted && <span style={styles.checkmark}>✓</span>}
+                </div>
+                <span style={styles.agreeText}>我已阅读并同意以上须知</span>
+              </motion.div>
+              <motion.button
+                style={{
+                  ...styles.confirmBtn,
+                  ...(rulesAccepted ? {} : styles.confirmBtnDisabled),
+                }}
+                onClick={handlePayConfirm}
+                disabled={!rulesAccepted || paying}
+                whileTap={rulesAccepted && !paying ? { scale: 0.97, opacity: 0.85 } : {}}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              >
+                {paying ? '支付中...' : `确认支付 ¥${order.price}`}
+              </motion.button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -364,6 +479,136 @@ const styles: Styles = {
     color: COLORS.textSecondary,
     padding: '0 20px 20px',
     margin: 0,
+  },
+  // 浮层
+  overlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    zIndex: 200,
+  },
+  bottomSheet: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    maxWidth: '480px',
+    margin: '0 auto',
+    backgroundColor: COLORS.card,
+    borderRadius: '20px 20px 0 0',
+    padding: '0 0 32px 0',
+    zIndex: 201,
+    maxHeight: '80vh',
+    overflowY: 'auto',
+  },
+  sheetHandle: {
+    width: '40px',
+    height: '4px',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: '2px',
+    margin: '12px auto 0',
+  },
+  sheetHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '16px 20px',
+    borderBottom: `1px solid ${COLORS.border}`,
+  },
+  sheetTitle: {
+    fontSize: '17px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+    margin: 0,
+  },
+  sheetClose: {
+    fontSize: '18px',
+    color: COLORS.textSecondary,
+    cursor: 'pointer',
+    padding: '4px',
+  },
+  rulesList: {
+    padding: '16px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+  ruleItem: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: '12px',
+    padding: '14px',
+    border: `1px solid ${COLORS.border}`,
+  },
+  ruleTitleRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '8px',
+  },
+  ruleIcon: {
+    fontSize: '16px',
+  },
+  ruleTitle: {
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  ruleContent: {
+    fontSize: '13px',
+    color: COLORS.textSecondary,
+    lineHeight: '1.6',
+    margin: 0,
+  },
+  agreeRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '0 20px 16px',
+    cursor: 'pointer',
+  },
+  checkbox: {
+    width: '22px',
+    height: '22px',
+    borderRadius: '6px',
+    border: `2px solid ${COLORS.border}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  checkboxChecked: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  checkmark: {
+    color: '#fff',
+    fontSize: '14px',
+    fontWeight: 'bold',
+  },
+  agreeText: {
+    fontSize: '14px',
+    color: COLORS.text,
+  },
+  confirmBtn: {
+    display: 'block',
+    width: 'calc(100% - 40px)',
+    margin: '0 20px',
+    padding: '16px',
+    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
+    color: '#fff',
+    border: 'none',
+    borderRadius: '25px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: `0 4px 15px ${COLORS.primary}40`,
+  },
+  confirmBtnDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
   },
 }
 

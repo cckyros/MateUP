@@ -20,6 +20,7 @@ import PlayerOrdersPage from './pages/PlayerOrdersPage'
 import PlayerProfilePage from './pages/PlayerProfilePage'
 import PlayerEarningsPage from './pages/PlayerEarningsPage'
 import PlayerReviewsPage from './pages/PlayerReviewsPage'
+import FavoritesPage from './pages/FavoritesPage'
 import { useUserStore } from './store'
 import { pageTransition } from './utils/animations'
 
@@ -70,7 +71,7 @@ const TabBar = () => {
     '/order-detail', '/payment', '/notifications', '/settings',
     '/apply-player', '/apply-status',
     '/player-home', '/player-orders', '/player-profile',
-    '/player-earnings', '/player-reviews',
+    '/player-earnings', '/player-reviews', '/favorites',
   ]
   const shouldHide = noTabPages.some((p) =>
     location.pathname === p || location.pathname.startsWith('/player-detail')
@@ -127,6 +128,7 @@ const RoutesContent = () => {
         {/* Phase 7 - 角色系统 */}
         <Route path="/apply-player" element={<AnimatedPage><ApplyPlayerPage /></AnimatedPage>} />
         <Route path="/apply-status" element={<AnimatedPage><ApplyStatusPage /></AnimatedPage>} />
+        <Route path="/favorites" element={<AnimatedPage><FavoritesPage /></AnimatedPage>} />
         <Route
           path="/player-home"
           element={

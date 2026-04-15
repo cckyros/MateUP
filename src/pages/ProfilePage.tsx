@@ -53,6 +53,7 @@ const ProfilePage = () => {
     { icon: '🏠', label: '陪玩师工作台', sub: '管理订单和收入', path: '/player-home' },
     { icon: '💰', label: '收入中心', sub: '查看和提现收入', path: '/player-earnings' },
     { icon: '⭐', label: '评价管理', sub: '查看和回复评价', path: '/player-reviews' },
+    { icon: '❤️', label: '我的收藏', sub: '收藏的陪玩师', path: '/favorites' },
     { icon: '👤', label: '陪玩师资料', sub: '编辑接单信息', path: '/player-profile' },
   ]
 
@@ -60,6 +61,7 @@ const ProfilePage = () => {
   const menuItems = [
     { icon: '💰', label: '我的钱包', sub: '余额 ¥856.00' },
     { icon: '🎁', label: '优惠券', sub: '5张可用' },
+    { icon: '❤️', label: '我的收藏', sub: '收藏的陪玩师', path: '/favorites' },
     { icon: '⭐', label: '我的评价', sub: '查看收到的评价' },
     { icon: '🎮', label: '游戏偏好', sub: '王者荣耀、和平精英' },
     { icon: '📱', label: '账号安全', sub: '手机号、密码设置' },
