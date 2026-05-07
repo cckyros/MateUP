@@ -1,4 +1,4 @@
-import request from '../api'
+import { request } from '../api'
 
 // ========== 收藏 API (Phase 8) ==========
 
