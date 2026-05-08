@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '../constants'
-import { mockApi } from '../api/mock'
-import { getEarningsOverview, getEarningsList, withdraw } from '../api/playerApi'
+import { playerApi } from '../api'
 import { Styles } from '@/utils/styles'
 
 export default function PlayerEarningsPage() {
@@ -13,10 +12,10 @@ export default function PlayerEarningsPage() {
 
   useEffect(() => {
     Promise.all([
-      getEarningsOverview(),
-      getEarningsList(),
-    ]).then(([overview, listRes]) => {
-      setData({ ...overview, records: listRes.records })
+      playerApi.getEarningsOverview(),
+      playerApi.getEarningsList(),
+    ]).then(([overview: any, listRes: any]) => {
+      setData({ ...overview, records: listRes.records || [] })
     }).catch(() => {})
   }, [])
 
@@ -24,7 +23,7 @@ export default function PlayerEarningsPage() {
     if (!data || data.balance <= 0) return
     setWithdrawing(true)
     try {
-      await withdraw(data.balance)
+      await playerApi.withdraw(data.balance)
       alert('提现申请已提交，预计1-3个工作日到账')
     } catch (e) {
       alert('提现失败，请重试')

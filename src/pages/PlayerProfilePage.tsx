@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS, GAME_NAMES } from '../constants'
 import { usePlayerProfileStore } from '../store'
-import { mockApi } from '../api/mock'
-import { getPlayerProfile, updatePlayerProfile } from '../api/playerApi'
+import { playerApi as playerApiModule } from '../api'
 import { Styles } from '@/utils/styles'
 
 export default function PlayerProfilePage() {
@@ -15,8 +14,8 @@ export default function PlayerProfilePage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    getPlayerProfile().then((res) => {
-      setProfile(res as any)
+    playerApiModule.getPlayerProfile().then((res: any) => {
+      setProfile(res)
       setForm({
         price: res.price,
         rank: res.rank,
@@ -28,7 +27,7 @@ export default function PlayerProfilePage() {
 
   const handleSave = async () => {
     setSaving(true)
-    await updatePlayerProfile(form)
+    await playerApiModule.updatePlayerProfile(form)
     setProfile({ ...profile, ...form })
     setEditing(false)
     setSaving(false)

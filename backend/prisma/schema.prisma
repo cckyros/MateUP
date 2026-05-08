@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  phone      String   @unique
+  password   String
+  username   String
+  avatar     String?
+  createTime BigInt
+  updateTime BigInt
+  player     Player?
+  orders     Order[]  @relation("UserOrders")
+
+  @@map("users")
+}
+
+model Player {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  name        String
+  avatar      String?
+  rank        String?
+  tags        String?  // JSON string array
+  price       Float
+  isOnline    Boolean  @default(false)
+  games       String?  // JSON string array
+  rating      Float    @default(5.0)
+  ordersCount Int      @default(0)
+  description String?
+  createTime  BigInt
+  updateTime  BigInt
+  user        User     @relation(fields: [userId], references: [id])
+  orders      Order[]
+
+  @@map("players")
+}
+
+model Order {
+  id            String    @id @default(uuid())
+  userId        String
+  playerId      String
+  game          String
+  duration      Int
+  price         Float
+  status        String    @default("CREATED")
+  remark        String?
+  createTime    BigInt
+  payTime       BigInt?
+  acceptTime    BigInt?
+  completeTime  BigInt?
+  cancelTime    BigInt?
+  cancelReason  String?
+  user          User      @relation("UserOrders", fields: [userId], references: [id])
+  player        Player    @relation(fields: [playerId], references: [id])
+
+  @@map("orders")
+}
