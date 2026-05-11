@@ -1,51 +1,52 @@
-// 通知页 - 已统一暗色风格
+// ============================================================
+// 通知页 - 重构后
+// ============================================================
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '../constants'
-import { Styles } from '@/utils/styles'
-import { listStagger, listItem } from '../utils/animations'
+import { COLORS } from '@/constants'
+import { Header } from '@/components/layout/Header'
+import { Empty } from '@/components/ui'
+import { listStagger, listItem } from '@/hooks'
 
+// ============================================================
+// 常量
+// ============================================================
+const TABS = ['全部', '订单', '消息', '系统']
+const TAB_MAP: Record<string, string> = { '全部': 'all', '订单': 'order', '消息': 'msg', '系统': 'system' }
+
+const NOTIFICATIONS = [
+  { id: 1, type: 'order', icon: '📋', title: '订单已接单', content: '小美 已接单，您预约的王者荣耀陪玩服务将于今天20:00开始', time: '刚刚', unread: true },
+  { id: 2, type: 'msg', icon: '💬', title: '新消息', content: '小美：好的没问题，今晚见~', time: '5分钟前', unread: true },
+  { id: 3, type: 'system', icon: '🔔', title: '系统通知', content: '恭喜您获得新人优惠券，满50减10，限今日使用', time: '1小时前', unread: false },
+  { id: 4, type: 'order', icon: '✅', title: '订单已完成', content: '您与阿杰的和平精英陪玩服务已完成，邀您评价', time: '昨天', unread: false },
+  { id: 5, type: 'activity', icon: '🎁', title: '活动提醒', content: '周末连单享8折优惠，快去约陪玩吧~', time: '3天前', unread: false },
+]
+
+// ============================================================
+// 主组件
+// ============================================================
 const NotificationPage = () => {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('全部')
 
-  const notifications = [
-    { id: 1, type: 'order', icon: '📋', title: '订单已接单', content: '小美 已接单，您预约的王者荣耀陪玩服务将于今天20:00开始', time: '刚刚', unread: true },
-    { id: 2, type: 'msg', icon: '💬', title: '新消息', content: '小美：好的没问题，今晚见~', time: '5分钟前', unread: true },
-    { id: 3, type: 'system', icon: '🔔', title: '系统通知', content: '恭喜您获得新人优惠券，满50减10，限今日使用', time: '1小时前', unread: false },
-    { id: 4, type: 'order', icon: '✅', title: '订单已完成', content: '您与阿杰的和平精英陪玩服务已完成，邀您评价', time: '昨天', unread: false },
-    { id: 5, type: 'activity', icon: '🎁', title: '活动提醒', content: '周末连单享8折优惠，快去约陪玩吧~', time: '3天前', unread: false },
-  ]
+  const filtered = activeTab === '全部'
+    ? NOTIFICATIONS
+    : NOTIFICATIONS.filter(n => n.type === TAB_MAP[activeTab])
 
-  const tabs = ['全部', '订单', '消息', '系统']
-  const tabMap = { '全部': 'all', '订单': 'order', '消息': 'msg', '系统': 'system' }
-
-  const filteredNotifications = activeTab === '全部'
-    ? notifications
-    : notifications.filter(n => n.type === tabMap[activeTab])
-
-  const unreadCount = notifications.filter(n => n.unread).length
+  const unreadCount = NOTIFICATIONS.filter(n => n.unread).length
 
   return (
     <div style={styles.container}>
-      {/* 顶部 */}
-      <div style={styles.header}>
-        <motion.span
-          style={styles.backBtn}
-          onClick={() => navigate(-1)}
-          whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        >
-          ←
-        </motion.span>
-        <span style={styles.headerTitle}>消息通知</span>
-        {unreadCount > 0 && <span style={styles.unreadBadge}>{unreadCount}</span>}
-      </div>
+      <Header
+        title="消息通知"
+        onBack={() => navigate(-1)}
+        right={unreadCount > 0 ? <span style={styles.unreadBadge}>{unreadCount}</span> : undefined}
+      />
 
       {/* 标签栏 */}
       <div style={styles.tabBar}>
-        {tabs.map(tab => (
+        {TABS.map(tab => (
           <motion.div
             key={tab}
             style={{
@@ -54,10 +55,11 @@ const NotificationPage = () => {
             }}
             onClick={() => setActiveTab(tab)}
             whileTap={{ scale: 0.92 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             {tab}
-            {tab === '消息' && unreadCount > 0 && <span style={styles.tabBadge}>{unreadCount}</span>}
+            {tab === '消息' && unreadCount > 0 && (
+              <span style={styles.tabBadge}>{unreadCount}</span>
+            )}
           </motion.div>
         ))}
       </div>
@@ -66,19 +68,13 @@ const NotificationPage = () => {
       <motion.div
         style={styles.list}
         variants={listStagger(0.06, 0.1)}
-        initial="initial"
-        animate="animate"
+        initial="hidden"
+        animate="show"
       >
-        {filteredNotifications.length === 0 ? (
-          <motion.div
-            variants={listItem}
-            style={styles.empty}
-          >
-            <span style={styles.emptyIcon}>🔔</span>
-            <p style={styles.emptyText}>暂无消息</p>
-          </motion.div>
+        {filtered.length === 0 ? (
+          <Empty icon="🔔" text="暂无消息" />
         ) : (
-          filteredNotifications.map(notif => (
+          filtered.map(notif => (
             <motion.div
               key={notif.id}
               style={{
@@ -87,7 +83,6 @@ const NotificationPage = () => {
               }}
               variants={listItem}
               whileHover={{ backgroundColor: 'rgba(255,107,157,0.06)' }}
-              transition={{ duration: 0.15 }}
             >
               <div style={styles.itemIcon}>{notif.icon}</div>
               <div style={styles.itemContent}>
@@ -106,88 +101,72 @@ const NotificationPage = () => {
   )
 }
 
-// ========== 暗色风格 ==========
-const styles: Styles = {
+// ============================================================
+// 样式
+// ============================================================
+const styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,
   },
-  header: {
-    backgroundColor: COLORS.card,
-    padding: '14px 16px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-  },
-  backBtn: {
-    fontSize: '24px',
-    cursor: 'pointer',
-    color: COLORS.text,
-  },
-  headerTitle: {
-    fontSize: '17px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-    flex: 1,
-  },
   unreadBadge: {
     backgroundColor: COLORS.primary,
     color: '#fff',
-    fontSize: '11px',
+    fontSize: 11,
     padding: '2px 8px',
-    borderRadius: '10px',
-    minWidth: '20px',
-    textAlign: 'center',
+    borderRadius: 10,
+    minWidth: 20,
+    textAlign: 'center' as const,
   },
   tabBar: {
     display: 'flex',
     padding: '12px 16px',
-    gap: '24px',
+    gap: 24,
     backgroundColor: COLORS.card,
     borderBottom: `1px solid ${COLORS.border}`,
   },
   tab: {
-    fontSize: '14px',
+    fontSize: 14,
     color: COLORS.textSecondary,
-    paddingBottom: '8px',
+    paddingBottom: 8,
     cursor: 'pointer',
-    borderBottom: '2px solid transparent',
+    borderBottom: '2px solid transparent' as const,
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: 6,
   },
   tabActive: {
     color: COLORS.primary,
     borderBottomColor: COLORS.primary,
-    fontWeight: 'bold',
+    fontWeight: 'bold' as const,
   },
   tabBadge: {
     backgroundColor: COLORS.primary,
     color: '#fff',
-    fontSize: '10px',
+    fontSize: 10,
     padding: '1px 5px',
-    borderRadius: '8px',
+    borderRadius: 8,
   },
   list: {
-    padding: '0',
+    padding: 0,
   },
   item: {
     display: 'flex',
     alignItems: 'flex-start',
-    padding: '16px',
+    padding: 16,
     borderBottom: `1px solid ${COLORS.border}`,
-    gap: '14px',
-    position: 'relative',
+    gap: 14,
+    position: 'relative' as const,
     backgroundColor: 'transparent',
   },
   unreadItem: {
     backgroundColor: 'rgba(255,107,157,0.05)',
   },
   itemIcon: {
-    fontSize: '32px',
-    width: '48px',
-    height: '48px',
-    borderRadius: '12px',
+    fontSize: 32,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     backgroundColor: COLORS.card,
     display: 'flex',
     alignItems: 'center',
@@ -201,45 +180,31 @@ const styles: Styles = {
   itemHeader: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: '6px',
+    marginBottom: 6,
   },
   itemTitle: {
-    fontSize: '15px',
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: 'bold' as const,
     color: COLORS.text,
   },
   itemTime: {
-    fontSize: '12px',
+    fontSize: 12,
     color: COLORS.textSecondary,
   },
   itemDesc: {
-    fontSize: '13px',
+    fontSize: 13,
     color: COLORS.textSecondary,
     margin: 0,
-    lineHeight: '1.5',
+    lineHeight: 1.5,
   },
   unreadDot: {
-    position: 'absolute',
-    top: '20px',
-    right: '16px',
-    width: '8px',
-    height: '8px',
+    position: 'absolute' as const,
+    top: 20,
+    right: 16,
+    width: 8,
+    height: 8,
     borderRadius: '50%',
     backgroundColor: COLORS.primary,
-  },
-  empty: {
-    textAlign: 'center',
-    padding: '80px 0',
-  },
-  emptyIcon: {
-    fontSize: '48px',
-    display: 'block',
-    marginBottom: '12px',
-  },
-  emptyText: {
-    fontSize: '14px',
-    color: COLORS.textSecondary,
-    margin: 0,
   },
 }
 

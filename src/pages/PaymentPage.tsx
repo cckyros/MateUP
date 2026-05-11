@@ -1,12 +1,18 @@
-// 支付页 - Phase 8: 下单须知浮层
+// ============================================================
+// 支付页 - 重构后
+// ============================================================
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { COLORS } from '../constants'
-import { getOrderDetail, payOrder } from '../api/order'
-import { Styles } from '@/utils/styles'
+import { motion } from 'framer-motion'
+import { COLORS } from '@/constants'
+import { getOrderDetail, payOrder } from '@/api/order'
+import { Header } from '@/components/layout/Header'
+import { Button, BottomSheet } from '@/components/ui'
+import { useCountdown } from '@/hooks'
 
-// 游戏中文名映射
+// ============================================================
+// 常量
+// ============================================================
 const GAME_NAMES: Record<string, string> = {
   honor: '王者荣耀',
   apex: '和平精英',
@@ -15,35 +21,21 @@ const GAME_NAMES: Record<string, string> = {
   danzai: '蛋仔派对',
 }
 
-// 下单须知规则
 const ORDER_RULES = [
-  {
-    icon: '💰',
-    title: '退款规则',
-    content: '支付后如需退款，请提前1小时联系客服。开始陪玩后不支持退款，因陪玩师原因导致无法服务可全额退款。',
-  },
-  {
-    icon: '⏰',
-    title: '服务时间',
-    content: '陪玩服务严格按预约时长进行，超时费用需额外支付。如陪玩师迟到超过10分钟，可联系客服处理。',
-  },
-  {
-    icon: '🚫',
-    title: '取消政策',
-    content: '支付后5分钟内可免费取消。超过5分钟取消将收取50%费用作为陪玩师空档补偿。',
-  },
-  {
-    icon: '✅',
-    title: '服务确认',
-    content: '服务完成后请在订单页确认完成，如服务期间遇到问题请保留凭证并第一时间联系客服。',
-  },
-  {
-    icon: '🔒',
-    title: '隐私保护',
-    content: '请勿向陪玩师透露账号密码、支付信息等敏感内容，一切交易通过平台进行。',
-  },
+  { icon: '💰', title: '退款规则', content: '支付后如需退款，请提前1小时联系客服。开始陪玩后不支持退款，因陪玩师原因导致无法服务可全额退款。' },
+  { icon: '⏰', title: '服务时间', content: '陪玩服务严格按预约时长进行，超时费用需额外支付。如陪玩师迟到超过10分钟，可联系客服处理。' },
+  { icon: '🚫', title: '取消政策', content: '支付后5分钟内可免费取消。超过5分钟取消将收取50%费用作为陪玩师空档补偿。' },
+  { icon: '✅', title: '服务确认', content: '服务完成后请在订单页确认完成，如服务期间遇到问题请保留凭证并第一时间联系客服。' },
+  { icon: '🔒', title: '隐私保护', content: '请勿向陪玩师透露账号密码、支付信息等敏感内容，一切交易通过平台进行。' },
 ]
 
+const PAYMENT_METHODS = [
+  { id: 'mock', name: '模拟支付', icon: '💳', desc: '测试用' },
+]
+
+// ============================================================
+// 主组件
+// ============================================================
 const PaymentPage = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
@@ -51,16 +43,15 @@ const PaymentPage = () => {
   const [loading, setLoading] = useState(true)
   const [paying, setPaying] = useState(false)
   const [selectedMethod, setSelectedMethod] = useState('mock')
-  const [countdown, setCountdown] = useState(15 * 60)
   const [showRules, setShowRules] = useState(false)
   const [rulesAccepted, setRulesAccepted] = useState(false)
+  const { countdown } = useCountdown(15 * 60)
 
+  // ============================================================
   // 加载订单
+  // ============================================================
   useEffect(() => {
-    if (!id) {
-      setLoading(false)
-      return
-    }
+    if (!id) { setLoading(false); return }
     const load = async () => {
       try {
         const data = await getOrderDetail(id)
@@ -74,26 +65,16 @@ const PaymentPage = () => {
     load()
   }, [id])
 
-  // 倒计时
-  useEffect(() => {
-    if (!order) return
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 0) { clearInterval(timer); return 0 }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [order])
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
+  // ============================================================
+  // 支付
+  // ============================================================
   const handlePayClick = () => {
-    if (!order || paying) return
     setShowRules(true)
     setRulesAccepted(false)
   }
@@ -106,23 +87,15 @@ const PaymentPage = () => {
       alert('支付成功！')
       navigate('/orders')
     } catch (err) {
-      alert(err?.response?.data?.message || '支付失败')
+      alert((err as any)?.response?.data?.message || '支付失败')
     } finally {
       setPaying(false)
     }
   }
 
-  const closeRules = () => {
-    setShowRules(false)
-    setRulesAccepted(false)
-  }
-
-  const gameName = order ? (GAME_NAMES[order.game] || order.game) : ''
-
-  const paymentMethods = [
-    { id: 'mock', name: '模拟支付', icon: '💳', desc: '测试用' },
-  ]
-
+  // ============================================================
+  // 渲染
+  // ============================================================
   if (loading) {
     return (
       <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -133,28 +106,21 @@ const PaymentPage = () => {
 
   if (!order) {
     return (
-      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' as const, gap: 12 }}>
         <span style={{ color: COLORS.error }}>订单不存在</span>
-        <span style={{ color: COLORS.textSecondary, fontSize: '13px', cursor: 'pointer' }} onClick={() => navigate('/home')}>返回首页</span>
+        <span style={{ color: COLORS.textSecondary, fontSize: 13, cursor: 'pointer' }} onClick={() => navigate('/home')}>返回首页</span>
       </div>
     )
   }
 
+  const gameName = GAME_NAMES[order.game] || order.game || '游戏'
+
   return (
     <div style={styles.container}>
-      {/* 顶部 */}
-      <div style={styles.header}>
-        <motion.span
-          style={styles.backBtn}
-          onClick={() => navigate(-1)}
-          whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        >
-          ←
-        </motion.span>
-        <span style={styles.headerTitle}>订单支付</span>
-        <span style={styles.placeholder} />
-      </div>
+      <Header
+        title="订单支付"
+        onBack={() => navigate(-1)}
+      />
 
       {/* 倒计时 */}
       <div style={styles.countdownBar}>
@@ -180,7 +146,7 @@ const PaymentPage = () => {
       {/* 支付方式 */}
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>选择支付方式</h3>
-        {paymentMethods.map(method => (
+        {PAYMENT_METHODS.map(method => (
           <motion.div
             key={method.id}
             style={{
@@ -189,7 +155,6 @@ const PaymentPage = () => {
             }}
             onClick={() => setSelectedMethod(method.id)}
             whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             <div style={styles.methodLeft}>
               <span style={styles.methodIcon}>{method.icon}</span>
@@ -214,125 +179,75 @@ const PaymentPage = () => {
         <span style={styles.amountValue}>¥{order.price}</span>
       </div>
 
-      {/* 支付按钮 */}
+      {/* 底部 */}
       <div style={styles.bottomBar}>
-        <motion.button
-          style={{ ...styles.payBtn, ...(paying ? styles.payBtnDisabled : {}) }}
-          onClick={handlePayClick}
-          disabled={paying}
-          whileTap={paying ? {} : { scale: 0.97, opacity: 0.85 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        <Button
+          variant="primary"
+          size="lg"
+          loading={paying}
+          onTap={handlePayClick}
+          style={{ width: '100%' }}
         >
           {paying ? '支付中...' : `确认支付 ¥${order.price}`}
-        </motion.button>
+        </Button>
       </div>
 
-      {/* 安全提示 */}
-      <p style={styles.securityTip}>
-        🔒 支付安全由伴游平台保障，请勿泄露支付密码
-      </p>
+      <p style={styles.securityTip}>🔒 支付安全由伴游平台保障，请勿泄露支付密码</p>
 
       {/* 下单须知浮层 */}
-      <AnimatePresence>
-        {showRules && (
-          <>
-            <motion.div
-              style={styles.overlay}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={closeRules}
-            />
-            <motion.div
-              style={styles.bottomSheet}
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            >
-              <div style={styles.sheetHandle} />
-              <div style={styles.sheetHeader}>
-                <h3 style={styles.sheetTitle}>📋 下单须知</h3>
-                <motion.span
-                  style={styles.sheetClose}
-                  onClick={closeRules}
-                  whileTap={{ scale: 0.85, opacity: 0.7 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                >
-                  ✕
-                </motion.span>
+      <BottomSheet
+        visible={showRules}
+        title="📋 下单须知"
+        onClose={() => { setShowRules(false); setRulesAccepted(false) }}
+      >
+        <div style={styles.rulesList}>
+          {ORDER_RULES.map((rule, i) => (
+            <div key={i} style={styles.ruleItem}>
+              <div style={styles.ruleTitleRow}>
+                <span style={styles.ruleIcon}>{rule.icon}</span>
+                <span style={styles.ruleTitle}>{rule.title}</span>
               </div>
-              <div style={styles.rulesList}>
-                {ORDER_RULES.map((rule, i) => (
-                  <div key={i} style={styles.ruleItem}>
-                    <div style={styles.ruleTitleRow}>
-                      <span style={styles.ruleIcon}>{rule.icon}</span>
-                      <span style={styles.ruleTitle}>{rule.title}</span>
-                    </div>
-                    <p style={styles.ruleContent}>{rule.content}</p>
-                  </div>
-                ))}
-              </div>
-              <motion.div
-                style={styles.agreeRow}
-                onClick={() => setRulesAccepted(!rulesAccepted)}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              >
-                <div style={{
-                  ...styles.checkbox,
-                  ...(rulesAccepted ? styles.checkboxChecked : {}),
-                }}>
-                  {rulesAccepted && <span style={styles.checkmark}>✓</span>}
-                </div>
-                <span style={styles.agreeText}>我已阅读并同意以上须知</span>
-              </motion.div>
-              <motion.button
-                style={{
-                  ...styles.confirmBtn,
-                  ...(rulesAccepted ? {} : styles.confirmBtnDisabled),
-                }}
-                onClick={handlePayConfirm}
-                disabled={!rulesAccepted || paying}
-                whileTap={rulesAccepted && !paying ? { scale: 0.97, opacity: 0.85 } : {}}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              >
-                {paying ? '支付中...' : `确认支付 ¥${order.price}`}
-              </motion.button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              <p style={styles.ruleContent}>{rule.content}</p>
+            </div>
+          ))}
+        </div>
+
+        <motion.div
+          style={styles.agreeRow}
+          onClick={() => setRulesAccepted(!rulesAccepted)}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div style={{
+            ...styles.checkbox,
+            ...(rulesAccepted ? styles.checkboxChecked : {}),
+          }}>
+            {rulesAccepted && <span style={styles.checkmark}>✓</span>}
+          </div>
+          <span style={styles.agreeText}>我已阅读并同意以上须知</span>
+        </motion.div>
+
+        <Button
+          variant="primary"
+          size="lg"
+          loading={paying}
+          disabled={!rulesAccepted}
+          onTap={handlePayConfirm}
+          style={{ width: 'calc(100% - 40px)', margin: '0 20px 16px' }}
+        >
+          {paying ? '支付中...' : `确认支付 ¥${order.price}`}
+        </Button>
+      </BottomSheet>
     </div>
   )
 }
 
-// ========== 暗色风格 ==========
-const styles: Styles = {
+// ============================================================
+// 样式
+// ============================================================
+const styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,
-  },
-  header: {
-    backgroundColor: COLORS.card,
-    padding: '14px 16px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  backBtn: {
-    fontSize: '24px',
-    cursor: 'pointer',
-    color: COLORS.text,
-  },
-  headerTitle: {
-    fontSize: '17px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
-  placeholder: {
-    width: '24px',
   },
   countdownBar: {
     backgroundColor: 'rgba(255,107,157,0.15)',
@@ -342,20 +257,19 @@ const styles: Styles = {
     alignItems: 'center',
   },
   countdownLabel: {
-    fontSize: '13px',
+    fontSize: 13,
     color: COLORS.primary,
   },
   countdownTime: {
-    fontSize: '18px',
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: 'bold' as const,
     color: COLORS.primary,
     fontFamily: 'monospace',
   },
   orderSummary: {
     backgroundColor: COLORS.card,
-    margin: '16px',
-    borderRadius: '12px',
-    padding: '4px 0',
+    margin: 16,
+    borderRadius: 12,
     border: `1px solid ${COLORS.border}`,
   },
   summaryRow: {
@@ -364,19 +278,19 @@ const styles: Styles = {
     padding: '12px 16px',
   },
   summaryLabel: {
-    fontSize: '14px',
+    fontSize: 14,
     color: COLORS.textSecondary,
   },
   summaryValue: {
-    fontSize: '14px',
+    fontSize: 14,
     color: COLORS.text,
   },
   section: {
-    padding: '16px',
+    padding: 16,
   },
   sectionTitle: {
-    fontSize: '15px',
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: 'bold' as const,
     color: COLORS.text,
     margin: '0 0 14px 0',
   },
@@ -385,11 +299,11 @@ const styles: Styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: COLORS.card,
-    borderRadius: '12px',
-    padding: '16px',
-    marginBottom: '10px',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 10,
     cursor: 'pointer',
-    border: `2px solid transparent`,
+    border: '2px solid transparent' as const,
   },
   methodActive: {
     borderColor: COLORS.primary,
@@ -398,30 +312,30 @@ const styles: Styles = {
   methodLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: 12,
   },
   methodIcon: {
-    fontSize: '24px',
+    fontSize: 24,
   },
   methodName: {
-    fontSize: '15px',
+    fontSize: 15,
     color: COLORS.text,
   },
   methodRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
+    gap: 10,
   },
   recommendTag: {
     backgroundColor: COLORS.primary,
     color: '#fff',
-    fontSize: '10px',
+    fontSize: 10,
     padding: '2px 6px',
-    borderRadius: '4px',
+    borderRadius: 4,
   },
   radio: {
-    width: '22px',
-    height: '22px',
+    width: 22,
+    height: 22,
     borderRadius: '50%',
     border: `2px solid ${COLORS.border}`,
     display: 'flex',
@@ -432,147 +346,81 @@ const styles: Styles = {
     borderColor: COLORS.primary,
   },
   radioInner: {
-    width: '12px',
-    height: '12px',
+    width: 12,
+    height: 12,
     borderRadius: '50%',
     backgroundColor: COLORS.primary,
   },
   amountSection: {
-    padding: '20px 16px',
+    padding: 20,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTop: `1px solid ${COLORS.border}`,
-    marginTop: '10px',
+    marginTop: 10,
   },
   amountLabel: {
-    fontSize: '15px',
+    fontSize: 15,
     color: COLORS.textSecondary,
   },
   amountValue: {
-    fontSize: '32px',
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: 'bold' as const,
     color: COLORS.primary,
   },
   bottomBar: {
-    padding: '16px',
-  },
-  payBtn: {
-    width: '100%',
-    padding: '16px',
-    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-    color: '#fff',
-    border: 'none',
-    borderRadius: '25px',
-    fontSize: '17px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    boxShadow: `0 4px 15px ${COLORS.primary}40`,
-  },
-  payBtnDisabled: {
-    opacity: 0.6,
-    cursor: 'not-allowed',
+    padding: 16,
   },
   securityTip: {
-    textAlign: 'center',
-    fontSize: '11px',
+    textAlign: 'center' as const,
+    fontSize: 11,
     color: COLORS.textSecondary,
     padding: '0 20px 20px',
     margin: 0,
   },
-  // 浮层
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    zIndex: 200,
-  },
-  bottomSheet: {
-    position: 'fixed',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    maxWidth: '480px',
-    margin: '0 auto',
-    backgroundColor: COLORS.card,
-    borderRadius: '20px 20px 0 0',
-    padding: '0 0 32px 0',
-    zIndex: 201,
-    maxHeight: '80vh',
-    overflowY: 'auto',
-  },
-  sheetHandle: {
-    width: '40px',
-    height: '4px',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: '2px',
-    margin: '12px auto 0',
-  },
-  sheetHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '16px 20px',
-    borderBottom: `1px solid ${COLORS.border}`,
-  },
-  sheetTitle: {
-    fontSize: '17px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-    margin: 0,
-  },
-  sheetClose: {
-    fontSize: '18px',
-    color: COLORS.textSecondary,
-    cursor: 'pointer',
-    padding: '4px',
-  },
   rulesList: {
-    padding: '16px 20px',
+    padding: 16,
     display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
+    flexDirection: 'column' as const,
+    gap: 12,
   },
   ruleItem: {
     backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: '12px',
-    padding: '14px',
+    borderRadius: 12,
+    padding: 14,
     border: `1px solid ${COLORS.border}`,
   },
   ruleTitleRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    marginBottom: '8px',
+    gap: 8,
+    marginBottom: 8,
   },
   ruleIcon: {
-    fontSize: '16px',
+    fontSize: 16,
   },
   ruleTitle: {
-    fontSize: '14px',
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: 'bold' as const,
     color: COLORS.text,
   },
   ruleContent: {
-    fontSize: '13px',
+    fontSize: 13,
     color: COLORS.textSecondary,
-    lineHeight: '1.6',
+    lineHeight: 1.6,
     margin: 0,
   },
   agreeRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: 12,
     padding: '0 20px 16px',
     cursor: 'pointer',
   },
   checkbox: {
-    width: '22px',
-    height: '22px',
-    borderRadius: '6px',
+    width: 22,
+    height: 22,
+    borderRadius: 6,
     border: `2px solid ${COLORS.border}`,
     display: 'flex',
     alignItems: 'center',
@@ -585,30 +433,12 @@ const styles: Styles = {
   },
   checkmark: {
     color: '#fff',
-    fontSize: '14px',
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: 'bold' as const,
   },
   agreeText: {
-    fontSize: '14px',
+    fontSize: 14,
     color: COLORS.text,
-  },
-  confirmBtn: {
-    display: 'block',
-    width: 'calc(100% - 40px)',
-    margin: '0 20px',
-    padding: '16px',
-    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-    color: '#fff',
-    border: 'none',
-    borderRadius: '25px',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    boxShadow: `0 4px 15px ${COLORS.primary}40`,
-  },
-  confirmBtnDisabled: {
-    opacity: 0.5,
-    cursor: 'not-allowed',
   },
 }
 
