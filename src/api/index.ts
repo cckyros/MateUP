@@ -1,7 +1,12 @@
+import client, { request } from './client'
+
 // API 统一入口
 // 所有模块统一通过这里导出
 
-export { default as api, request } from './client'
+const api = client
+
+export default api
+export { request }
 
 // Auth
 export { authApi } from './modules/auth'

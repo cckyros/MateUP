@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import CoverPage from './pages/CoverPage'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/PlayerListPage'
@@ -26,15 +26,9 @@ import { pageTransition } from './utils/animations'
 
 // 页面包装器 - 统一路由动画
 const AnimatedPage = ({ children }: { children: React.ReactNode }) => (
-  <motion.div
-    variants={pageTransition}
-    initial="initial"
-    animate="animate"
-    exit="exit"
-    style={{ minHeight: '100vh' }}
-  >
+  <div style={{ minHeight: '100vh' }}>
     {children}
-  </motion.div>
+  </div>
 )
 
 // 路由守卫：陪玩师页面需要 isPlayer 才能访问
@@ -109,7 +103,7 @@ const RoutesContent = () => {
   const location = useLocation()
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<AnimatedPage><CoverPage /></AnimatedPage>} />
         <Route path="/login" element={<AnimatedPage><LoginPage /></AnimatedPage>} />
@@ -192,10 +186,10 @@ const styles = {
     margin: '0 auto',
     backgroundColor: '#16213e',
     minHeight: '100vh',
-    position: 'relative',
+    position: 'relative' as const,
   },
   tabBar: {
-    position: 'fixed',
+    position: 'fixed' as const,
     bottom: 0,
     left: 0,
     right: 0,
@@ -209,7 +203,7 @@ const styles = {
     zIndex: 100,
   },
   tabItem: {
-    textAlign: 'center',
+    textAlign: 'center' as const,
     fontSize: '11px',
     cursor: 'pointer',
     flex: 1,

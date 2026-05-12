@@ -14,7 +14,7 @@ export default function PlayerEarningsPage() {
     Promise.all([
       playerApi.getEarningsOverview(),
       playerApi.getEarningsList(),
-    ]).then(([overview: any, listRes: any]) => {
+    ]).then(([overview, listRes]) => {
       setData({ ...overview, records: listRes.records || [] })
     }).catch(() => {})
   }, [])
