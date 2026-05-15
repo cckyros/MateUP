@@ -1,7 +1,7 @@
 // 模拟数据 - 用于本地开发和测试
 // 上线前替换为真实 API 调用
 
-import { Player, Order } from '../store'
+import type { Player, Order } from '@/types'
 
 // ========== 模拟陪玩师数据 ==========
 export const MOCK_PLAYERS: Player[] = [
