@@ -1,42 +1,29 @@
-// ============================================================
-// 搜索筛选页 - 重构后
-// ============================================================
+// 搜索筛选页 - 已统一暗色风格
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '@/constants'
-import { Header } from '@/components/layout/Header'
-import { Chip, Toggle } from '@/components/ui'
-import { Button } from '@/components/ui'
+import { Styles } from '@/utils/styles'
 
-// ============================================================
-// 常量
-// ============================================================
-const GAMES = ['王者荣耀', '和平精英', '英雄联盟', '永劫无间', '穿越火线']
-const TAGS = ['御姐音', '萝莉音', '幽默风趣', '连胜王', 'carry型', '教学向', '心态好', '新手友好']
-const LEVELS = ['星耀以下', '星耀', '钻石', '大师', '王者', '王者以上']
-
-// ============================================================
-// 主组件
-// ============================================================
 const SearchPage = () => {
   const navigate = useNavigate()
   const [searchText, setSearchText] = useState('')
-  const [selectedGames, setSelectedGames] = useState<string[]>([])
+  const [selectedGames, setSelectedGames] = useState([])
   const [priceRange, setPriceRange] = useState([0, 200])
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState([])
   const [onlineOnly, setOnlineOnly] = useState(false)
   const [levelFilter, setLevelFilter] = useState('')
 
-  // ============================================================
-  // 切换选择
-  // ============================================================
-  const toggleGame = (game: string) => {
+  const games = ['王者荣耀', '和平精英', '英雄联盟', '永劫无间', '穿越火线']
+  const tags = ['御姐音', '萝莉音', '幽默风趣', '连胜王', 'carry型', '教学向', '心态好', '新手友好']
+  const levels = ['星耀以下', '星耀', '钻石', '大师', '王者', '王者以上']
+
+  const toggleGame = (game) => {
     setSelectedGames(prev =>
       prev.includes(game) ? prev.filter(g => g !== game) : [...prev, game]
     )
   }
 
-  const toggleTag = (tag: string) => {
+  const toggleTag = (tag) => {
     setSelectedTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     )
@@ -50,16 +37,14 @@ const SearchPage = () => {
     setLevelFilter('')
   }
 
-  // ============================================================
-  // 渲染
-  // ============================================================
   return (
     <div style={styles.container}>
-      <Header
-        title="筛选"
-        onBack={() => navigate(-1)}
-        right={<span style={{ color: COLORS.primary, fontSize: 14 }} onClick={resetFilters}>重置</span>}
-      />
+      {/* 顶部 */}
+      <div style={styles.header}>
+        <span style={styles.backBtn} onClick={() => navigate(-1)}>←</span>
+        <span style={styles.headerTitle}>筛选</span>
+        <span style={styles.resetBtn} onClick={resetFilters}>重置</span>
+      </div>
 
       {/* 搜索框 */}
       <div style={styles.searchSection}>
@@ -78,13 +63,17 @@ const SearchPage = () => {
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>游戏</h3>
         <div style={styles.chipList}>
-          {GAMES.map(game => (
-            <Chip
+          {games.map(game => (
+            <div
               key={game}
-              label={game}
-              active={selectedGames.includes(game)}
+              style={{
+                ...styles.chip,
+                ...(selectedGames.includes(game) ? styles.chipActive : {}),
+              }}
               onClick={() => toggleGame(game)}
-            />
+            >
+              {game}
+            </div>
           ))}
         </div>
       </div>
@@ -120,13 +109,17 @@ const SearchPage = () => {
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>段位要求</h3>
         <div style={styles.chipList}>
-          {LEVELS.map(level => (
-            <Chip
+          {levels.map(level => (
+            <div
               key={level}
-              label={level}
-              active={levelFilter === level}
+              style={{
+                ...styles.chip,
+                ...(levelFilter === level ? styles.chipActive : {}),
+              }}
               onClick={() => setLevelFilter(levelFilter === level ? '' : level)}
-            />
+            >
+              {level}
+            </div>
           ))}
         </div>
       </div>
@@ -135,13 +128,17 @@ const SearchPage = () => {
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>陪玩风格</h3>
         <div style={styles.chipList}>
-          {TAGS.map(tag => (
-            <Chip
+          {tags.map(tag => (
+            <div
               key={tag}
-              label={tag}
-              active={selectedTags.includes(tag)}
+              style={{
+                ...styles.chip,
+                ...(selectedTags.includes(tag) ? styles.chipActive : {}),
+              }}
               onClick={() => toggleTag(tag)}
-            />
+            >
+              {tag}
+            </div>
           ))}
         </div>
       </div>
@@ -150,29 +147,63 @@ const SearchPage = () => {
       <div style={styles.section}>
         <div style={styles.toggleRow}>
           <span style={styles.toggleLabel}>只看在线</span>
-          <Toggle checked={onlineOnly} onChange={setOnlineOnly} />
+          <div
+            style={{
+              ...styles.toggle,
+              ...(onlineOnly ? styles.toggleActive : {}),
+            }}
+            onClick={() => setOnlineOnly(!onlineOnly)}
+          >
+            <div style={{
+              ...styles.toggleDot,
+              ...(onlineOnly ? styles.toggleDotActive : {}),
+            }} />
+          </div>
         </div>
       </div>
 
-      {/* 底部操作栏 */}
+      {/* 确认按钮 */}
       <div style={styles.bottomBar}>
-        <span style={styles.resultCount}>共找到 12 位陪玩</span>
-        <Button variant="primary" size="md" onTap={() => navigate('/home')}>
+        <div style={styles.resultCount}>共找到 12 位陪玩</div>
+        <div style={styles.confirmBtn} onClick={() => navigate('/home')}>
           查看结果
-        </Button>
+        </div>
       </div>
     </div>
   )
 }
 
-// ============================================================
-// 样式
-// ============================================================
-const styles = {
+// ========== 暗色风格 ==========
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,
     paddingBottom: '80px',
+  },
+  header: {
+    backgroundColor: COLORS.card,
+    padding: '14px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+  },
+  backBtn: {
+    fontSize: '24px',
+    cursor: 'pointer',
+    color: COLORS.text,
+  },
+  headerTitle: {
+    fontSize: '17px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  resetBtn: {
+    fontSize: '14px',
+    color: COLORS.primary,
+    cursor: 'pointer',
   },
   searchSection: {
     padding: '12px 16px',
@@ -180,14 +211,14 @@ const styles = {
   },
   searchBar: {
     backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 20,
+    borderRadius: '20px',
     padding: '10px 16px',
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
+    gap: '10px',
   },
   searchIcon: {
-    fontSize: 16,
+    fontSize: '16px',
   },
   searchInput: {
     flex: 1,
@@ -195,26 +226,41 @@ const styles = {
     border: 'none',
     outline: 'none',
     color: COLORS.text,
-    fontSize: 14,
+    fontSize: '14px',
   },
   section: {
     padding: '16px',
     borderBottom: `1px solid ${COLORS.border}`,
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: 'bold' as const,
+    fontSize: '15px',
+    fontWeight: 'bold',
     color: COLORS.text,
     margin: '0 0 14px 0',
   },
   chipList: {
     display: 'flex',
-    flexWrap: 'wrap' as const,
-    gap: 10,
+    flexWrap: 'wrap',
+    gap: '10px',
+  },
+  chip: {
+    padding: '8px 16px',
+    borderRadius: '20px',
+    fontSize: '13px',
+    color: COLORS.textSecondary,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    cursor: 'pointer',
+    border: `1px solid ${COLORS.border}`,
+  },
+  chipActive: {
+    backgroundColor: COLORS.primary,
+    color: '#fff',
+    borderColor: COLORS.primary,
+    fontWeight: 'bold',
   },
   rangeSlider: {
     display: 'flex',
-    gap: 20,
+    gap: '20px',
     padding: '0 10px',
   },
   slider: {
@@ -224,10 +270,10 @@ const styles = {
   rangeLabels: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginTop: 8,
+    marginTop: '8px',
   },
   rangeLabel: {
-    fontSize: 12,
+    fontSize: '12px',
     color: COLORS.textSecondary,
   },
   toggleRow: {
@@ -236,21 +282,43 @@ const styles = {
     alignItems: 'center',
   },
   toggleLabel: {
-    fontSize: 15,
+    fontSize: '15px',
     color: COLORS.text,
   },
+  toggle: {
+    width: '48px',
+    height: '28px',
+    borderRadius: '14px',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    padding: '2px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
+    border: `1px solid ${COLORS.border}`,
+  },
+  toggleActive: {
+    backgroundColor: COLORS.primary,
+  },
+  toggleDot: {
+    width: '22px',
+    height: '22px',
+    borderRadius: '50%',
+    backgroundColor: '#fff',
+    transition: 'transform 0.2s',
+  },
+  toggleDotActive: {
+    transform: 'translateX(20px)',
+  },
   bottomBar: {
-    position: 'fixed' as const,
+    position: 'fixed',
     bottom: 0,
     left: 0,
     right: 0,
-    maxWidth: 480,
+    maxWidth: '480px',
     margin: '0 auto',
     backgroundColor: COLORS.card,
     padding: '12px 16px',
     display: 'flex',
-    gap: 12,
-    alignItems: 'center',
+    gap: '12px',
     borderTop: `1px solid ${COLORS.border}`,
     zIndex: 100,
   },
@@ -258,8 +326,19 @@ const styles = {
     flex: 1,
     display: 'flex',
     alignItems: 'center',
-    fontSize: 14,
+    fontSize: '14px',
     color: COLORS.textSecondary,
+  },
+  confirmBtn: {
+    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
+    color: '#fff',
+    padding: '14px 32px',
+    borderRadius: '24px',
+    fontSize: '15px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: `0 4px 15px ${COLORS.primary}40`,
+    border: 'none',
   },
 }
 

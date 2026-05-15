@@ -1,88 +1,67 @@
-// ============================================================
-// 陪玩师工作台 - 重构后
-// ============================================================
+// 陪玩师工作台 - Phase 7
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { COLORS } from '@/constants'
 import { usePlayerProfileStore } from '@/store'
 import { acceptOrder, rejectOrder } from '@/api/order'
-import { getPlayerProfile, getPlayerOrders } from '@/api/playerApi'
-import { Header } from '@/components/layout/Header'
-import { Button, Badge } from '@/components/ui'
+import { getPlayerProfile, getPlayerOrders, setOnlineStatus } from '@/api/playerApi'
+import { ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '@/constants'
+import { Styles } from '@/utils/styles'
 
-// ============================================================
-// 游戏名映射
-// ============================================================
-const GAME_MAP: Record<string, string> = {
-  lol: 'LOL', honor: '王者', yongjie: '永劫', apex: 'Apex', danzai: '蛋仔',
-}
-
-// ============================================================
-// 主组件
-// ============================================================
 export default function PlayerHomePage() {
   const navigate = useNavigate()
   const { profile, orders, setProfile, setOrders } = usePlayerProfileStore()
 
   useEffect(() => {
-    getPlayerProfile().then((res: any) => setProfile(res)).catch(() => {})
-    getPlayerOrders().then((res: any) => setOrders(res.orders)).catch(() => {})
+    getPlayerProfile().then((res) => setProfile(res as any)).catch(() => {})
+    getPlayerOrders().then((res) => setOrders(res.orders as any)).catch(() => {})
   }, [])
 
-  const pendingOrders = orders.filter((o: any) => o.status === 'WAIT_ACCEPT')
-  const inProgressOrders = orders.filter((o: any) => o.status === 'IN_PROGRESS')
-
-  const handleAccept = (orderId: string) => {
-    acceptOrder(orderId).then(() => {
-      usePlayerProfileStore.getState().updateOrderStatus(orderId, 'IN_PROGRESS')
-    })
-  }
-
-  const handleReject = (orderId: string) => {
-    rejectOrder(orderId).then(() => {
-      usePlayerProfileStore.getState().updateOrderStatus(orderId, 'CANCELLED')
-    })
-  }
-
-  const gameDisplay = (profile?.games as string[])?.map(g => GAME_MAP[g] || g).join(' / ') || '—'
+  const pendingOrders = orders.filter((o) => o.status === 'WAIT_ACCEPT')
+  const inProgressOrders = orders.filter((o) => o.status === 'IN_PROGRESS')
 
   return (
     <div style={styles.container}>
-      <Header
-        title="工作台"
-        onBack={() => navigate(-1)}
-        right={
-          <div style={styles.onlineTag}>
-            <span style={styles.onlineDot} />
-            在线
-          </div>
-        }
-      />
+      {/* 顶部导航 */}
+      <div style={styles.nav}>
+        <span style={styles.navTitle}>工作台</span>
+        <span style={styles.onlineTag}>
+          <span style={styles.onlineDot} />在线
+        </span>
+      </div>
 
       {/* 概览卡片 */}
       <div style={styles.overviewCard}>
         <div style={styles.profileRow}>
-          <div style={styles.avatar}>
-            {profile?.avatar ? (
-              <img src={profile.avatar} style={styles.avatarImg} alt="" />
-            ) : '👤'}
-          </div>
+          <div style={styles.avatar}>{profile?.avatar ? (
+            <img src={profile.avatar} style={styles.avatarImg} alt="" />
+          ) : '👤'}</div>
           <div style={styles.profileInfo}>
             <p style={styles.profileName}>{profile?.name || '加载中...'}</p>
-            <p style={styles.profileGames}>{gameDisplay}</p>
+            <p style={styles.profileGames}>
+              {profile?.games?.map((g) => ({ lol: 'LOL', honor: '王者', yongjie: '永劫', apex: 'Apex', danzai: '蛋仔' }[g] || g)).join(' / ') || '—'}
+            </p>
           </div>
-          <Button variant="outline" size="sm" onTap={() => navigate('/player-profile')}>
+          <button style={styles.editBtn} onClick={() => navigate('/player-profile')}>
             编辑资料
-          </Button>
+          </button>
         </div>
 
         <div style={styles.statsRow}>
-          <StatItem label="本周订单" value={profile?.weeklyOrders || 0} />
+          <div style={styles.statItem}>
+            <span style={styles.statValue}>{profile?.weeklyOrders || 0}</span>
+            <span style={styles.statLabel}>本周订单</span>
+          </div>
           <div style={styles.statDivider} />
-          <StatItem label="本周收入" value={`¥${profile?.weeklyEarnings || 0}`} />
+          <div style={styles.statItem}>
+            <span style={styles.statValue}>¥{profile?.weeklyEarnings || 0}</span>
+            <span style={styles.statLabel}>本周收入</span>
+          </div>
           <div style={styles.statDivider} />
-          <StatItem label="综合评分" value={profile?.rating?.toFixed(1) || '—'} />
+          <div style={styles.statItem}>
+            <span style={styles.statValue}>{profile?.rating?.toFixed(1) || '—'}</span>
+            <span style={styles.statLabel}>综合评分</span>
+          </div>
         </div>
       </div>
 
@@ -102,25 +81,44 @@ export default function PlayerHomePage() {
       <div style={styles.section}>
         <div style={styles.sectionHeader}>
           <span style={styles.sectionTitle}>待处理订单</span>
-          {pendingOrders.length > 0 && <Badge variant="error">{pendingOrders.length}</Badge>}
+          <span style={styles.badge}>{pendingOrders.length}</span>
           <span style={styles.moreLink} onClick={() => navigate('/player-orders')}>全部 ›</span>
         </div>
 
         {pendingOrders.length === 0 ? (
-          <EmptyCard icon="📭" text="暂无待处理订单" />
+          <div style={styles.emptyCard}>
+            <span style={styles.emptyIcon}>📭</span>
+            <span style={styles.emptyText}>暂无待处理订单</span>
+          </div>
         ) : (
-          pendingOrders.slice(0, 2).map((order: any) => (
+          pendingOrders.slice(0, 2).map((order) => (
             <div key={order.id} style={styles.orderCard}>
               <div style={styles.orderLeft}>
                 <img src={order.userAvatar} style={styles.orderAvatar} alt="" />
                 <div>
                   <p style={styles.orderName}>{order.userName}</p>
-                  <p style={styles.orderMeta}>{order.game} · {order.duration}小时 · ¥{order.price}</p>
+                  <p style={styles.orderMeta}>
+                    {order.game} · {order.duration}小时 · ¥{order.price}
+                  </p>
                 </div>
               </div>
               <div style={styles.orderActions}>
-                <Button variant="primary" size="sm" onTap={() => handleAccept(order.id)}>接单</Button>
-                <Button variant="ghost" size="sm" onTap={() => handleReject(order.id)}>拒单</Button>
+                <button
+                  style={styles.acceptBtn}
+                  onClick={() => acceptOrder(order.id).then(() => {
+                    usePlayerProfileStore.getState().updateOrderStatus(order.id, 'IN_PROGRESS')
+                  })}
+                >
+                  接单
+                </button>
+                <button
+                  style={styles.rejectBtn}
+                  onClick={() => rejectOrder(order.id).then(() => {
+                    usePlayerProfileStore.getState().updateOrderStatus(order.id, 'CANCELLED')
+                  })}
+                >
+                  拒单
+                </button>
               </div>
             </div>
           ))
@@ -131,22 +129,26 @@ export default function PlayerHomePage() {
       <div style={styles.section}>
         <div style={styles.sectionHeader}>
           <span style={styles.sectionTitle}>进行中</span>
-          {inProgressOrders.length > 0 && <Badge variant="success">{inProgressOrders.length}</Badge>}
+          <span style={styles.badgeInProgress}>{inProgressOrders.length}</span>
         </div>
-
         {inProgressOrders.length === 0 ? (
-          <EmptyCard icon="🎮" text="暂无进行中订单" />
+          <div style={styles.emptyCard}>
+            <span style={styles.emptyIcon}>🎮</span>
+            <span style={styles.emptyText}>暂无进行中订单</span>
+          </div>
         ) : (
-          inProgressOrders.slice(0, 2).map((order: any) => (
+          inProgressOrders.slice(0, 2).map((order) => (
             <div key={order.id} style={styles.orderCard}>
               <div style={styles.orderLeft}>
                 <img src={order.userAvatar} style={styles.orderAvatar} alt="" />
                 <div>
                   <p style={styles.orderName}>{order.userName}</p>
-                  <p style={styles.orderMeta}>{order.game} · {order.duration}小时 · ¥{order.price}</p>
+                  <p style={styles.orderMeta}>
+                    {order.game} · {order.duration}小时 · ¥{order.price}
+                  </p>
                 </div>
               </div>
-              <Badge variant="success">进行中</Badge>
+              <div style={styles.inProgressTag}>进行中</div>
             </div>
           ))
         )}
@@ -160,135 +162,127 @@ export default function PlayerHomePage() {
           { icon: '⭐', label: '评价管理', path: '/player-reviews' },
           { icon: '👤', label: '陪玩资料', path: '/player-profile' },
         ].map((item) => (
-          <motion.div
-            key={item.path}
-            style={styles.menuItem}
-            onClick={() => navigate(item.path)}
-            whileTap={{ opacity: 0.7 }}
-          >
+          <div key={item.path} style={styles.menuItem} onClick={() => navigate(item.path)}>
             <span style={styles.menuIcon}>{item.icon}</span>
             <span style={styles.menuLabel}>{item.label}</span>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>
   )
 }
 
-// ============================================================
-// 子组件
-// ============================================================
-function StatItem({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div style={styles.statItem}>
-      <span style={styles.statValue}>{value}</span>
-      <span style={styles.statLabel}>{label}</span>
-    </div>
-  )
-}
-
-function EmptyCard({ icon, text }: { icon: string; text: string }) {
-  return (
-    <div style={styles.emptyCard}>
-      <span style={styles.emptyIcon}>{icon}</span>
-      <span style={styles.emptyText}>{text}</span>
-    </div>
-  )
-}
-
-// ============================================================
-// 样式
-// ============================================================
-const styles = {
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,
     paddingBottom: '80px',
   },
+  nav: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '16px',
+    backgroundColor: COLORS.card,
+    borderBottom: `1px solid ${COLORS.border}`,
+  },
+  navTitle: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
   onlineTag: {
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
-    fontSize: 13,
+    gap: '6px',
+    fontSize: '13px',
     color: COLORS.success,
     backgroundColor: 'rgba(0,217,166,0.15)',
     padding: '4px 10px',
-    borderRadius: 12,
+    borderRadius: '12px',
   },
   onlineDot: {
-    width: 6,
-    height: 6,
+    width: '6px',
+    height: '6px',
     borderRadius: '50%',
     backgroundColor: COLORS.success,
   },
   overviewCard: {
     backgroundColor: COLORS.card,
-    margin: 12,
-    borderRadius: 16,
-    padding: 16,
+    margin: '12px',
+    borderRadius: '16px',
+    padding: '16px',
     border: `1px solid ${COLORS.border}`,
   },
   profileRow: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: '16px',
   },
   avatar: {
-    width: 52,
-    height: 52,
+    width: '52px',
+    height: '52px',
     borderRadius: '50%',
     backgroundColor: COLORS.border,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    fontSize: 28,
-    marginRight: 12,
+    fontSize: '28px',
+    marginRight: '12px',
   },
   avatarImg: {
     width: '100%',
     height: '100%',
-    objectFit: 'cover' as const,
+    objectFit: 'cover',
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
-    fontSize: 17,
-    fontWeight: 'bold' as const,
+    fontSize: '17px',
+    fontWeight: 'bold',
     color: COLORS.text,
     margin: '0 0 4px 0',
   },
   profileGames: {
-    fontSize: 12,
+    fontSize: '12px',
     color: COLORS.textSecondary,
     margin: 0,
+  },
+  editBtn: {
+    padding: '6px 14px',
+    backgroundColor: 'transparent',
+    border: `1px solid ${COLORS.primary}`,
+    borderRadius: '16px',
+    fontSize: '12px',
+    color: COLORS.primary,
+    cursor: 'pointer',
   },
   statsRow: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingTop: 12,
+    paddingTop: '12px',
     borderTop: `1px solid ${COLORS.border}`,
   },
   statItem: {
-    textAlign: 'center' as const,
+    textAlign: 'center',
     flex: 1,
   },
   statValue: {
     display: 'block',
-    fontSize: 20,
-    fontWeight: 'bold' as const,
+    fontSize: '20px',
+    fontWeight: 'bold',
     color: COLORS.text,
   },
   statLabel: {
-    display: 'block',
-    fontSize: 11,
+    fontSize: '11px',
     color: COLORS.textSecondary,
   },
   statDivider: {
-    width: 1,
-    height: 30,
+    width: '1px',
+    height: '30px',
     backgroundColor: COLORS.border,
   },
   balanceCard: {
@@ -297,33 +291,33 @@ const styles = {
     justifyContent: 'space-between',
     backgroundColor: COLORS.card,
     margin: '0 12px 12px',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: '16px',
+    padding: '16px',
     border: `1px solid ${COLORS.border}`,
     cursor: 'pointer',
   },
   balanceLabel: {
-    fontSize: 12,
+    fontSize: '12px',
     color: COLORS.textSecondary,
     margin: '0 0 4px 0',
   },
   balanceValue: {
-    fontSize: 24,
-    fontWeight: 'bold' as const,
+    fontSize: '24px',
+    fontWeight: 'bold',
     color: COLORS.primary,
     margin: 0,
   },
   withdrawInfo: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: '8px',
   },
   pendingWithdraw: {
-    fontSize: 12,
+    fontSize: '12px',
     color: COLORS.textSecondary,
   },
   arrow: {
-    fontSize: 16,
+    fontSize: '16px',
     color: COLORS.textSecondary,
   },
   section: {
@@ -332,35 +326,49 @@ const styles = {
   sectionHeader: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: 10,
-    gap: 8,
+    marginBottom: '10px',
+    gap: '8px',
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: 'bold' as const,
+    fontSize: '15px',
+    fontWeight: 'bold',
     color: COLORS.text,
+  },
+  badge: {
+    backgroundColor: COLORS.error,
+    color: '#fff',
+    fontSize: '11px',
+    padding: '2px 8px',
+    borderRadius: '10px',
+  },
+  badgeInProgress: {
+    backgroundColor: COLORS.success,
+    color: '#fff',
+    fontSize: '11px',
+    padding: '2px 8px',
+    borderRadius: '10px',
   },
   moreLink: {
     marginLeft: 'auto',
-    fontSize: 13,
+    fontSize: '13px',
     color: COLORS.textSecondary,
     cursor: 'pointer',
   },
   emptyCard: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     alignItems: 'center',
-    padding: 24,
+    padding: '24px',
     backgroundColor: COLORS.card,
-    borderRadius: 12,
+    borderRadius: '12px',
     border: `1px solid ${COLORS.border}`,
   },
   emptyIcon: {
-    fontSize: 32,
-    marginBottom: 8,
+    fontSize: '32px',
+    marginBottom: '8px',
   },
   emptyText: {
-    fontSize: 13,
+    fontSize: '13px',
     color: COLORS.textSecondary,
   },
   orderCard: {
@@ -368,60 +376,85 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: COLORS.card,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
+    borderRadius: '12px',
+    padding: '12px',
+    marginBottom: '8px',
     border: `1px solid ${COLORS.border}`,
   },
   orderLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
+    gap: '10px',
   },
   orderAvatar: {
-    width: 40,
-    height: 40,
+    width: '40px',
+    height: '40px',
     borderRadius: '50%',
-    objectFit: 'cover' as const,
+    objectFit: 'cover',
   },
   orderName: {
-    fontSize: 14,
-    fontWeight: 'bold' as const,
+    fontSize: '14px',
+    fontWeight: 'bold',
     color: COLORS.text,
     margin: '0 0 4px 0',
   },
   orderMeta: {
-    fontSize: 12,
+    fontSize: '12px',
     color: COLORS.textSecondary,
     margin: 0,
   },
   orderActions: {
     display: 'flex',
-    gap: 8,
+    gap: '8px',
+  },
+  acceptBtn: {
+    padding: '6px 16px',
+    backgroundColor: COLORS.success,
+    border: 'none',
+    borderRadius: '14px',
+    fontSize: '12px',
+    color: '#fff',
+    cursor: 'pointer',
+  },
+  rejectBtn: {
+    padding: '6px 16px',
+    backgroundColor: 'transparent',
+    border: `1px solid ${COLORS.error}`,
+    borderRadius: '14px',
+    fontSize: '12px',
+    color: COLORS.error,
+    cursor: 'pointer',
+  },
+  inProgressTag: {
+    padding: '4px 10px',
+    backgroundColor: 'rgba(0,217,166,0.15)',
+    color: COLORS.success,
+    borderRadius: '10px',
+    fontSize: '12px',
   },
   menuGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: 1,
+    gap: '1px',
     margin: '16px 12px 0',
     backgroundColor: COLORS.border,
-    borderRadius: 12,
+    borderRadius: '12px',
     overflow: 'hidden',
   },
   menuItem: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     alignItems: 'center',
     padding: '16px 8px',
     backgroundColor: COLORS.card,
     cursor: 'pointer',
   },
   menuIcon: {
-    fontSize: 24,
-    marginBottom: 6,
+    fontSize: '24px',
+    marginBottom: '6px',
   },
   menuLabel: {
-    fontSize: 12,
+    fontSize: '12px',
     color: COLORS.text,
   },
 }

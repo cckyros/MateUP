@@ -1,61 +1,43 @@
-// ============================================================
-// 聊天页 - 重构后（保留核心 WebSocket 逻辑，仅重构样式）
-// ============================================================
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { COLORS } from '@/constants'
+import { COLORS, WS_BASE_URL } from '@/constants'
 import { useChatStore, useUserStore, wsManager } from '@/store'
 import { getConversationList } from '@/api/chat'
-import { listStagger, listItem } from '@/hooks'
-import { Header } from '@/components/layout/Header'
+import { Styles } from '@/utils/styles'
+import { listStagger, listItem, fadeIn } from '@/utils/animations'
 
-// ============================================================
-// 常量
-// ============================================================
-const TABS = [
-  { key: 'chat', label: '聊天' },
-  { key: 'friend', label: '好友' },
-  { key: 'match', label: '匹配' },
-]
-
-// ============================================================
-// 主组件
-// ============================================================
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat')
-  const [selectedChat, setSelectedChat] = useState<any>(null)
+  const [selectedChat, setSelectedChat] = useState(null)
   const [message, setMessage] = useState('')
-  const [conversations, setConversations] = useState<any[]>([])
+  const [conversations, setConversations] = useState([])
   const [loadingConv, setLoadingConv] = useState(true)
   const messagesEndRef = useRef(null)
 
   const { user } = useUserStore()
   const { messages, setMessages, addMessage } = useChatStore()
 
-  // ============================================================
   // 加载会话列表
-  // ============================================================
   useEffect(() => {
-    if (activeTab !== 'chat') return
     const loadConvs = async () => {
       try {
         const data = await getConversationList()
-        setConversations(data.data?.conversations || [])
-      } catch {
+        setConversations(data.data.conversations || [])
+      } catch (err) {
+        console.error('[Chat] 加载会话列表失败:', err)
         setConversations([])
       } finally {
         setLoadingConv(false)
       }
     }
-    loadConvs()
+    if (activeTab === 'chat') loadConvs()
   }, [activeTab])
 
-  // ============================================================
-  // WebSocket
-  // ============================================================
+  // WebSocket 连接与消息监听
   useEffect(() => {
     if (!user?.id) return
-    const wsUrl = `ws://192.168.3.14:3000/ws/chat?token=${localStorage.getItem('token') || ''}`
+
+    const wsUrl = `${WS_BASE_URL}/ws/chat?token=${localStorage.getItem('token') || ''}`
     wsManager.connect(wsUrl)
 
     const unsubStatus = wsManager.onStatusChange((status) => {
@@ -73,18 +55,24 @@ const ChatPage = () => {
         timestamp: msg.timestamp || Date.now(),
         isSelf: msg.from === user.id,
       })
+      // 更新会话列表的最近消息
       setConversations(prev => prev.map(c =>
         c.partnerId === conversationId ? { ...c, lastMessage: msg.content, lastTime: Date.now() } : c
       ))
     })
 
-    return () => { unsubStatus(); unsubMsg() }
+    return () => {
+      unsubStatus()
+      unsubMsg()
+    }
   }, [user?.id])
 
+  // 加载聊天记录
   useEffect(() => {
-    if (selectedChat) {
-      const chatId = String(selectedChat.partnerId)
-      if (!messages[chatId]) setMessages(chatId, [])
+    if (!selectedChat) return
+    const chatId = String(selectedChat.partnerId)
+    if (!messages[chatId]) {
+      setMessages(chatId, [])
     }
   }, [selectedChat])
 
@@ -92,14 +80,13 @@ const ChatPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, selectedChat])
 
-  // ============================================================
-  // 发送消息
-  // ============================================================
   const sendMessage = async () => {
     if (!message.trim() || !selectedChat) return
+
     const chatId = String(selectedChat.partnerId)
+    const msgId = `msg_${Date.now()}`
     const newMsg = {
-      id: `msg_${Date.now()}`,
+      id: msgId,
       type: 'chat' as const,
       from: user?.id || '',
       to: String(selectedChat.id),
@@ -107,8 +94,11 @@ const ChatPage = () => {
       timestamp: Date.now(),
       isSelf: true,
     }
+
+    //乐观更新：先显示自己发的消息
     addMessage(chatId, newMsg)
     setMessage('')
+
     try {
       await wsManager.sendChatMessage(String(selectedChat.partnerId), message)
     } catch (e) {
@@ -116,7 +106,7 @@ const ChatPage = () => {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       sendMessage()
@@ -125,9 +115,7 @@ const ChatPage = () => {
 
   const currentMessages = selectedChat ? (messages[String(selectedChat.partnerId)] || []) : []
 
-  // ============================================================
-  // 聊天列表视图
-  // ============================================================
+  // ========== 聊天列表视图 ==========
   if (!selectedChat) {
     return (
       <div style={styles.container}>
@@ -137,18 +125,16 @@ const ChatPage = () => {
         </div>
 
         <div style={styles.tabBar}>
-          {TABS.map(tab => (
+          {['chat', 'friend', 'match'].map(tab => (
             <motion.div
-              key={tab.key}
-              style={{
-                ...styles.tab,
-                ...(activeTab === tab.key ? styles.tabActive : {}),
-              }}
-              onClick={() => setActiveTab(tab.key)}
+              key={tab}
+              style={{ ...styles.tab, ...(activeTab === tab ? styles.tabActive : {}) }}
+              onClick={() => setActiveTab(tab)}
               whileTap={{ scale: 0.92 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
-              {tab.label}
-              {activeTab === tab.key && (
+              {tab === 'chat' ? '聊天' : tab === 'friend' ? '好友' : '匹配'}
+              {activeTab === tab && (
                 <motion.div
                   style={styles.tabIndicator}
                   layoutId="chatTabIndicator"
@@ -162,15 +148,21 @@ const ChatPage = () => {
         <motion.div
           style={styles.chatList}
           variants={listStagger(0.05, 0.08)}
-          initial="hidden"
-          animate="show"
+          initial="initial"
+          animate="animate"
         >
           {loadingConv ? (
-            <motion.div variants={listItem} style={{ textAlign: 'center', color: COLORS.textSecondary, fontSize: 13, padding: 40 }}>
+            <motion.div
+              variants={listItem}
+              style={{ ...styles.chatItem, justifyContent: 'center', color: COLORS.textSecondary, fontSize: '13px', padding: '40px' }}
+            >
               加载中...
             </motion.div>
           ) : conversations.length === 0 ? (
-            <motion.div variants={listItem} style={{ textAlign: 'center', color: COLORS.textSecondary, fontSize: 13, padding: 40 }}>
+            <motion.div
+              variants={listItem}
+              style={{ ...styles.chatItem, justifyContent: 'center', color: COLORS.textSecondary, fontSize: '13px', padding: '40px' }}
+            >
               暂无会话
             </motion.div>
           ) : (
@@ -181,16 +173,15 @@ const ChatPage = () => {
                 onClick={() => setSelectedChat(conv)}
                 variants={listItem}
                 whileHover={{ backgroundColor: 'rgba(255,107,157,0.08)' }}
+                transition={{ duration: 0.15 }}
               >
-                <div style={styles.avatarWrapper}>
+                <motion.div style={styles.avatarWrapper}>
                   <span style={styles.avatar}>{conv.partnerAvatar || '💫'}</span>
-                </div>
+                </motion.div>
                 <div style={styles.chatContent}>
                   <div style={styles.chatTop}>
                     <span style={styles.chatName}>{conv.partnerName}</span>
-                    <span style={styles.chatTime}>
-                      {conv.lastTime ? new Date(conv.lastTime).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''}
-                    </span>
+                    <span style={styles.chatTime}>{conv.lastTime ? new Date(conv.lastTime).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''}</span>
                   </div>
                   <div style={styles.chatBottom}>
                     <span style={styles.lastMsg}>{conv.lastMessage}</span>
@@ -205,9 +196,7 @@ const ChatPage = () => {
     )
   }
 
-  // ============================================================
-  // 聊天房间视图
-  // ============================================================
+  // ========== 聊天房间视图 ==========
   return (
     <div style={styles.container}>
       <div style={styles.chatHeader}>
@@ -215,6 +204,7 @@ const ChatPage = () => {
           style={styles.backBtn}
           onClick={() => setSelectedChat(null)}
           whileTap={{ scale: 0.85, opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           ←
         </motion.span>
@@ -226,30 +216,73 @@ const ChatPage = () => {
 
       <div style={styles.messageList}>
         <AnimatePresence initial={false}>
-          {currentMessages.map((msg) => {
+          {currentMessages.map((msg, i) => {
             if (msg.type === 'system') {
               return (
-                <motion.div key={msg.id} style={styles.systemMsg} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <motion.div
+                  key={msg.id}
+                  style={styles.systemMsg}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
                   {msg.content}
                 </motion.div>
               )
             }
             if (msg.isSelf) {
               return (
-                <motion.div key={msg.id} style={styles.selfMsgWrapper} initial={{ opacity: 0, x: 20, scale: 0.95 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0 }}>
-                  <div style={styles.selfBubble}>{msg.content}</div>
-                  <span style={styles.msgTime}>{new Date(msg.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>
+                <motion.div
+                  key={msg.id}
+                  style={styles.selfMsgWrapper}
+                  initial={{ opacity: 0, x: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                >
+                  <motion.div
+                    style={styles.selfBubble}
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  >
+                    {msg.content}
+                  </motion.div>
+                  <span style={styles.msgTime}>
+                    {new Date(msg.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </motion.div>
               )
             }
             return (
-              <motion.div key={msg.id} style={styles.otherMsgWrapper} initial={{ opacity: 0, x: -20, scale: 0.95 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0 }}>
-                <span style={styles.otherAvatar}>{selectedChat.partnerAvatar || '💫'}</span>
+              <motion.div
+                key={msg.id}
+                style={styles.otherMsgWrapper}
+                initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+              >
+                <motion.span
+                  style={styles.otherAvatar}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                >
+                  {selectedChat.partnerAvatar || '💫'}
+                </motion.span>
                 <div>
                   <span style={styles.otherName}>{selectedChat.partnerName}</span>
-                  <div style={styles.otherBubble}>{msg.content}</div>
+                  <motion.div
+                    style={styles.otherBubble}
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  >
+                    {msg.content}
+                  </motion.div>
                 </div>
-                <span style={styles.msgTime}>{new Date(msg.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>
+                <span style={styles.msgTime}>
+                  {new Date(msg.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                </span>
               </motion.div>
             )
           })}
@@ -258,7 +291,13 @@ const ChatPage = () => {
       </div>
 
       <div style={styles.inputBar}>
-        <motion.span style={styles.inputIcon} whileTap={{ scale: 0.88 }}>➕</motion.span>
+        <motion.span
+          style={styles.inputIcon}
+          whileTap={{ scale: 0.88 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          ➕
+        </motion.span>
         <input
           style={styles.input}
           value={message}
@@ -266,11 +305,18 @@ const ChatPage = () => {
           onKeyPress={handleKeyPress}
           placeholder="说点什么..."
         />
-        <motion.span style={styles.inputIcon} whileTap={{ scale: 0.88 }}>😊</motion.span>
+        <motion.span
+          style={styles.inputIcon}
+          whileTap={{ scale: 0.88 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          😊
+        </motion.span>
         <motion.button
           style={styles.sendBtn}
           onClick={sendMessage}
           whileTap={{ scale: 0.92, opacity: 0.8 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           disabled={!message.trim()}
         >
           发送
@@ -280,16 +326,14 @@ const ChatPage = () => {
   )
 }
 
-// ============================================================
-// 样式
-// ============================================================
-const styles = {
+// ========== 暗色风格 ==========
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,
     color: COLORS.text,
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
   },
   header: {
     backgroundColor: COLORS.card,
@@ -300,46 +344,46 @@ const styles = {
     borderBottom: `1px solid ${COLORS.border}`,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold' as const,
+    fontSize: '20px',
+    fontWeight: 'bold',
     color: COLORS.text,
   },
   headerRight: {
-    fontSize: 20,
+    fontSize: '20px',
     cursor: 'pointer',
   },
   tabBar: {
     display: 'flex',
     padding: '12px 20px',
-    gap: 24,
+    gap: '24px',
     backgroundColor: COLORS.card,
     borderBottom: `1px solid ${COLORS.border}`,
   },
   tab: {
-    fontSize: 15,
+    fontSize: '15px',
     color: COLORS.textSecondary,
-    paddingBottom: 8,
+    paddingBottom: '8px',
     cursor: 'pointer',
-    borderBottom: '2px solid transparent' as const,
-    position: 'relative' as const,
+    borderBottom: '2px solid transparent',
+    position: 'relative',
   },
   tabIndicator: {
-    position: 'absolute' as const,
-    bottom: -1,
+    position: 'absolute',
+    bottom: '-1px',
     left: 0,
     right: 0,
-    height: 2,
+    height: '2px',
     backgroundColor: COLORS.primary,
-    borderRadius: 1,
+    borderRadius: '1px',
   },
   tabActive: {
     color: COLORS.primary,
     borderBottomColor: COLORS.primary,
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
   },
   chatList: {
     flex: 1,
-    overflow: 'auto' as const,
+    overflow: 'auto',
   },
   chatItem: {
     display: 'flex',
@@ -350,12 +394,22 @@ const styles = {
     backgroundColor: COLORS.card,
   },
   avatarWrapper: {
-    position: 'relative' as const,
-    marginRight: 12,
+    position: 'relative',
+    marginRight: '12px',
   },
   avatar: {
-    fontSize: 48,
+    fontSize: '48px',
     display: 'block',
+  },
+  onlineDot: {
+    position: 'absolute',
+    bottom: '2px',
+    right: '2px',
+    width: '12px',
+    height: '12px',
+    backgroundColor: COLORS.success,
+    borderRadius: '50%',
+    border: `2px solid ${COLORS.card}`,
   },
   chatContent: {
     flex: 1,
@@ -363,15 +417,15 @@ const styles = {
   chatTop: {
     display: 'flex',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: '4px',
   },
   chatName: {
-    fontSize: 15,
-    fontWeight: 'bold' as const,
+    fontSize: '15px',
+    fontWeight: 'bold',
     color: COLORS.text,
   },
   chatTime: {
-    fontSize: 11,
+    fontSize: '11px',
     color: COLORS.textSecondary,
   },
   chatBottom: {
@@ -380,21 +434,21 @@ const styles = {
     alignItems: 'center',
   },
   lastMsg: {
-    fontSize: 13,
+    fontSize: '13px',
     color: COLORS.textSecondary,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap' as const,
-    maxWidth: 200,
+    whiteSpace: 'nowrap',
+    maxWidth: '200px',
   },
   unreadBadge: {
     backgroundColor: COLORS.primary,
     color: '#fff',
-    fontSize: 11,
+    fontSize: '11px',
     padding: '2px 6px',
-    borderRadius: 10,
-    minWidth: 18,
-    textAlign: 'center' as const,
+    borderRadius: '10px',
+    minWidth: '18px',
+    textAlign: 'center',
   },
   chatHeader: {
     backgroundColor: COLORS.card,
@@ -404,34 +458,38 @@ const styles = {
     borderBottom: `1px solid ${COLORS.border}`,
   },
   backBtn: {
-    fontSize: 24,
+    fontSize: '24px',
     cursor: 'pointer',
-    marginRight: 12,
+    marginRight: '12px',
     color: COLORS.text,
   },
   chatHeaderInfo: {
     flex: 1,
   },
   chatHeaderName: {
-    fontSize: 16,
-    fontWeight: 'bold' as const,
+    fontSize: '16px',
+    fontWeight: 'bold',
     display: 'block',
     color: COLORS.text,
   },
+  chatHeaderStatus: {
+    fontSize: '11px',
+    color: COLORS.textSecondary,
+  },
   moreBtn: {
-    fontSize: 20,
+    fontSize: '20px',
     cursor: 'pointer',
     color: COLORS.text,
   },
   messageList: {
     flex: 1,
-    padding: 16,
-    overflow: 'auto' as const,
+    padding: '16px',
+    overflow: 'auto',
     backgroundColor: COLORS.background,
   },
   systemMsg: {
-    textAlign: 'center' as const,
-    fontSize: 12,
+    textAlign: 'center',
+    fontSize: '12px',
     color: COLORS.textSecondary,
     margin: '10px 0',
   },
@@ -439,8 +497,8 @@ const styles = {
     display: 'flex',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
-    marginBottom: 12,
-    gap: 6,
+    marginBottom: '12px',
+    gap: '6px',
   },
   selfBubble: {
     backgroundColor: COLORS.primary,
@@ -448,23 +506,23 @@ const styles = {
     padding: '10px 14px',
     borderRadius: '18px 4px 18px 18px',
     maxWidth: '70%',
-    fontSize: 14,
-    lineHeight: 1.4,
+    fontSize: '14px',
+    lineHeight: '1.4',
   },
   otherMsgWrapper: {
     display: 'flex',
     alignItems: 'flex-start',
-    marginBottom: 12,
-    gap: 8,
+    marginBottom: '12px',
+    gap: '8px',
   },
   otherAvatar: {
-    fontSize: 36,
+    fontSize: '36px',
     display: 'block',
   },
   otherName: {
-    fontSize: 11,
+    fontSize: '11px',
     color: COLORS.textSecondary,
-    marginBottom: 2,
+    marginBottom: '2px',
     display: 'block',
   },
   otherBubble: {
@@ -473,25 +531,25 @@ const styles = {
     padding: '10px 14px',
     borderRadius: '4px 18px 18px 18px',
     maxWidth: '70%',
-    fontSize: 14,
-    lineHeight: 1.4,
+    fontSize: '14px',
+    lineHeight: '1.4',
     border: `1px solid ${COLORS.border}`,
   },
   msgTime: {
-    fontSize: 10,
+    fontSize: '10px',
     color: COLORS.textSecondary,
-    alignSelf: 'flex-end' as const,
+    alignSelf: 'flex-end',
   },
   inputBar: {
     backgroundColor: COLORS.card,
     padding: '10px 16px',
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
+    gap: '10px',
     borderTop: `1px solid ${COLORS.border}`,
   },
   inputIcon: {
-    fontSize: 22,
+    fontSize: '22px',
     cursor: 'pointer',
     color: COLORS.textSecondary,
   },
@@ -499,19 +557,19 @@ const styles = {
     flex: 1,
     backgroundColor: COLORS.background,
     border: `1px solid ${COLORS.border}`,
-    borderRadius: 20,
+    borderRadius: '20px',
     padding: '10px 16px',
     color: COLORS.text,
-    fontSize: 14,
+    fontSize: '14px',
     outline: 'none',
   },
   sendBtn: {
     background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
     color: '#fff',
     padding: '8px 16px',
-    borderRadius: 16,
-    fontSize: 13,
-    fontWeight: 'bold' as const,
+    borderRadius: '16px',
+    fontSize: '13px',
+    fontWeight: 'bold',
     boxShadow: `0 4px 12px ${COLORS.primary}40`,
     border: 'none',
     cursor: 'pointer',

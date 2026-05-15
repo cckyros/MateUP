@@ -1,9 +1,10 @@
 // 评价管理页 - Phase 7
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS } from '../constants'
-import { usePlayerProfileStore } from '../store'
-import { playerApi } from '../api'
+import { COLORS } from '@/constants'
+import { usePlayerProfileStore } from '@/store'
+import { mockApi } from '@/api/mock'
+import { getPlayerReviews, replyReview } from '@/api/playerApi'
 import { Styles } from '@/utils/styles'
 
 export default function PlayerReviewsPage() {
@@ -13,13 +14,13 @@ export default function PlayerReviewsPage() {
   const [replyText, setReplyText] = useState('')
 
   useEffect(() => {
-    playerApi.getPlayerReviews().then((res: any) => setReviews(res.reviews || [])).catch(() => {})
+    getPlayerReviews().then((res) => setReviews(res.reviews)).catch(() => {})
   }, [])
 
   const handleReply = async (reviewId) => {
     if (!replyText.trim()) return
     setReplying(reviewId)
-    await playerApi.replyReview(reviewId, replyText)
+    await replyReview(reviewId, replyText)
     usePlayerProfileStore.getState().setReviews(
       reviews.map((r) =>
         r.id === reviewId ? { ...r, replied: true, reply: replyText } : r

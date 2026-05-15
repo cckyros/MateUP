@@ -1,9 +1,10 @@
 // 陪玩师资料页 - Phase 7
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS, GAME_NAMES } from '../constants'
-import { usePlayerProfileStore } from '../store'
-import { playerApi as playerApiModule } from '../api'
+import { COLORS, GAME_NAMES } from '@/constants'
+import { usePlayerProfileStore } from '@/store'
+import { mockApi } from '@/api/mock'
+import { getPlayerProfile, updatePlayerProfile } from '@/api/playerApi'
 import { Styles } from '@/utils/styles'
 
 export default function PlayerProfilePage() {
@@ -14,8 +15,8 @@ export default function PlayerProfilePage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    playerApiModule.getPlayerProfile().then((res: any) => {
-      setProfile(res)
+    getPlayerProfile().then((res) => {
+      setProfile(res as any)
       setForm({
         price: res.price,
         rank: res.rank,
@@ -27,7 +28,7 @@ export default function PlayerProfilePage() {
 
   const handleSave = async () => {
     setSaving(true)
-    await playerApiModule.updatePlayerProfile(form)
+    await updatePlayerProfile(form)
     setProfile({ ...profile, ...form })
     setEditing(false)
     setSaving(false)

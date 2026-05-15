@@ -1,115 +1,51 @@
-// ============================================================
-// 陪玩师详情页 - 重构后
-// ============================================================
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '@/constants'
+import { COLORS, GAME_CN_TO_KEY, GAME_KEY_TO_CN } from '@/constants'
 import { getPlayerDetail } from '@/api/players'
 import { createOrder } from '@/api/order'
 import { addFavorite, removeFavorite } from '@/api/favorites'
 import { useFavoritesStore } from '@/store'
 import { request } from '@/api'
-import { Header } from '@/components/layout/Header'
-import { TabBar } from '@/components/layout/TabBar'
-import { SimilarPlayers } from '@/components/player'
-import { Button, Loading, Empty, Badge } from '@/components/ui'
-import type { Player } from '@/store/player/types'
+import { Styles } from '@/utils/styles'
+import { getLevelColor } from '@/utils/playerMapper'
+import type { Review, Player } from '@/types'
 
-// ============================================================
-// 常量
-// ============================================================
-const GAME_MAP: Record<string, string> = {
-  '王者荣耀': 'honor',
-  '和平精英': 'apex',
-  '英雄联盟': 'lol',
-  '永劫无间': 'yongjie',
-}
-const GAME_REVERSE_MAP: Record<string, string> = Object.fromEntries(
-  Object.entries(GAME_MAP).map(([k, v]) => [v, k])
-)
-
-const GAMES = ['王者荣耀', '和平精英', '英雄联盟', '永劫无间']
-const HOUR_OPTIONS = [1, 2, 3, 4]
-
-const getLevelColor = (rank?: string | null) => {
-  if (!rank) return COLORS.text
-  if (rank.includes('王者')) return '#FFD700'
-  if (rank.includes('大师')) return '#C0C0C0'
-  if (rank.includes('钻石')) return '#B9F2F0'
-  return '#90EE90'
-}
-
-// ============================================================
-// 类型
-// ============================================================
-interface Review {
-  id: string
-  orderId: string
-  userName: string
-  userAvatar: string
-  rating: number
-  comment: string
-  createTime: number
-}
-
-interface SimplePlayer {
-  id: string
-  name: string
-  avatar: string | null
-  rank: string | null
-  games: string[]
-  price: number
-  rating: number
-  isOnline: boolean
-}
-
-// ============================================================
-// 主组件
-// ============================================================
 const PlayerDetailPage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-
-  // State
-  const [player, setPlayer] = useState<Player | null>(null)
+  const [player, setPlayer] = useState<(Player & { online?: boolean; game?: string }) | null>(null)
   const [loading, setLoading] = useState(true)
+  const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
   const [selectedHours, setSelectedHours] = useState(2)
   const [selectedGame, setSelectedGame] = useState('王者荣耀')
   const [activeTab, setActiveTab] = useState<'intro' | 'reviews'>('intro')
   const [reviews, setReviews] = useState<Review[]>([])
   const [reviewsLoading, setReviewsLoading] = useState(false)
-  const [similarPlayers, setSimilarPlayers] = useState<SimplePlayer[]>([])
-  const [creating, setCreating] = useState(false)
-  const [favoriting, setFavoriting] = useState(false)
-
+  const [similarPlayers, setSimilarPlayers] = useState<Player[]>([])
   const { isFavorited, addFavorite: addToStore, removeFavorite: removeFromStore } = useFavoritesStore()
+  const [favoriting, setFavoriting] = useState(false)
+  const hoursOptions = [1, 2, 3, 4]
+
   const isCurrentlyFavorited = player ? isFavorited(player.id) : false
 
-  // ============================================================
-  // 加载数据
-  // ============================================================
   useEffect(() => {
     if (!id) return
-
     const load = async () => {
       try {
         const data = await getPlayerDetail(id)
-        const p: any = {
+        const p = {
           ...data,
-          online: data.online ?? data.isOnline,
-          game: GAME_REVERSE_MAP[data.game] || data.games?.[0] || '王者荣耀',
-          games: data.games?.length
-            ? data.games.map((g: string) => GAME_REVERSE_MAP[g] || g)
-            : [GAME_REVERSE_MAP[data.game] || '王者荣耀'],
+          online: (data as any).online ?? data.isOnline,
+          game: GAME_KEY_TO_CN[(data as any).game] || data.games?.[0] || '王者荣耀',
         }
         setPlayer(p)
         if (data.games?.length > 0) {
-          setSelectedGame(GAME_REVERSE_MAP[data.games[0]] || data.games[0])
+          setSelectedGame(GAME_KEY_TO_CN[data.games[0]] || data.games[0])
         }
-        loadSimilarPlayers(data.game, id)
-      } catch {
+        loadSimilarPlayers((data as any).game, id)
+      } catch (err) {
         setError('加载失败')
       } finally {
         setLoading(false)
@@ -124,24 +60,25 @@ const PlayerDetailPage: React.FC = () => {
     try {
       const res = await request.get<{ reviews: Review[] }>(`/api/players/${id}/reviews`)
       setReviews(res.reviews || [])
-    } catch {}
+    } catch (e) {
+      console.error('[PlayerDetail] loadReviews error:', e)
+    }
     setReviewsLoading(false)
   }
 
   const loadSimilarPlayers = async (game: string, currentId: string) => {
     try {
-      const res = await request.get<{ players: SimplePlayer[] }>('/api/players', {
+      const res = await request.get<{ players: Player[] }>('/api/players', {
         params: { game, limit: 20 },
       })
-      const filtered = (res.players || []).filter((p: SimplePlayer) => p.id !== currentId)
-      filtered.sort((a: SimplePlayer, b: SimplePlayer) => (b.rating || 0) - (a.rating || 0))
+      const filtered = (res.players || []).filter((p: Player) => p.id !== currentId)
+      filtered.sort((a: Player, b: Player) => (b.rating || 0) - (a.rating || 0))
       setSimilarPlayers(filtered.slice(0, 6))
-    } catch {}
+    } catch (e) {
+      console.error('[PlayerDetail] loadSimilarPlayers error:', e)
+    }
   }
 
-  // ============================================================
-  // 操作
-  // ============================================================
   const handleTabSwitch = (tab: 'intro' | 'reviews') => {
     setActiveTab(tab)
     if (tab === 'reviews' && reviews.length === 0) {
@@ -185,50 +122,55 @@ const PlayerDetailPage: React.FC = () => {
       const order = await createOrder({
         playerId: id,
         duration: selectedHours,
-        game: GAME_MAP[selectedGame] || selectedGame,
+        game: GAME_CN_TO_KEY[selectedGame] || selectedGame,
       })
       navigate(`/payment/${(order as any).id}`)
     } catch (err) {
-      alert((err as any)?.response?.data?.message || '创建订单失败')
+      alert(err?.response?.data?.message || '创建订单失败')
     } finally {
       setCreating(false)
     }
   }
 
-  const formatTime = (ts: number) => {
+  const formatReviewTime = (ts: number) => {
     const d = new Date(ts)
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   }
 
-  // ============================================================
-  // 渲染
-  // ============================================================
+  const renderStars = (rating: number) => '⭐'.repeat(Math.round(rating))
+
   if (loading) {
     return (
       <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loading />
+        <span style={{ color: COLORS.textSecondary }}>加载中...</span>
       </div>
     )
   }
 
   if (error || !player) {
     return (
-      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' as const, gap: 12 }}>
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px' }}>
         <span style={{ color: COLORS.error }}>{error || '加载失败'}</span>
-        <span style={{ color: COLORS.textSecondary, fontSize: 13, cursor: 'pointer' }} onClick={() => navigate(-1)}>返回</span>
+        <span style={{ color: COLORS.textSecondary, fontSize: '13px', cursor: 'pointer' }} onClick={() => navigate(-1)}>返回</span>
       </div>
     )
   }
 
-  const totalPrice = player.price * selectedHours
-
   return (
     <div style={styles.container}>
-      <Header
-        title="陪玩师详情"
-        onBack={() => navigate(-1)}
-        right={<span style={{ color: COLORS.primary, fontSize: 14 }}>分享</span>}
-      />
+      {/* 顶部返回栏 */}
+      <div style={styles.header}>
+        <motion.span
+          style={styles.backBtn}
+          onClick={() => navigate(-1)}
+          whileTap={{ scale: 0.85, opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          ←
+        </motion.span>
+        <span style={styles.headerTitle}>陪玩师详情</span>
+        <span style={styles.shareBtn}>分享</span>
+      </div>
 
       {/* 个人信息区 */}
       <div style={styles.profileSection}>
@@ -238,16 +180,12 @@ const PlayerDetailPage: React.FC = () => {
           ) : (
             <span style={styles.avatarEmoji}>💫</span>
           )}
-          {player.online && (
-            <span style={styles.onlineBadge}>在线</span>
-          )}
+          {player.online && <span style={styles.onlineBadge}>在线</span>}
         </div>
         <div style={styles.profileInfo}>
           <div style={styles.nameRow}>
             <span style={styles.name}>{player.name}</span>
-            <span style={{ ...styles.level, color: getLevelColor(player.rank), backgroundColor: 'rgba(0,0,0,0.2)' }}>
-              {player.rank || '陪玩师'}
-            </span>
+            <span style={{ ...styles.level, color: getLevelColor(player.rank), backgroundColor: 'rgba(0,0,0,0.2)' }}>{player.rank || '陪玩师'}</span>
           </div>
           <div style={styles.gameInfo}>
             <span style={styles.gameTag}>{player.game}</span>
@@ -262,14 +200,24 @@ const PlayerDetailPage: React.FC = () => {
       </div>
 
       {/* Tab切换 */}
-      <TabBar
-        tabs={[
-          { key: 'intro', label: '简介' },
-          { key: 'reviews', label: '评价' },
-        ]}
-        activeTab={activeTab}
-        onChange={(key) => handleTabSwitch(key as 'intro' | 'reviews')}
-      />
+      <div style={styles.tabBar}>
+        <motion.div
+          style={{ ...styles.tab, ...(activeTab === 'intro' ? styles.tabActive : {}) }}
+          onClick={() => handleTabSwitch('intro')}
+          whileTap={{ opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          简介
+        </motion.div>
+        <motion.div
+          style={{ ...styles.tab, ...(activeTab === 'reviews' ? styles.tabActive : {}) }}
+          onClick={() => handleTabSwitch('reviews')}
+          whileTap={{ opacity: 0.7 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        >
+          评价
+        </motion.div>
+      </div>
 
       {/* 简介内容 */}
       {activeTab === 'intro' && (
@@ -278,7 +226,7 @@ const PlayerDetailPage: React.FC = () => {
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>选择游戏</h3>
             <div style={styles.gameOptions}>
-              {GAMES.map(game => (
+              {['王者荣耀', '和平精英', '英雄联盟', '永劫无间'].map(game => (
                 <motion.div
                   key={game}
                   style={{
@@ -287,6 +235,7 @@ const PlayerDetailPage: React.FC = () => {
                   }}
                   onClick={() => setSelectedGame(game)}
                   whileTap={{ scale: 0.94 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 >
                   {game}
                 </motion.div>
@@ -298,7 +247,7 @@ const PlayerDetailPage: React.FC = () => {
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>选择时长</h3>
             <div style={styles.hoursOptions}>
-              {HOUR_OPTIONS.map(hour => (
+              {hoursOptions.map(hour => (
                 <motion.div
                   key={hour}
                   style={{
@@ -308,6 +257,7 @@ const PlayerDetailPage: React.FC = () => {
                   onClick={() => setSelectedHours(hour)}
                   whileTap={{ scale: 0.94 }}
                   whileHover={{ scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 >
                   <span style={styles.hourValue}>{hour}</span>
                   <span style={styles.hourLabel}>小时</span>
@@ -316,7 +266,7 @@ const PlayerDetailPage: React.FC = () => {
             </div>
             <div style={styles.priceSummary}>
               <span style={styles.priceSummaryLabel}>应付金额：</span>
-              <span style={styles.totalPrice}>¥{totalPrice}</span>
+              <span style={styles.totalPrice}>¥{player.price * selectedHours}</span>
             </div>
           </div>
 
@@ -325,7 +275,7 @@ const PlayerDetailPage: React.FC = () => {
             <h3 style={styles.sectionTitle}>擅长标签</h3>
             <div style={styles.tags}>
               {(player.tags || []).map((tag: string, i: number) => (
-                <Badge key={i} variant="primary">{tag}</Badge>
+                <span key={i} style={styles.tag}>{tag}</span>
               ))}
             </div>
           </div>
@@ -342,7 +292,29 @@ const PlayerDetailPage: React.FC = () => {
           {similarPlayers.length > 0 && (
             <div style={styles.section}>
               <h3 style={styles.sectionTitle}>相似陪玩师</h3>
-              <SimilarPlayers players={similarPlayers as any} />
+              <div style={styles.similarScroll}>
+                {similarPlayers.map(p => (
+                  <motion.div
+                    key={p.id}
+                    style={styles.similarCard}
+                    onClick={() => navigate(`/player/${p.id}`)}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  >
+                    <div style={styles.similarAvatar}>
+                      {p.avatar ? (
+                        <img src={p.avatar} alt={p.name} style={styles.similarAvatarImg} />
+                      ) : (
+                        <span style={styles.similarAvatarEmoji}>💫</span>
+                      )}
+                      {p.isOnline && <span style={styles.similarOnlineDot} />}
+                    </div>
+                    <span style={styles.similarName}>{p.name}</span>
+                    <span style={styles.similarPrice}>¥{p.price}/h</span>
+                    <span style={styles.similarRating}>⭐{p.rating || '5.0'}</span>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           )}
         </>
@@ -352,9 +324,15 @@ const PlayerDetailPage: React.FC = () => {
       {activeTab === 'reviews' && (
         <div style={styles.reviewsSection}>
           {reviewsLoading ? (
-            <Loading text="加载评价中..." />
+            <div style={styles.reviewsLoading}>
+              <span style={styles.emptyText}>加载评价中...</span>
+            </div>
           ) : reviews.length === 0 ? (
-            <Empty icon="📝" text="暂无评价" sub="成为第一个评价的人吧" />
+            <div style={styles.reviewsEmpty}>
+              <span style={styles.emptyIcon}>📝</span>
+              <span style={styles.emptyText}>暂无评价</span>
+              <span style={styles.emptySub}>成为第一个评价的人吧</span>
+            </div>
           ) : (
             reviews.map((review: Review) => (
               <div key={review.id} style={styles.reviewItem}>
@@ -368,11 +346,9 @@ const PlayerDetailPage: React.FC = () => {
                   </div>
                   <div style={styles.reviewerInfo}>
                     <span style={styles.reviewerName}>{review.userName}</span>
-                    <span style={styles.reviewRating}>
-                      {'⭐'.repeat(Math.round(review.rating))} {review.rating}
-                    </span>
+                    <span style={styles.reviewRating}>{renderStars(review.rating)} {review.rating}</span>
                   </div>
-                  <span style={styles.reviewTime}>{formatTime(review.createTime)}</span>
+                  <span style={styles.reviewTime}>{formatReviewTime(review.createTime)}</span>
                 </div>
                 {review.comment && <p style={styles.reviewContent}>{review.comment}</p>}
               </div>
@@ -390,45 +366,71 @@ const PlayerDetailPage: React.FC = () => {
           }}
           onClick={handleToggleFavorite}
           whileTap={{ scale: 0.92 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
-          <span>{isCurrentlyFavorited ? '❤️' : '🤍'}</span>
-          <span>{isCurrentlyFavorited ? '已收藏' : '收藏'}</span>
+          <span style={styles.favoriteIcon}>{isCurrentlyFavorited ? '❤️' : '🤍'}</span>
+          <span style={styles.favoriteLabel}>{isCurrentlyFavorited ? '已收藏' : '收藏'}</span>
         </motion.div>
         <motion.div
           style={styles.chatBtn}
           onClick={() => navigate('/chat')}
           whileTap={{ scale: 0.92, opacity: 0.8 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
-          💬 聊天
+          <span style={styles.chatIcon}>💬</span>
+          <span>聊天</span>
         </motion.div>
-        <Button
-          variant="primary"
-          size="lg"
-          loading={creating}
-          onTap={handleOrder}
-          style={{ flex: 1 }}
+        <motion.button
+          style={{ ...styles.orderBtn, ...(creating ? styles.orderBtnDisabled : {}) }}
+          onClick={creating ? undefined : handleOrder}
+          disabled={creating}
+          whileTap={creating ? {} : { scale: 0.96, opacity: 0.85 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           {creating ? '创建中...' : '立即预约'}
-        </Button>
+        </motion.button>
       </div>
     </div>
   )
 }
 
-// ============================================================
-// 样式
-// ============================================================
-const styles = {
+// ========== 暗色风格 ==========
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,
     paddingBottom: '80px',
   },
+  header: {
+    backgroundColor: COLORS.card,
+    padding: '14px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+  },
+  backBtn: {
+    fontSize: '24px',
+    cursor: 'pointer',
+    color: COLORS.text,
+  },
+  headerTitle: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  shareBtn: {
+    fontSize: '14px',
+    color: COLORS.primary,
+    cursor: 'pointer',
+  },
   profileSection: {
     background: `linear-gradient(135deg, ${COLORS.primary} 0%, #c44569 100%)`,
     padding: '20px 16px',
     display: 'flex',
-    gap: 16,
+    gap: '16px',
     alignItems: 'flex-start',
   },
   avatarWrapper: {
@@ -436,254 +438,403 @@ const styles = {
     flexShrink: 0,
   },
   avatarImg: {
-    width: 80,
-    height: 80,
+    width: '72px',
+    height: '72px',
     borderRadius: '50%',
-    objectFit: 'cover' as const,
-    border: '3px solid rgba(255,255,255,0.3)',
+    objectFit: 'cover',
   },
   avatarEmoji: {
-    fontSize: 60,
+    fontSize: '72px',
     display: 'block',
   },
   onlineBadge: {
     position: 'absolute',
-    bottom: 4,
-    right: 4,
+    bottom: '4px',
+    left: '50%',
+    transform: 'translateX(-50%)',
     backgroundColor: COLORS.success,
     color: '#fff',
-    fontSize: 10,
-    padding: '2px 6px',
-    borderRadius: 8,
-    fontWeight: 'bold' as const,
+    fontSize: '10px',
+    padding: '2px 8px',
+    borderRadius: '10px',
+    whiteSpace: 'nowrap',
   },
   profileInfo: {
     flex: 1,
+    color: '#fff',
   },
   nameRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 6,
+    gap: '10px',
+    marginBottom: '8px',
   },
   name: {
-    fontSize: 20,
-    fontWeight: 'bold' as const,
+    fontSize: '22px',
+    fontWeight: 'bold',
     color: '#fff',
   },
   level: {
-    fontSize: 11,
+    fontSize: '12px',
+    fontWeight: 'bold',
     padding: '2px 8px',
-    borderRadius: 6,
+    borderRadius: '8px',
   },
   gameInfo: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
+    gap: '8px',
+    marginBottom: '10px',
   },
   gameTag: {
     backgroundColor: 'rgba(255,255,255,0.2)',
+    padding: '3px 10px',
+    borderRadius: '10px',
+    fontSize: '12px',
     color: '#fff',
-    padding: '2px 10px',
-    borderRadius: 10,
-    fontSize: 12,
   },
   rank: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.7)',
+    fontSize: '13px',
+    color: 'rgba(255,255,255,0.8)',
   },
   statsRow: {
     display: 'flex',
-    gap: 16,
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.9)',
+    gap: '16px',
+    fontSize: '13px',
+    color: '#fff',
   },
   priceTag: {
-    fontWeight: 'bold' as const,
     color: '#FFD700',
+    fontWeight: 'bold',
+  },
+  tabBar: {
+    display: 'flex',
+    backgroundColor: COLORS.card,
+    borderBottom: `1px solid ${COLORS.border}`,
+  },
+  tab: {
+    flex: 1,
+    textAlign: 'center',
+    padding: '14px 0',
+    fontSize: '15px',
+    color: COLORS.textSecondary,
+    cursor: 'pointer',
+    borderBottom: '2px solid transparent',
+  },
+  tabActive: {
+    color: COLORS.primary,
+    fontWeight: 'bold',
+    borderBottomColor: COLORS.primary,
   },
   section: {
     padding: '16px',
     borderBottom: `1px solid ${COLORS.border}`,
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: 'bold' as const,
+    fontSize: '15px',
+    fontWeight: 'bold',
     color: COLORS.text,
-    margin: '0 0 14px 0',
+    margin: '0 0 12px 0',
   },
   gameOptions: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: 10,
+    display: 'flex',
+    gap: '10px',
+    flexWrap: 'wrap',
   },
   gameOption: {
-    padding: '10px 16px',
-    borderRadius: 12,
-    fontSize: 14,
-    textAlign: 'center' as const,
-    backgroundColor: COLORS.card,
-    border: `1px solid ${COLORS.border}`,
+    padding: '8px 16px',
+    borderRadius: '20px',
+    fontSize: '13px',
     color: COLORS.textSecondary,
+    backgroundColor: 'rgba(255,255,255,0.08)',
     cursor: 'pointer',
+    border: '1px solid transparent',
   },
   gameOptionActive: {
-    backgroundColor: 'rgba(255,107,157,0.2)',
-    borderColor: COLORS.primary,
-    color: COLORS.primary,
-    fontWeight: 'bold' as const,
+    backgroundColor: COLORS.primary,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   hoursOptions: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: 10,
+    display: 'flex',
+    gap: '10px',
+    marginBottom: '16px',
   },
   hourOption: {
+    flex: 1,
     padding: '12px 8px',
-    borderRadius: 12,
-    backgroundColor: COLORS.card,
-    border: `1px solid ${COLORS.border}`,
-    textAlign: 'center' as const,
+    borderRadius: '12px',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    textAlign: 'center',
     cursor: 'pointer',
+    border: '2px solid transparent',
   },
   hourOptionActive: {
-    backgroundColor: 'rgba(255,107,157,0.2)',
     borderColor: COLORS.primary,
+    backgroundColor: 'rgba(255,107,157,0.15)',
   },
   hourValue: {
     display: 'block',
-    fontSize: 20,
-    fontWeight: 'bold' as const,
+    fontSize: '20px',
+    fontWeight: 'bold',
     color: COLORS.text,
   },
   hourLabel: {
-    display: 'block',
-    fontSize: 11,
+    fontSize: '11px',
     color: COLORS.textSecondary,
-    marginTop: 2,
   },
   priceSummary: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16,
+    backgroundColor: 'rgba(255,255,255,0.06)',
     padding: '12px 16px',
-    backgroundColor: COLORS.card,
-    borderRadius: 12,
+    borderRadius: '12px',
   },
   priceSummaryLabel: {
-    fontSize: 14,
     color: COLORS.textSecondary,
+    fontSize: '14px',
   },
   totalPrice: {
-    fontSize: 24,
-    fontWeight: 'bold' as const,
+    fontSize: '24px',
+    fontWeight: 'bold',
     color: COLORS.primary,
   },
   tags: {
     display: 'flex',
-    gap: 8,
-    flexWrap: 'wrap' as const,
+    gap: '8px',
+    flexWrap: 'wrap',
+  },
+  tag: {
+    padding: '6px 12px',
+    borderRadius: '16px',
+    fontSize: '13px',
+    color: COLORS.text,
+    backgroundColor: 'rgba(255,107,157,0.15)',
+    border: `1px solid ${COLORS.primary}40`,
   },
   bio: {
-    fontSize: 14,
+    fontSize: '14px',
     color: COLORS.textSecondary,
-    lineHeight: 1.6,
+    lineHeight: '1.6',
     margin: 0,
   },
+  similarScroll: {
+    display: 'flex',
+    gap: '12px',
+    overflowX: 'auto',
+    paddingBottom: '4px',
+  },
+  similarCard: {
+    flexShrink: 0,
+    width: '90px',
+    backgroundColor: COLORS.card,
+    borderRadius: '12px',
+    padding: '12px 8px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '4px',
+    cursor: 'pointer',
+    border: `1px solid ${COLORS.border}`,
+  },
+  similarAvatar: {
+    position: 'relative',
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    marginBottom: '4px',
+  },
+  similarAvatarImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  similarAvatarEmoji: {
+    fontSize: '24px',
+  },
+  similarOnlineDot: {
+    position: 'absolute',
+    bottom: '2px',
+    right: '2px',
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
+    backgroundColor: COLORS.success,
+    border: '2px solid rgba(26,26,46,1)',
+  },
+  similarName: {
+    fontSize: '12px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+  similarPrice: {
+    fontSize: '11px',
+    color: '#FFD700',
+    fontWeight: 'bold',
+  },
+  similarRating: {
+    fontSize: '10px',
+    color: COLORS.textSecondary,
+  },
   reviewsSection: {
-    padding: 16,
+    padding: '16px',
+  },
+  reviewsLoading: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '40px 0',
+  },
+  reviewsEmpty: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingTop: '40px',
+    gap: '8px',
+  },
+  emptyIcon: {
+    fontSize: '40px',
+  },
+  emptyText: {
+    fontSize: '15px',
+    color: COLORS.text,
+  },
+  emptySub: {
+    fontSize: '13px',
+    color: COLORS.textSecondary,
   },
   reviewItem: {
-    marginBottom: 16,
-    padding: 16,
     backgroundColor: COLORS.card,
-    borderRadius: 12,
+    borderRadius: '12px',
+    padding: '14px',
+    marginBottom: '10px',
     border: `1px solid ${COLORS.border}`,
   },
   reviewHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 8,
+    gap: '10px',
+    marginBottom: '10px',
   },
   reviewerAvatar: {
-    width: 36,
-    height: 36,
+    width: '36px',
+    height: '36px',
     borderRadius: '50%',
-    backgroundColor: COLORS.background,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden' as const,
+    overflow: 'hidden',
+    fontSize: '20px',
+    flexShrink: 0,
   },
   reviewerAvatarImg: {
     width: '100%',
     height: '100%',
-    objectFit: 'cover' as const,
+    objectFit: 'cover',
   },
   reviewerInfo: {
     flex: 1,
   },
   reviewerName: {
     display: 'block',
-    fontSize: 14,
-    fontWeight: 'bold' as const,
+    fontSize: '14px',
+    fontWeight: 'bold',
     color: COLORS.text,
   },
   reviewRating: {
-    fontSize: 12,
+    fontSize: '12px',
     color: '#FFD700',
   },
   reviewTime: {
-    fontSize: 12,
+    fontSize: '11px',
     color: COLORS.textSecondary,
   },
   reviewContent: {
-    fontSize: 14,
+    fontSize: '13px',
     color: COLORS.textSecondary,
-    lineHeight: 1.6,
+    lineHeight: '1.5',
     margin: 0,
   },
   bottomBar: {
-    position: 'fixed' as const,
+    position: 'fixed',
     bottom: 0,
     left: 0,
     right: 0,
-    maxWidth: 480,
+    maxWidth: '480px',
     margin: '0 auto',
     backgroundColor: COLORS.card,
     padding: '12px 16px',
     display: 'flex',
-    gap: 10,
-    alignItems: 'center',
+    gap: '10px',
     borderTop: `1px solid ${COLORS.border}`,
     zIndex: 100,
   },
   favoriteBtn: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: 2,
-    padding: '8px 12px',
-    borderRadius: 12,
+    justifyContent: 'center',
+    padding: '8px 14px',
+    borderRadius: '24px',
     backgroundColor: 'rgba(255,255,255,0.08)',
-    cursor: 'pointer',
-    fontSize: 11,
     color: COLORS.textSecondary,
+    fontSize: '11px',
+    cursor: 'pointer',
+    border: `1px solid ${COLORS.border}`,
+    gap: '2px',
   },
   favoriteBtnActive: {
-    color: COLORS.error,
+    backgroundColor: `${COLORS.primary}20`,
+    color: COLORS.primary,
+    borderColor: `${COLORS.primary}40`,
+  },
+  favoriteIcon: {
+    fontSize: '18px',
+  },
+  favoriteLabel: {
+    fontSize: '10px',
   },
   chatBtn: {
-    padding: '10px 16px',
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,107,157,0.2)',
-    color: COLORS.primary,
-    fontSize: 14,
-    fontWeight: 'bold' as const,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '10px 18px',
+    borderRadius: '24px',
+    background: `linear-gradient(135deg, ${COLORS.accent} 0%, #764ba2 100%)`,
+    color: '#fff',
+    fontSize: '12px',
+    gap: '2px',
     cursor: 'pointer',
+    boxShadow: `0 4px 12px ${COLORS.accent}40`,
+    border: 'none',
+  },
+  chatIcon: {
+    fontSize: '20px',
+  },
+  orderBtn: {
+    flex: 1,
+    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
+    color: '#fff',
+    padding: '14px',
+    borderRadius: '24px',
+    textAlign: 'center',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: `0 4px 15px ${COLORS.primary}40`,
+    border: 'none',
+  },
+  orderBtnDisabled: {
+    opacity: 0.6,
+    cursor: 'not-allowed',
   },
 }
 

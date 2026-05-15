@@ -1,8 +1,8 @@
-// 订单评价组件 - 评分 + 文字 + 提交
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { COLORS } from '../constants'
-import { modalAnimate, overlayAnimate } from '../utils/animations'
+import { COLORS } from '@/constants'
+import { rateOrder } from '@/api/order'
+import { modalAnimate, overlayAnimate } from '@/utils/animations'
 
 interface OrderRatingProps {
   orderId: string
@@ -21,21 +21,9 @@ const OrderRating: React.FC<OrderRatingProps> = ({ orderId, playerName, onSubmit
     if (submitting) return
     setSubmitting(true)
     try {
-      const token = localStorage.getItem('token')
-      const res = await fetch(`http://192.168.3.14:3000/api/orders/${orderId}/rate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ rating, comment }),
-      })
-      if (res.ok) {
-        setSubmitted(true)
-        onSubmit?.({ rating, comment })
-      } else {
-        alert('提交失败，请重试')
-      }
+      await rateOrder(orderId, rating, comment)
+      setSubmitted(true)
+      onSubmit?.({ rating, comment })
     } catch (e) {
       console.error('[OrderRating] submit error:', e)
       alert('提交失败，请重试')

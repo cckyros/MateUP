@@ -1,9 +1,9 @@
 // 审核中状态页 - Phase 7
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS } from '../constants'
-import { useApplyStore } from '../store'
-import { getApplyStatus } from '../api/apply'
+import { COLORS } from '@/constants'
+import { useApplyStore } from '@/store'
+import { getApplyStatus } from '@/api/apply'
 import { Styles } from '@/utils/styles'
 
 export default function ApplyStatusPage() {

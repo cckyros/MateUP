@@ -1,10 +1,11 @@
 // 陪玩师订单页 - Phase 7
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS, ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '../constants'
-import { usePlayerProfileStore } from '../store'
-import { playerApi } from '../api'
-import { ordersApi } from '../api'
+import { COLORS, ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '@/constants'
+import { usePlayerProfileStore } from '@/store'
+import { mockApi } from '@/api/mock'
+import { getPlayerOrders } from '@/api/playerApi'
+import { acceptOrder, rejectOrder, completeOrder } from '@/api/order'
 import { Styles } from '@/utils/styles'
 
 const TABS = [
@@ -20,17 +21,17 @@ export default function PlayerOrdersPage() {
   const [activeTab, setActiveTab] = useState('WAIT_ACCEPT')
 
   useEffect(() => {
-    playerApi.getPlayerOrders().then((res: any) => setOrders(res.orders || [])).catch(() => {})
+    getPlayerOrders().then((res) => setOrders((res as any).orders)).catch(() => {})
   }, [])
 
   const filtered = orders.filter((o) => o.status === activeTab)
 
   const handleAction = async (orderId, action) => {
     if (action === 'accept') {
-      await ordersApi.acceptOrder(orderId)
+      await acceptOrder(orderId)
       updateOrderStatus(orderId, 'IN_PROGRESS')
     } else {
-      await ordersApi.rejectOrder(orderId)
+      await rejectOrder(orderId)
       updateOrderStatus(orderId, 'CANCELLED')
     }
   }

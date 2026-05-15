@@ -21,8 +21,8 @@ import PlayerProfilePage from './pages/PlayerProfilePage'
 import PlayerEarningsPage from './pages/PlayerEarningsPage'
 import PlayerReviewsPage from './pages/PlayerReviewsPage'
 import FavoritesPage from './pages/FavoritesPage'
-import { useUserStore } from './store'
-import { pageTransition } from './utils/animations'
+import { useUserStore } from '@/store'
+import { pageTransition } from '@/utils/animations'
 
 // 页面包装器 - 统一路由动画
 const AnimatedPage = ({ children }: { children: React.ReactNode }) => (

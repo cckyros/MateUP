@@ -1,9 +1,9 @@
 import React, { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Player } from '../store'
-import { COLORS } from '../constants'
-import { cardHoverProps } from '../utils/animations'
+import type { Player } from '@/types'
+import { COLORS } from '@/constants'
+import { cardHoverProps } from '@/utils/animations'
 
 interface PlayerCardProps {
   player: Player

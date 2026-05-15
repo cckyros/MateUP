@@ -1,32 +1,17 @@
-// ============================================================
-// 封面页 - 重构后
-// ============================================================
+// 封面页 - 已统一暗色风格 + 登录状态检测 + 热门陪玩Banner
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { COLORS } from '@/constants'
 import { useUserStore } from '@/store'
-import { Button } from '@/components/ui'
+import { COLORS } from '@/constants'
+import { Styles } from '@/utils/styles'
 
-// ============================================================
-// 常量
-// ============================================================
-const HOT_PLAYERS = [
-  { id: 1, name: '小美', avatar: '👩', level: '金牌陪玩', rating: 4.9, ordersCount: 892, price: 80 },
-  { id: 2, name: '阿杰', avatar: '👨', level: '银牌陪玩', rating: 4.8, ordersCount: 564, price: 60 },
-  { id: 3, name: '小林', avatar: '👩', level: '金牌陪玩', rating: 5.0, ordersCount: 1203, price: 100 },
+// 热门陪玩师 Mock 数据（后续替换为真实 API: GET /api/players/hot）
+const hotPlayers = [
+  { id: 1, name: '小美', avatar: '👩', level: '金牌陪玩', rating: 4.9, ordersCount: 892, game: '王者荣耀', price: 80 },
+  { id: 2, name: '阿杰', avatar: '👨', level: '银牌陪玩', rating: 4.8, ordersCount: 564, game: '和平精英', price: 60 },
+  { id: 3, name: '小林', avatar: '👩', level: '金牌陪玩', rating: 5.0, ordersCount: 1203, game: '永劫无间', price: 100 },
 ]
 
-const FEATURES = [
-  { icon: '🎮', title: '海量陪玩', desc: '王者荣耀、和平精英...热门游戏全覆盖' },
-  { icon: '🎧', title: '语音连麦', desc: '实时语音，边玩边聊，欢乐不间断' },
-  { icon: '🛡️', title: '安全支付', desc: '平台担保交易，资金安全有保障' },
-  { icon: '⭐', title: '真实评价', desc: '查看真实评价，找到靠谱陪玩' },
-]
-
-// ============================================================
-// 主组件
-// ============================================================
 const CoverPage = () => {
   const navigate = useNavigate()
   const { isLoggedIn } = useUserStore()
@@ -37,9 +22,32 @@ const CoverPage = () => {
     }
   }, [isLoggedIn, navigate])
 
+  const features = [
+    {
+      icon: '🎮',
+      title: '海量陪玩',
+      desc: '王者荣耀、和平精英...热门游戏全覆盖',
+    },
+    {
+      icon: '🎧',
+      title: '语音连麦',
+      desc: '实时语音，边玩边聊，欢乐不间断',
+    },
+    {
+      icon: '🛡️',
+      title: '安全支付',
+      desc: '平台担保交易，资金安全有保障',
+    },
+    {
+      icon: '⭐',
+      title: '真实评价',
+      desc: '查看真实评价，找到靠谱陪玩',
+    },
+  ]
+
   return (
     <div style={styles.container}>
-      {/* Banner */}
+      {/* 顶部 Banner */}
       <div style={styles.banner}>
         <div style={styles.logoArea}>
           <div style={styles.logo}>💫</div>
@@ -53,7 +61,7 @@ const CoverPage = () => {
         </p>
       </div>
 
-      {/* 热门陪玩师 */}
+      {/* 热门陪玩师 Banner */}
       <div style={styles.hotSection}>
         <div style={styles.hotHeader}>
           <div style={styles.hotTitleRow}>
@@ -63,7 +71,7 @@ const CoverPage = () => {
           <span style={styles.hotMore} onClick={() => navigate('/home')}>查看更多 →</span>
         </div>
         <div style={styles.hotList}>
-          {HOT_PLAYERS.map(player => (
+          {hotPlayers.map((player) => (
             <div
               key={player.id}
               style={styles.hotCard}
@@ -86,8 +94,8 @@ const CoverPage = () => {
 
       {/* 特性卡片 */}
       <div style={styles.mainContent}>
-        {FEATURES.map((f, i) => (
-          <div key={i} style={styles.featureCard}>
+        {features.map((f, i) => (
+          <div key={i} style={styles.card}>
             <div style={styles.cardIcon}>{f.icon}</div>
             <div style={styles.cardText}>
               <h3 style={styles.cardTitle}>{f.title}</h3>
@@ -99,12 +107,18 @@ const CoverPage = () => {
 
       {/* 底部按钮 */}
       <div style={styles.bottomArea}>
-        <Button variant="primary" size="lg" onTap={() => navigate('/login')} style={{ width: '100%', marginBottom: 12 }}>
+        <button
+          style={styles.loginBtn}
+          onClick={() => navigate('/login')}
+        >
           立即登录
-        </Button>
-        <Button variant="secondary" size="lg" onTap={() => navigate('/home')} style={{ width: '100%' }}>
+        </button>
+        <button
+          style={styles.guestBtn}
+          onClick={() => navigate('/home')}
+        >
           先逛逛
-        </Button>
+        </button>
       </div>
 
       <p style={styles.downloadTip}>下载 App 获取更多功能</p>
@@ -112,15 +126,13 @@ const CoverPage = () => {
   )
 }
 
-// ============================================================
-// 样式
-// ============================================================
-const styles = {
+// ========== 样式 ==========
+const styles: Styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: COLORS.background,
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
   },
   banner: {
     background: `linear-gradient(135deg, ${COLORS.primary} 0%, #c44569 100%)`,
@@ -130,32 +142,33 @@ const styles = {
   logoArea: {
     display: 'flex',
     alignItems: 'center',
-    gap: 14,
-    marginBottom: 20,
+    gap: '14px',
+    marginBottom: '20px',
   },
   logo: {
-    fontSize: 56,
+    fontSize: '56px',
   },
   appName: {
-    fontSize: 36,
-    fontWeight: 'bold' as const,
+    fontSize: '36px',
+    fontWeight: 'bold',
     margin: '0 0 6px 0',
     color: '#fff',
   },
   slogan: {
-    fontSize: 14,
+    fontSize: '14px',
     margin: 0,
     opacity: 0.9,
   },
   stats: {
-    fontSize: 14,
-    textAlign: 'center' as const,
+    fontSize: '14px',
+    textAlign: 'center',
     margin: 0,
   },
   highlight: {
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     color: '#FFD700',
   },
+  // Hot Section
   hotSection: {
     padding: '16px 20px 8px',
   },
@@ -163,132 +176,158 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: '12px',
   },
   hotTitleRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
+    gap: '6px',
   },
   hotFire: {
-    fontSize: 20,
+    fontSize: '20px',
   },
   hotTitle: {
-    fontSize: 17,
-    fontWeight: 'bold' as const,
+    fontSize: '17px',
+    fontWeight: 'bold',
     color: COLORS.text,
   },
   hotMore: {
-    fontSize: 13,
+    fontSize: '13px',
     color: COLORS.primary,
     cursor: 'pointer',
   },
   hotList: {
     display: 'flex',
-    gap: 10,
-    overflowX: 'auto' as const,
-    paddingBottom: 4,
+    gap: '10px',
+    overflowX: 'auto',
+    paddingBottom: '4px',
+    scrollbarWidth: 'none',
   },
   hotCard: {
     flexShrink: 0,
-    width: 120,
+    width: '120px',
     backgroundColor: COLORS.card,
-    borderRadius: 14,
+    borderRadius: '14px',
     padding: '14px 10px',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     border: `1px solid ${COLORS.border}`,
     cursor: 'pointer',
-    position: 'relative' as const,
+    position: 'relative',
   },
   hotAvatar: {
-    fontSize: 40,
+    fontSize: '40px',
     display: 'block',
-    marginBottom: 6,
+    marginBottom: '6px',
   },
   hotOnlineDot: {
-    position: 'absolute' as const,
-    top: 16,
-    right: 16,
-    width: 10,
-    height: 10,
+    position: 'absolute',
+    top: '16px',
+    right: '16px',
+    width: '10px',
+    height: '10px',
     backgroundColor: COLORS.success,
     borderRadius: '50%',
     border: `2px solid ${COLORS.card}`,
   },
   hotInfo: {
-    marginBottom: 6,
+    marginBottom: '6px',
   },
   hotName: {
     display: 'block',
-    fontSize: 14,
-    fontWeight: 'bold' as const,
+    fontSize: '14px',
+    fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 2,
+    marginBottom: '2px',
   },
   hotLevel: {
-    fontSize: 11,
+    fontSize: '11px',
     color: '#FFD700',
   },
   hotStats: {
     display: 'flex',
-    flexDirection: 'column' as const,
-    gap: 2,
+    flexDirection: 'column',
+    gap: '2px',
   },
   hotRating: {
-    fontSize: 12,
+    fontSize: '12px',
     color: '#FFD700',
   },
   hotOrders: {
-    fontSize: 11,
+    fontSize: '11px',
     color: COLORS.textSecondary,
   },
   mainContent: {
     padding: '8px 20px 0',
     flex: 1,
   },
-  featureCard: {
+  card: {
     display: 'flex',
     alignItems: 'center',
     backgroundColor: COLORS.card,
-    borderRadius: 16,
+    borderRadius: '16px',
     padding: '18px 16px',
-    marginBottom: 14,
-    gap: 16,
+    marginBottom: '14px',
+    gap: '16px',
     border: `1px solid ${COLORS.border}`,
   },
   cardIcon: {
-    fontSize: 36,
-    width: 52,
-    height: 52,
+    fontSize: '36px',
+    width: '52px',
+    height: '52px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 12,
+    borderRadius: '12px',
     flexShrink: 0,
   },
   cardText: {
     flex: 1,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: '16px',
     margin: '0 0 4px 0',
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     color: COLORS.text,
   },
   cardDesc: {
-    fontSize: 13,
+    fontSize: '13px',
     margin: 0,
     color: COLORS.textSecondary,
   },
   bottomArea: {
     padding: '0 24px 16px',
   },
+  loginBtn: {
+    width: '100%',
+    padding: '15px',
+    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
+    color: '#fff',
+    border: 'none',
+    borderRadius: '25px',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    marginBottom: '12px',
+    boxShadow: `0 4px 15px ${COLORS.primary}40`,
+  },
+  guestBtn: {
+    width: '100%',
+    padding: '15px',
+    background: `linear-gradient(135deg, ${COLORS.accent} 0%, #764ba2 100%)`,
+    color: '#fff',
+    border: 'none',
+    borderRadius: '25px',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: `0 4px 15px ${COLORS.accent}40`,
+  },
   downloadTip: {
-    textAlign: 'center' as const,
-    fontSize: 12,
+    textAlign: 'center',
+    fontSize: '12px',
     color: 'rgba(255,255,255,0.4)',
-    paddingBottom: 24,
+    paddingBottom: '24px',
     margin: 0,
   },
 }
