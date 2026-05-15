@@ -1,10 +1,9 @@
-// 登录页 - 已接入真实 API
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useUserStore } from '../store'
-import { login, register } from '../api/user'
-import { getApplyStatus } from '../api/apply'
-import { COLORS } from '../constants'
+import { useUserStore } from '@/store'
+import { login, register } from '@/api/user'
+import { getApplyStatus } from '@/api/apply'
+import { COLORS, STORAGE_KEYS } from '@/constants'
 import { Styles } from '@/utils/styles'
 
 const LoginPage = () => {
@@ -19,7 +18,14 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // 发送验证码
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current)
+    }
+  }, [])
+
   const sendCode = () => {
     if (!/^1[3-9]\d{9}$/.test(phone)) {
       setError('请输入正确的手机号')
@@ -27,10 +33,12 @@ const LoginPage = () => {
     }
     setError('')
     setCountdown(60)
-    const timer = setInterval(() => {
+    if (countdownRef.current) clearInterval(countdownRef.current)
+    countdownRef.current = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
-          clearInterval(timer)
+          if (countdownRef.current) clearInterval(countdownRef.current)
+          countdownRef.current = null
           return 0
         }
         return prev - 1

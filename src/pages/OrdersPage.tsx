@@ -1,23 +1,13 @@
-// 订单页 - 已接入真实 API
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '../constants'
-import { getOrderList, cancelOrder, completeOrder } from '../api/order'
+import { COLORS, GAME_NAMES, ORDER_TABS } from '@/constants'
+import { getOrderList, cancelOrder, completeOrder } from '@/api/order'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem, buttonTap } from '../utils/animations'
+import { listStagger, listItem } from '@/utils/animations'
+import { formatRelativeTime } from '@/utils/formatTime'
 
-// 订单状态
-const ORDER_STATUS = {
-  CREATED: 'CREATED',
-  WAIT_ACCEPT: 'WAIT_ACCEPT',
-  IN_PROGRESS: 'IN_PROGRESS',
-  COMPLETED: 'COMPLETED',
-  CANCELLED: 'CANCELLED',
-}
-
-// 状态映射：API状态值 → 显示标签 + 颜色
-const STATUS_MAP = {
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
   CREATED: { label: '待支付', color: '#FFD700' },
   WAIT_ACCEPT: { label: '待接单', color: '#FFD700' },
   IN_PROGRESS: { label: '进行中', color: COLORS.primary },
@@ -25,30 +15,9 @@ const STATUS_MAP = {
   CANCELLED: { label: '已取消', color: COLORS.textSecondary },
 }
 
-const orderTabs = ['全部', '待接单', '进行中', '已完成']
-
-// 游戏中文名
-const GAME_NAMES = {
-  honor: '王者荣耀',
-  apex: '和平精英',
-  lol: '英雄联盟',
-  yongjie: '永劫无间',
-  danzai: '蛋仔派对',
-}
-
-const formatTime = (ts) => {
-  const d = new Date(Number(ts))
-  const now = new Date()
-  const diff = Number(now) - Number(d)
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
-  return d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
-}
-
 const OrdersPage = () => {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('全部')
+  const [activeTab, setActiveTab] = useState<string>('全部')
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -56,7 +25,8 @@ const OrdersPage = () => {
     try {
       const data = await getOrderList()
       setOrders(data.data.orders || [])
-    } catch {
+    } catch (err) {
+      console.error('[Orders] 加载订单失败:', err)
       setOrders([])
     } finally {
       setLoading(false)
@@ -126,7 +96,7 @@ const OrdersPage = () => {
 
       {/* 标签页 */}
       <div style={styles.tabBar}>
-        {orderTabs.map(tab => (
+        {ORDER_TABS.map(tab => (
           <div
             key={tab}
             style={{
@@ -189,7 +159,7 @@ const OrdersPage = () => {
 
                 <div style={styles.orderBottom}>
                   <div style={styles.orderTime}>
-                    <span>📅 {formatTime(order.createTime)}</span>
+                    <span>📅 {formatRelativeTime(order.createTime)}</span>
                   </div>
                   <div style={styles.orderPrice}>
                     <span style={styles.priceLabel}>总价</span>
@@ -199,7 +169,7 @@ const OrdersPage = () => {
 
                 <div style={styles.orderFooter}>
                   <span style={styles.orderId}>订单号: {order.id}</span>
-                  <span style={styles.orderCreated}>{formatTime(order.createTime)}</span>
+                  <span style={styles.orderCreated}>{formatRelativeTime(order.createTime)}</span>
                 </div>
 
                 {order.status === 'WAIT_ACCEPT' && (

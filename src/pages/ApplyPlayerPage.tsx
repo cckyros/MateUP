@@ -1,10 +1,10 @@
 // 申请陪玩师页 - Phase 7
 import { useState, CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS, GAMES, GAME_NAMES } from '../constants'
-import { useApplyStore } from '../store'
-import { mockApi } from '../api/mock'
-import { submitApply } from '../api/apply'
+import { COLORS, GAMES, GAME_NAMES } from '@/constants'
+import { useApplyStore } from '@/store'
+import { mockApi } from '@/api/mock'
+import { submitApply } from '@/api/apply'
 
 const GAME_OPTIONS = Object.entries(GAME_NAMES)
 

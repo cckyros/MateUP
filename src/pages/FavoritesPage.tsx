@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '../constants'
-import { getFavorites, removeFavorite } from '../api/favorites'
-import { useFavoritesStore } from '../store'
+import { COLORS } from '@/constants'
+import { getFavorites, removeFavorite } from '@/api/favorites'
+import { useFavoritesStore } from '@/store'
 import { Styles } from '@/utils/styles'
 
 interface FavPlayer {

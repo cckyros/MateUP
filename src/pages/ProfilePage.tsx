@@ -2,12 +2,12 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '../constants'
-import { useApplyStore } from '../store'
-import { useUserStore } from '../store'
-import { getApplyStatus } from '../api/apply'
+import { COLORS } from '@/constants'
+import { useApplyStore } from '@/store'
+import { useUserStore } from '@/store'
+import { getApplyStatus } from '@/api/apply'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem } from '../utils/animations'
+import { listStagger, listItem } from '@/utils/animations'
 
 const ProfilePage = () => {
   const navigate = useNavigate()

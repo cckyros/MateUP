@@ -1,26 +1,17 @@
-// 订单详情页 - 已接入真实 API
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '../constants'
-import { getOrderDetail, cancelOrder, completeOrder } from '../api/order'
-import OrderRating from '../components/OrderRating'
+import { COLORS, GAME_NAMES } from '@/constants'
+import { getOrderDetail, cancelOrder, completeOrder, rateOrder } from '@/api/order'
+import OrderRating from '@/components/OrderRating'
 import { Styles } from '@/utils/styles'
 
-const STATUS_MAP = {
+const STATUS_MAP: Record<string, { label: string; color: string; desc: string }> = {
   CREATED: { label: '待支付', color: '#FFD700', desc: '请在规定时间内完成支付' },
   WAIT_ACCEPT: { label: '待接单', color: '#FFD700', desc: '陪玩师还未接单，可取消订单' },
   IN_PROGRESS: { label: '进行中', color: COLORS.primary, desc: '陪玩进行中，请耐心等待' },
   COMPLETED: { label: '已完成', color: COLORS.success, desc: '订单已完成，感谢使用伴游' },
   CANCELLED: { label: '已取消', color: COLORS.textSecondary, desc: '订单已取消' },
-}
-
-const GAME_NAMES = {
-  honor: '王者荣耀',
-  apex: '和平精英',
-  lol: '英雄联盟',
-  yongjie: '永劫无间',
-  danzai: '蛋仔派对',
 }
 
 const OrderDetailPage = () => {
@@ -39,7 +30,8 @@ const OrderDetailPage = () => {
       try {
         const data = await getOrderDetail(id)
         setOrder(data)
-      } catch {
+      } catch (err) {
+        console.error('[OrderDetail] 加载订单详情失败:', err)
         setOrder(null)
       } finally {
         setLoading(false)
@@ -77,23 +69,15 @@ const OrderDetailPage = () => {
     }
   }
 
-  const handleRate = async ({ rating, comment }) => {
+  const handleRate = async ({ rating, comment }: { rating: number; comment: string }) => {
     setShowRating(false)
     setRated(true)
     try {
-      const token = localStorage.getItem('token')
-      await fetch(`http://192.168.3.14:3000/api/order/${order.id}/rate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ rating, comment }),
-      })
+      await rateOrder(order.id, rating, comment)
       const updated = await getOrderDetail(order.id)
       setOrder(updated)
     } catch (err) {
-      alert(err?.response?.data?.message || '评价失败')
+      console.error('[OrderDetail] 评价失败:', err)
     }
   }
 

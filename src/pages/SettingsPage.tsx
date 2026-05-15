@@ -2,9 +2,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '../constants'
+import { COLORS } from '@/constants'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem } from '../utils/animations'
+import { listStagger, listItem } from '@/utils/animations'
 
 const SettingsPage = () => {
   const navigate = useNavigate()

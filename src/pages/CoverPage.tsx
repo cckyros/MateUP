@@ -1,8 +1,8 @@
 // 封面页 - 已统一暗色风格 + 登录状态检测 + 热门陪玩Banner
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useUserStore } from '../store'
-import { COLORS } from '../constants'
+import { useUserStore } from '@/store'
+import { COLORS } from '@/constants'
 import { Styles } from '@/utils/styles'
 
 // 热门陪玩师 Mock 数据（后续替换为真实 API: GET /api/players/hot）

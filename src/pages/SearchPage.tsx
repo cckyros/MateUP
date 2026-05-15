@@ -1,7 +1,7 @@
 // 搜索筛选页 - 已统一暗色风格
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS } from '../constants'
+import { COLORS } from '@/constants'
 import { Styles } from '@/utils/styles'
 
 const SearchPage = () => {

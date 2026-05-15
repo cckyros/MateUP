@@ -1,11 +1,11 @@
 // 陪玩师工作台 - Phase 7
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS } from '../constants'
-import { usePlayerProfileStore } from '../store'
-import { acceptOrder, rejectOrder } from '../api/order'
-import { getPlayerProfile, getPlayerOrders, setOnlineStatus } from '../api/playerApi'
-import { ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '../constants'
+import { COLORS } from '@/constants'
+import { usePlayerProfileStore } from '@/store'
+import { acceptOrder, rejectOrder } from '@/api/order'
+import { getPlayerProfile, getPlayerOrders, setOnlineStatus } from '@/api/playerApi'
+import { ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '@/constants'
 import { Styles } from '@/utils/styles'
 
 export default function PlayerHomePage() {

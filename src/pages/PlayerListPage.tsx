@@ -1,28 +1,14 @@
-// 陪玩师列表页 - 已接入真实 API
 import { useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { usePlayerStore, useChatStore } from '../store'
-import { getPlayers } from '../api/players'
-import { COLORS, GAMES, GAME_NAMES } from '../constants'
+import { usePlayerStore } from '@/store'
+import { getPlayers } from '@/api/players'
+import { COLORS, GAME_NAMES, GAME_TABS } from '@/constants'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem, buttonTap } from '../utils/animations'
+import { normalizePlayer } from '@/utils/playerMapper'
+import { listStagger, listItem } from '@/utils/animations'
 
-// 字段映射：旧字段 → 新字段（兼容性）
-const normalizePlayer = (p) => ({
-  ...p,
-  isOnline: p.online,
-  games: [p.game === '王者荣耀' ? 'honor' : p.game === '和平精英' ? 'apex' : p.game === '英雄联盟' ? 'lol' : 'yongjie'],
-  ordersCount: p.orders,
-});
 
-const games = [
-  { key: 'all', label: '全部', value: undefined },
-  { key: 'honor', label: '王者荣耀', value: 'honor' },
-  { key: 'apex', label: '和平精英', value: 'apex' },
-  { key: 'lol', label: '英雄联盟', value: 'lol' },
-  { key: 'yongjie', label: '永劫无间', value: 'yongjie' },
-]
 
 const sorts = ['综合排序', '价格升序', '价格降序', '评分最高']
 const quickFilters = [
@@ -42,8 +28,6 @@ const PlayerListPage = () => {
     setFilters,
   } = usePlayerStore()
 
-  const { setMessages } = useChatStore()
-
   // ========== 加载陪玩列表 ==========
   useEffect(() => {
     const loadPlayers = async () => {
@@ -53,7 +37,7 @@ const PlayerListPage = () => {
         const normalized = ((rawList as any).players || []).map(normalizePlayer)
         setPlayers(normalized)
       } catch (err) {
-        console.error('加载陪玩列表失败:', err)
+        console.error('[PlayerList] 加载陪玩列表失败:', err)
       }
     }
     if (players.length === 0) {
@@ -113,7 +97,7 @@ const PlayerListPage = () => {
   }, [filteredPlayers, filters.onlineOnly, filters.sortBy])
 
   const displayPlayers = getSortedPlayers()
-  const selectedGameKey = games.find(g => g.value === filters.game)?.key || 'all'
+  const selectedGameKey = GAME_TABS.find(g => g.value === filters.game)?.key || 'all'
 
   return (
     <div style={styles.container}>
@@ -133,7 +117,7 @@ const PlayerListPage = () => {
 
       {/* ========== 游戏分类 ========== */}
       <div style={styles.gameTabs}>
-        {games.map(game => (
+        {GAME_TABS.map(game => (
           <div
             key={game.key}
             style={{

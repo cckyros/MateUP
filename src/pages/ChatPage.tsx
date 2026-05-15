@@ -1,11 +1,10 @@
-// 聊天页 - 已集成真实 WebSocket + 会话列表 API
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { COLORS } from '../constants'
-import { useChatStore, useUserStore, wsManager } from '../store'
-import { getConversationList } from '../api/chat'
+import { COLORS, WS_BASE_URL } from '@/constants'
+import { useChatStore, useUserStore, wsManager } from '@/store'
+import { getConversationList } from '@/api/chat'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem, buttonTap, fadeIn } from '../utils/animations'
+import { listStagger, listItem, fadeIn } from '@/utils/animations'
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat')
@@ -24,7 +23,8 @@ const ChatPage = () => {
       try {
         const data = await getConversationList()
         setConversations(data.data.conversations || [])
-      } catch {
+      } catch (err) {
+        console.error('[Chat] 加载会话列表失败:', err)
         setConversations([])
       } finally {
         setLoadingConv(false)
@@ -37,7 +37,7 @@ const ChatPage = () => {
   useEffect(() => {
     if (!user?.id) return
 
-    const wsUrl = `ws://192.168.3.14:3000/ws/chat?token=${localStorage.getItem('token') || ''}`
+    const wsUrl = `${WS_BASE_URL}/ws/chat?token=${localStorage.getItem('token') || ''}`
     wsManager.connect(wsUrl)
 
     const unsubStatus = wsManager.onStatusChange((status) => {

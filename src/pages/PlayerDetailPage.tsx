@@ -1,62 +1,20 @@
-// 陪玩师详情页 - Phase 8: 评价Tab + 收藏功能 + 相似陪玩师推荐
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '../constants'
-import { getPlayerDetail } from '../api/players'
-import { createOrder } from '../api/order'
-import { addFavorite, removeFavorite } from '../api/favorites'
-import { useFavoritesStore } from '../store'
-import { request } from '../api'
+import { COLORS, GAME_CN_TO_KEY, GAME_KEY_TO_CN } from '@/constants'
+import { getPlayerDetail } from '@/api/players'
+import { createOrder } from '@/api/order'
+import { addFavorite, removeFavorite } from '@/api/favorites'
+import { useFavoritesStore } from '@/store'
+import { request } from '@/api'
 import { Styles } from '@/utils/styles'
-
-// 游戏名称映射
-const GAME_MAP: Record<string, string> = {
-  '王者荣耀': 'honor',
-  '和平精英': 'apex',
-  '英雄联盟': 'lol',
-  '永劫无间': 'yongjie',
-}
-const GAME_REVERSE_MAP: Record<string, string> = Object.fromEntries(
-  Object.entries(GAME_MAP).map(([k, v]) => [v, k])
-)
-
-// 等级颜色
-const getLevelColor = (rank?: string | null) => {
-  if (!rank) return COLORS.text
-  if (rank.includes('王者')) return '#FFD700'
-  if (rank.includes('大师')) return '#C0C0C0'
-  if (rank.includes('钻石')) return '#B9F2F0'
-  return '#90EE90'
-}
-
-// 陪玩师评价
-interface Review {
-  id: string
-  orderId: string
-  userName: string
-  userAvatar: string
-  rating: number
-  comment: string
-  createTime: number
-}
-
-// 相似陪玩师
-interface SimplePlayer {
-  id: string
-  name: string
-  avatar: string | null
-  rank: string | null
-  games: string[]
-  price: number
-  rating: number
-  isOnline: boolean
-}
+import { getLevelColor } from '@/utils/playerMapper'
+import type { Review, Player } from '@/types'
 
 const PlayerDetailPage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const [player, setPlayer] = useState<any>(null)
+  const [player, setPlayer] = useState<(Player & { online?: boolean; game?: string }) | null>(null)
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
@@ -65,7 +23,7 @@ const PlayerDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'intro' | 'reviews'>('intro')
   const [reviews, setReviews] = useState<Review[]>([])
   const [reviewsLoading, setReviewsLoading] = useState(false)
-  const [similarPlayers, setSimilarPlayers] = useState<SimplePlayer[]>([])
+  const [similarPlayers, setSimilarPlayers] = useState<Player[]>([])
   const { isFavorited, addFavorite: addToStore, removeFavorite: removeFromStore } = useFavoritesStore()
   const [favoriting, setFavoriting] = useState(false)
   const hoursOptions = [1, 2, 3, 4]
@@ -77,16 +35,16 @@ const PlayerDetailPage: React.FC = () => {
     const load = async () => {
       try {
         const data = await getPlayerDetail(id)
-        const p: any = {
+        const p = {
           ...data,
-          online: data.online ?? data.isOnline,
-          game: GAME_REVERSE_MAP[data.game] || data.games?.[0] || '王者荣耀',
+          online: (data as any).online ?? data.isOnline,
+          game: GAME_KEY_TO_CN[(data as any).game] || data.games?.[0] || '王者荣耀',
         }
         setPlayer(p)
         if (data.games?.length > 0) {
-          setSelectedGame(GAME_REVERSE_MAP[data.games[0]] || data.games[0])
+          setSelectedGame(GAME_KEY_TO_CN[data.games[0]] || data.games[0])
         }
-        loadSimilarPlayers(data.game, id)
+        loadSimilarPlayers((data as any).game, id)
       } catch (err) {
         setError('加载失败')
       } finally {
@@ -102,19 +60,23 @@ const PlayerDetailPage: React.FC = () => {
     try {
       const res = await request.get<{ reviews: Review[] }>(`/api/players/${id}/reviews`)
       setReviews(res.reviews || [])
-    } catch {}
+    } catch (e) {
+      console.error('[PlayerDetail] loadReviews error:', e)
+    }
     setReviewsLoading(false)
   }
 
   const loadSimilarPlayers = async (game: string, currentId: string) => {
     try {
-      const res = await request.get<{ players: SimplePlayer[] }>('/api/players', {
+      const res = await request.get<{ players: Player[] }>('/api/players', {
         params: { game, limit: 20 },
       })
-      const filtered = (res.players || []).filter((p: SimplePlayer) => p.id !== currentId)
-      filtered.sort((a: SimplePlayer, b: SimplePlayer) => (b.rating || 0) - (a.rating || 0))
+      const filtered = (res.players || []).filter((p: Player) => p.id !== currentId)
+      filtered.sort((a: Player, b: Player) => (b.rating || 0) - (a.rating || 0))
       setSimilarPlayers(filtered.slice(0, 6))
-    } catch {}
+    } catch (e) {
+      console.error('[PlayerDetail] loadSimilarPlayers error:', e)
+    }
   }
 
   const handleTabSwitch = (tab: 'intro' | 'reviews') => {
@@ -160,7 +122,7 @@ const PlayerDetailPage: React.FC = () => {
       const order = await createOrder({
         playerId: id,
         duration: selectedHours,
-        game: GAME_MAP[selectedGame] || selectedGame,
+        game: GAME_CN_TO_KEY[selectedGame] || selectedGame,
       })
       navigate(`/payment/${(order as any).id}`)
     } catch (err) {
@@ -170,7 +132,7 @@ const PlayerDetailPage: React.FC = () => {
     }
   }
 
-  const formatTime = (ts: number) => {
+  const formatReviewTime = (ts: number) => {
     const d = new Date(ts)
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   }
@@ -386,7 +348,7 @@ const PlayerDetailPage: React.FC = () => {
                     <span style={styles.reviewerName}>{review.userName}</span>
                     <span style={styles.reviewRating}>{renderStars(review.rating)} {review.rating}</span>
                   </div>
-                  <span style={styles.reviewTime}>{formatTime(review.createTime)}</span>
+                  <span style={styles.reviewTime}>{formatReviewTime(review.createTime)}</span>
                 </div>
                 {review.comment && <p style={styles.reviewContent}>{review.comment}</p>}
               </div>

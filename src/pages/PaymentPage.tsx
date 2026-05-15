@@ -1,19 +1,9 @@
-// 支付页 - Phase 8: 下单须知浮层
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { COLORS } from '../constants'
-import { getOrderDetail, payOrder } from '../api/order'
+import { COLORS, GAME_NAMES } from '@/constants'
+import { getOrderDetail, payOrder } from '@/api/order'
 import { Styles } from '@/utils/styles'
-
-// 游戏中文名映射
-const GAME_NAMES: Record<string, string> = {
-  honor: '王者荣耀',
-  apex: '和平精英',
-  lol: '英雄联盟',
-  yongjie: '永劫无间',
-  danzai: '蛋仔派对',
-}
 
 // 下单须知规则
 const ORDER_RULES = [
@@ -65,7 +55,8 @@ const PaymentPage = () => {
       try {
         const data = await getOrderDetail(id)
         setOrder(data)
-      } catch {
+      } catch (err) {
+        console.error('[Payment] 加载订单失败:', err)
         setOrder(null)
       } finally {
         setLoading(false)

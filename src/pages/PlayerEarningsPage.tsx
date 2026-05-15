@@ -1,9 +1,9 @@
 // 收入中心 - Phase 7
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS } from '../constants'
-import { mockApi } from '../api/mock'
-import { getEarningsOverview, getEarningsList, withdraw } from '../api/playerApi'
+import { COLORS } from '@/constants'
+import { mockApi } from '@/api/mock'
+import { getEarningsOverview, getEarningsList, withdraw } from '@/api/playerApi'
 import { Styles } from '@/utils/styles'
 
 export default function PlayerEarningsPage() {

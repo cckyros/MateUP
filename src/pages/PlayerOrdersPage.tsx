@@ -1,11 +1,11 @@
 // 陪玩师订单页 - Phase 7
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { COLORS, ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '../constants'
-import { usePlayerProfileStore } from '../store'
-import { mockApi } from '../api/mock'
-import { getPlayerOrders } from '../api/playerApi'
-import { acceptOrder, rejectOrder, completeOrder } from '../api/order'
+import { COLORS, ORDER_STATUS_TEXT, ORDER_STATUS_COLOR } from '@/constants'
+import { usePlayerProfileStore } from '@/store'
+import { mockApi } from '@/api/mock'
+import { getPlayerOrders } from '@/api/playerApi'
+import { acceptOrder, rejectOrder, completeOrder } from '@/api/order'
 import { Styles } from '@/utils/styles'
 
 const TABS = [
