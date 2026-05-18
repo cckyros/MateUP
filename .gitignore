@@ -23,3 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 .gitee/*
+sync-to-github.ps1
+sync-to-github.sh
