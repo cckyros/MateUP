@@ -1,1 +1,1 @@
-export type PlayerStatus = 'none' | 'pending' | 'approved' | 'rejected'
+export type { PlayerStatus } from '@/types'

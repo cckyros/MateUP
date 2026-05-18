@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 import { ChatMessage } from './types'
-import { STORAGE_KEY } from '../../config/constants'
+import { STORAGE_KEYS } from '@/constants'
 
 const loadChatFromStorage = (): Record<string, ChatMessage[]> => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY.CHAT_MESSAGES)
+    const raw = localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES)
     return raw ? JSON.parse(raw) : {}
   } catch {
     return {}
@@ -13,7 +13,7 @@ const loadChatFromStorage = (): Record<string, ChatMessage[]> => {
 
 const saveChatToStorage = (messages: Record<string, ChatMessage[]>) => {
   try {
-    localStorage.setItem(STORAGE_KEY.CHAT_MESSAGES, JSON.stringify(messages))
+    localStorage.setItem(STORAGE_KEYS.CHAT_MESSAGES, JSON.stringify(messages))
   } catch (e) {
     console.warn('[ChatStore] failed to save:', e)
   }
@@ -49,4 +49,4 @@ export const useChatStore = create<ChatState>((set) => ({
   setCurrentConversation: (conversationId) => set({ currentConversation: conversationId }),
 }))
 
-export { wsManager } from './ws'
+export { wsManager } from '@/services/websocket'
