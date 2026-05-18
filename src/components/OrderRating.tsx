@@ -136,7 +136,7 @@ const OrderRating: React.FC<OrderRatingProps> = ({ orderId, playerName, onSubmit
 
 const styles = {
   container: {
-    position: 'fixed',
+    position: 'fixed' as const,
     top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.7)',
     display: 'flex',
@@ -200,7 +200,7 @@ const styles = {
   },
   tags: {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexWrap: 'wrap' as const,
     gap: '8px',
     marginBottom: '16px',
   },
@@ -221,15 +221,15 @@ const styles = {
     padding: '12px',
     color: COLORS.text,
     fontSize: '14px',
-    resize: 'none',
+    resize: 'none' as const,
     outline: 'none',
-    boxSizing: 'border-box',
+    boxSizing: 'border-box' as const,
     marginBottom: '4px',
   },
   charCount: {
     fontSize: '11px',
     color: COLORS.textSecondary,
-    textAlign: 'right',
+    textAlign: 'right' as const,
     marginBottom: '16px',
   },
   submitBtn: {
@@ -250,7 +250,7 @@ const styles = {
     padding: '32px 24px',
     width: '100%',
     maxWidth: '300px',
-    textAlign: 'center',
+    textAlign: 'center' as const,
     border: `1px solid ${COLORS.border}`,
   },
   successIcon: {

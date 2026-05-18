@@ -1,4 +1,4 @@
-import { Order } from '../../store/order'
+import type { Order } from '../../store/order'
 import { MOCK_PLAYERS } from './players'
 
 export const MOCK_ORDERS: Order[] = [

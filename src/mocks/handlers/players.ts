@@ -1,5 +1,5 @@
 import { MOCK_PLAYERS } from '../data/players'
-import { Player } from '../../store/player'
+import type { Player } from '../../store/player'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

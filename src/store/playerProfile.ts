@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { OrderStatus } from './order'
+import type { OrderStatus, PlayerOrder } from './order'
 
 export interface PlayerProfile {
   id: string
@@ -33,10 +33,10 @@ export interface Review {
 
 interface PlayerProfileStore {
   profile: PlayerProfile | null
-  orders: import('./order').PlayerOrder[]
+  orders: PlayerOrder[]
   reviews: Review[]
   setProfile: (profile: PlayerProfile) => void
-  setOrders: (orders: import('./order').PlayerOrder[]) => void
+  setOrders: (orders: PlayerOrder[]) => void
   updateOrderStatus: (orderId: string, status: OrderStatus) => void
   setReviews: (reviews: Review[]) => void
 }

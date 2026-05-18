@@ -24,7 +24,7 @@ const OrdersPage = () => {
   const loadOrders = async () => {
     try {
       const data = await getOrderList()
-      setOrders(data.data.orders || [])
+      setOrders(data.orders || [])
     } catch (err) {
       console.error('[Orders] 加载订单失败:', err)
       setOrders([])

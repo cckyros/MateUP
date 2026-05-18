@@ -21,8 +21,8 @@ export default function ApplyStatusPage() {
           3: 'approved',
           4: 'rejected',
         }
-        const s = statusMap[res.data.step] || 'pending'
-        setStatus(s, res.data.submittedAt || null, res.data.rejectedReason || null)
+        const s = statusMap[res.step] || 'pending'
+        setStatus(s, res.submittedAt || null, res.rejectedReason || null)
       })
       .catch(() => {
         // API 失败时用本地缓存状态

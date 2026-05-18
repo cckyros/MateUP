@@ -1,6 +1,6 @@
 import { MOCK_ORDERS } from '../data/orders'
 import { MOCK_PLAYERS } from '../data/players'
-import { Order } from '../../store/order'
+import type { Order } from '../../store/order'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -38,6 +38,11 @@ export const orderHandlers = {
       order.payTime = Date.now()
     }
     return order!
+  },
+
+  async getOrderDetail(orderId: string): Promise<Order | null> {
+    await delay(200)
+    return MOCK_ORDERS.find((o) => o.id === orderId) || null
   },
 
   async respondOrder(orderId: string, action: 'accept' | 'reject') {

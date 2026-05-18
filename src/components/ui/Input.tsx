@@ -7,6 +7,7 @@ import { colors, borderRadius, fontSize } from '@/theme'
 interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'style'> {
   label?: string
   error?: string
+  style?: React.CSSProperties
   wrapperStyle?: React.CSSProperties
 }
 
@@ -74,6 +75,7 @@ interface PrefixedInputProps extends InputProps {
 export const PrefixedInput = memo(function PrefixedInput({
   prefix,
   prefixStyle,
+  wrapperStyle,
   style,
   ...props
 }: PrefixedInputProps) {

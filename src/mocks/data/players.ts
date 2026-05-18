@@ -1,4 +1,4 @@
-import { Player } from '../../store/player'
+import type { Player } from '../../store/player'
 
 export const MOCK_PLAYERS: Player[] = [
   {

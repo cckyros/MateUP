@@ -1,5 +1,5 @@
 import { request } from '../client'
-import { Player } from '../../store/player'
+import type { Player } from '../../store/player'
 
 export const playersApi = {
   getPlayers: (params?: {

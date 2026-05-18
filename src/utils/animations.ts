@@ -5,7 +5,7 @@
  * 弹簧物理参数参考 Telegram/微信小程序的设计语言
  */
 
-import { Variants, Spring, Transition } from 'framer-motion'
+import { Variants, Transition } from 'framer-motion'
 
 // ============================================================
 // 弹簧动画配置（可调参数）
@@ -20,7 +20,7 @@ export const SPRING = {
   snappy: { type: 'spring' as const, stiffness: 600, damping: 35, mass: 0.8 },
   /** 弹性弹簧：适合 Modal/Toast 弹窗 */
   bouncy: { type: 'spring' as const, stiffness: 400, damping: 20, mass: 1 },
-} satisfies Record<string, Spring>
+} satisfies Record<string, Transition>
 
 // 动画时长（毫秒），当 type 为 "tween" 时使用
 export const DURATION = {

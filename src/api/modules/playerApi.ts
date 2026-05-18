@@ -1,6 +1,6 @@
 import { request } from '../client'
-import { PlayerProfile, Review } from '../../store/playerProfile'
-import { PlayerOrder } from '../../store/order'
+import type { PlayerProfile, Review } from '../../store/playerProfile'
+import type { PlayerOrder } from '../../store/order'
 
 export const playerApi = {
   applyPlayer: (data: { games: string[]; price: number; rank: string; description: string }) =>
