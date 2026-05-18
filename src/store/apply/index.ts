@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { PlayerStatus } from './types'
-import { STORAGE_KEY } from '../../config/constants'
+import { STORAGE_KEYS } from '@/constants'
 
 interface ApplyState {
   status: PlayerStatus
@@ -10,12 +10,12 @@ interface ApplyState {
 }
 
 export const useApplyStore = create<ApplyState>((set) => ({
-  status: (localStorage.getItem(STORAGE_KEY.USER) ? JSON.parse(localStorage.getItem(STORAGE_KEY.USER)!).playerStatus : null) as PlayerStatus || 'none',
+  status: (localStorage.getItem(STORAGE_KEYS.USER) ? JSON.parse(localStorage.getItem(STORAGE_KEYS.USER)!).playerStatus : null) as PlayerStatus || 'none',
   submittedAt: null,
   rejectedReason: null,
 
   setStatus: (status, submittedAt, rejectedReason) => {
-    localStorage.setItem(STORAGE_KEY.USER, JSON.stringify({ playerStatus: status }))
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify({ playerStatus: status }))
     set({ status, submittedAt: submittedAt || null, rejectedReason: rejectedReason || null })
   },
 }))

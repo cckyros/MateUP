@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { Order, OrderStatus } from './types'
 
+export type { Order, OrderStatus, PlayerOrder } from './types'
+
 interface OrderState {
   orders: Order[]
   currentOrder: Order | null

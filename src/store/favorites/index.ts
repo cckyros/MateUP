@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 import { FavoriteItem } from './types'
-import { STORAGE_KEY } from '../../config/constants'
+import { STORAGE_KEYS } from '@/constants'
 
 const loadFavoriteIds = (): Set<string> => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY.FAVORITE_IDS)
+    const raw = localStorage.getItem(STORAGE_KEYS.FAVORITE_IDS)
     return raw ? new Set(JSON.parse(raw)) : new Set()
   } catch {
     return new Set()
@@ -13,7 +13,7 @@ const loadFavoriteIds = (): Set<string> => {
 
 const saveFavoriteIds = (ids: Set<string>) => {
   try {
-    localStorage.setItem(STORAGE_KEY.FAVORITE_IDS, JSON.stringify([...ids]))
+    localStorage.setItem(STORAGE_KEYS.FAVORITE_IDS, JSON.stringify([...ids]))
   } catch {}
 }
 

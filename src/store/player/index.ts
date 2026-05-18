@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { Player, PlayerFilters } from './types'
 
+export type { Player, PlayerFilters } from './types'
+
 interface PlayerState {
   players: Player[]
   filteredPlayers: Player[]

@@ -22,7 +22,7 @@ const ChatPage = () => {
     const loadConvs = async () => {
       try {
         const data = await getConversationList()
-        setConversations(data.data.conversations || [])
+        setConversations(data.conversations || [])
       } catch (err) {
         console.error('[Chat] 加载会话列表失败:', err)
         setConversations([])
