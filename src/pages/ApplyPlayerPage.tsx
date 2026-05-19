@@ -3,7 +3,6 @@ import { useState, CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS, GAMES, GAME_NAMES } from '@/constants'
 import { useApplyStore } from '@/store'
-import { mockApi } from '@/api/mock'
 import { submitApply } from '@/api/apply'
 import type { Styles } from '@/utils/styles'
 

@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COLORS } from '@/constants'
 import { usePlayerProfileStore } from '@/store'
-import { mockApi } from '@/api/mock'
 import { getPlayerReviews, replyReview } from '@/api/playerApi'
 import { Styles } from '@/utils/styles'
 

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useUserStore } from '@/store/userStore'
 import { API_BASE_URL } from '@/constants'
+import { setupMockInterceptor } from '@/mocks'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -49,6 +50,13 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Mock 模式：VITE_USE_MOCK 未设置或为 'true' 时启用 mock 数据
+const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false'
+if (USE_MOCK) {
+  setupMockInterceptor(api)
+  console.log('[Mock] Mock API 已启用，所有请求将返回模拟数据')
+}
 
 export default api
 
