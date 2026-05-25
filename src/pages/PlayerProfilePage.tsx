@@ -15,7 +15,7 @@ export default function PlayerProfilePage() {
 
   useEffect(() => {
     getPlayerProfile().then((res) => {
-      setProfile(res as any)
+      setProfile(res)
       setForm({
         price: res.price,
         rank: res.rank,

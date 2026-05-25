@@ -20,7 +20,7 @@ export default function PlayerOrdersPage() {
   const [activeTab, setActiveTab] = useState('WAIT_ACCEPT')
 
   useEffect(() => {
-    getPlayerOrders().then((res) => setOrders((res as any).orders)).catch(() => {})
+    getPlayerOrders().then((res) => setOrders(res.orders)).catch(() => {})
   }, [])
 
   const filtered = orders.filter((o) => o.status === activeTab)

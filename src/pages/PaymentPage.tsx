@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { COLORS, GAME_NAMES } from '@/constants'
 import { getOrderDetail, payOrder } from '@/api/order'
+import type { Order } from '@/types'
 import { SPRING, backButtonProps } from '@/utils/animations'
 import { styles } from './PaymentPage.styles'
 
@@ -38,10 +39,10 @@ const ORDER_RULES = [
 const PaymentPage = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const [order, setOrder] = useState<any>(null)
+  const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [paying, setPaying] = useState(false)
-  const [selectedMethod, setSelectedMethod] = useState('mock')
+  const [selectedMethod, setSelectedMethod] = useState<'mock' | 'iap' | 'stripe'>('mock')
   const [countdown, setCountdown] = useState(15 * 60)
   const [showRules, setShowRules] = useState(false)
   const [rulesAccepted, setRulesAccepted] = useState(false)
@@ -94,7 +95,7 @@ const PaymentPage = () => {
     if (!order || !rulesAccepted || paying) return
     setPaying(true)
     try {
-      await payOrder(order.id, selectedMethod as any)
+      await payOrder(order.id, selectedMethod)
       alert('支付成功！')
       navigate('/orders')
     } catch (err) {
@@ -111,7 +112,8 @@ const PaymentPage = () => {
 
   const gameName = order ? (GAME_NAMES[order.game] || order.game) : ''
 
-  const paymentMethods = [
+  type PayMethod = 'mock' | 'iap' | 'stripe'
+  const paymentMethods: { id: PayMethod; name: string; icon: string; desc: string }[] = [
     { id: 'mock', name: '模拟支付', icon: '💳', desc: '测试用' },
   ]
 

@@ -12,8 +12,8 @@ export default function PlayerHomePage() {
   const { profile, orders, setProfile, setOrders } = usePlayerProfileStore()
 
   useEffect(() => {
-    getPlayerProfile().then((res) => setProfile(res as any)).catch(() => {})
-    getPlayerOrders().then((res) => setOrders(res.orders as any)).catch(() => {})
+    getPlayerProfile().then((res) => setProfile(res)).catch(() => {})
+    getPlayerOrders().then((res) => setOrders(res.orders)).catch(() => {})
   }, [])
 
   const pendingOrders = orders.filter((o) => o.status === 'WAIT_ACCEPT')

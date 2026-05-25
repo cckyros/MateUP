@@ -27,8 +27,8 @@ const ProfilePage = () => {
           3: 'approved',
           4: 'rejected',
         }
-        const s = statusMap[(res as any).step] || 'none'
-        setStatus(s, (res as any).submittedAt || null, (res as any).rejectedReason || null)
+        const s = statusMap[res.step] || 'none'
+        setStatus(s, res.submittedAt || null, res.rejectedReason || null)
         if (user) {
           setUser({ ...user, playerStatus: s, isPlayer: s === 'approved' })
         }
@@ -48,8 +48,15 @@ const ProfilePage = () => {
     playTime: '126小时',
   }
 
+  interface MenuItem {
+    icon: string
+    label: string
+    sub: string
+    path?: string
+  }
+
   // 陪玩师菜单
-  const playerMenuItems = [
+  const playerMenuItems: MenuItem[] = [
     { icon: '🏠', label: '陪玩师工作台', sub: '管理订单和收入', path: '/player-home' },
     { icon: '💰', label: '收入中心', sub: '查看和提现收入', path: '/player-earnings' },
     { icon: '⭐', label: '评价管理', sub: '查看和回复评价', path: '/player-reviews' },
@@ -58,7 +65,7 @@ const ProfilePage = () => {
   ]
 
   // 普通用户菜单
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     { icon: '💰', label: '我的钱包', sub: '余额 ¥856.00' },
     { icon: '🎁', label: '优惠券', sub: '5张可用' },
     { icon: '❤️', label: '我的收藏', sub: '收藏的陪玩师', path: '/favorites' },
@@ -138,7 +145,7 @@ const ProfilePage = () => {
           <motion.div
             key={i}
             style={styles.menuItem}
-            onClick={() => navigate((item as any).path || '/settings')}
+            onClick={() => navigate(item.path || '/settings')}
             variants={listItem}
             whileTap={{ opacity: 0.7, scale: 0.99 }}
             transition={SPRING.tactile}
