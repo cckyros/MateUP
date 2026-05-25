@@ -1,42 +1,57 @@
-import React, { useEffect, useRef } from 'react'
+import React, { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import CoverPage from './pages/CoverPage'
-import LoginPage from './pages/LoginPage'
-import HomePage from './pages/PlayerListPage'
-import PlayerDetailPage from './pages/PlayerDetailPage'
-import OrdersPage from './pages/OrdersPage'
-import OrderDetailPage from './pages/OrderDetailPage'
-import ChatPage from './pages/ChatPage'
-import ProfilePage from './pages/ProfilePage'
-import SearchPage from './pages/SearchPage'
-import PaymentPage from './pages/PaymentPage'
-import NotificationPage from './pages/NotificationPage'
-import SettingsPage from './pages/SettingsPage'
-import ApplyPlayerPage from './pages/ApplyPlayerPage'
-import ApplyStatusPage from './pages/ApplyStatusPage'
-import PlayerHomePage from './pages/PlayerHomePage'
-import PlayerOrdersPage from './pages/PlayerOrdersPage'
-import PlayerProfilePage from './pages/PlayerProfilePage'
-import PlayerEarningsPage from './pages/PlayerEarningsPage'
-import PlayerReviewsPage from './pages/PlayerReviewsPage'
-import FavoritesPage from './pages/FavoritesPage'
 import { useUserStore } from '@/store'
-import { pageTransition } from '@/utils/animations'
+import { pageTransition, SPRING } from '@/utils/animations'
+import { COLORS } from '@/constants'
+import { ListSkeleton } from '@/components'
 
-// 页面包装器 - 统一路由动画
-const AnimatedPage = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ minHeight: '100vh' }}>
-    {children}
+// ========== 路由懒加载 ==========
+const CoverPage = lazy(() => import('./pages/CoverPage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const HomePage = lazy(() => import('./pages/PlayerListPage'))
+const PlayerDetailPage = lazy(() => import('./pages/PlayerDetailPage'))
+const OrdersPage = lazy(() => import('./pages/OrdersPage'))
+const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'))
+const ChatPage = lazy(() => import('./pages/ChatPage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const SearchPage = lazy(() => import('./pages/SearchPage'))
+const PaymentPage = lazy(() => import('./pages/PaymentPage'))
+const NotificationPage = lazy(() => import('./pages/NotificationPage'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage'))
+const ApplyPlayerPage = lazy(() => import('./pages/ApplyPlayerPage'))
+const ApplyStatusPage = lazy(() => import('./pages/ApplyStatusPage'))
+const PlayerHomePage = lazy(() => import('./pages/PlayerHomePage'))
+const PlayerOrdersPage = lazy(() => import('./pages/PlayerOrdersPage'))
+const PlayerProfilePage = lazy(() => import('./pages/PlayerProfilePage'))
+const PlayerEarningsPage = lazy(() => import('./pages/PlayerEarningsPage'))
+const PlayerReviewsPage = lazy(() => import('./pages/PlayerReviewsPage'))
+const FavoritesPage = lazy(() => import('./pages/FavoritesPage'))
+
+// 加载 fallback — 骨架屏
+const PageFallback = () => (
+  <div style={{ backgroundColor: COLORS.background, minHeight: '100vh', paddingTop: 60 }}>
+    <ListSkeleton count={6} />
   </div>
 )
 
-// 路由守卫：陪玩师页面需要 isPlayer 才能访问
-interface PlayerRouteGuardProps {
-  children: React.ReactNode
-}
+// 页面包装器 — 统一弹簧物理过渡动画
+const AnimatedPage = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    variants={pageTransition}
+    initial="initial"
+    animate="animate"
+    exit="exit"
+    style={{ minHeight: '100vh' }}
+  >
+    <Suspense fallback={<PageFallback />}>
+      {children}
+    </Suspense>
+  </motion.div>
+)
 
-const PlayerRouteGuard: React.FC<PlayerRouteGuardProps> = ({ children }) => {
+// 路由守卫：陪玩师页面需要 isPlayer 才能访问
+const PlayerRouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const user = useUserStore((s) => s.user)
   const navigate = useNavigate()
   if (!user?.isPlayer) {
@@ -46,11 +61,10 @@ const PlayerRouteGuard: React.FC<PlayerRouteGuardProps> = ({ children }) => {
   return <>{children}</>
 }
 
-// 底部导航栏组件
+// 底部导航栏
 const TabBar = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const user = useUserStore((s) => s.user)
 
   const tabs = [
     { path: '/home', label: '首页', icon: '🏠' },
@@ -59,7 +73,6 @@ const TabBar = () => {
     { path: '/profile', label: '我的', icon: '👤' },
   ]
 
-  // 这些页面不显示 tab bar
   const noTabPages = [
     '/', '/login', '/player', '/search',
     '/order-detail', '/payment', '/notifications', '/settings',
@@ -77,33 +90,49 @@ const TabBar = () => {
       style={styles.tabBar}
       initial={{ y: 60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 28, delay: 0.15 }}
+      transition={SPRING.gentle}
     >
-      {tabs.map((tab, i) => (
-        <motion.div
-          key={tab.path}
-          style={{
-            ...styles.tabItem,
-            color: location.pathname === tab.path ? '#FF6B9D' : 'rgba(255,255,255,0.4)',
-          }}
-          onClick={() => navigate(tab.path)}
-          whileTap={{ scale: 0.88 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        >
-          <span style={styles.tabIcon}>{tab.icon}</span>
-          <span style={styles.tabLabel}>{tab.label}</span>
-        </motion.div>
-      ))}
+      {tabs.map((tab) => {
+        const isActive = location.pathname === tab.path
+        return (
+          <motion.div
+            key={tab.path}
+            style={{
+              ...styles.tabItem,
+              color: isActive ? COLORS.primary : COLORS.textMuted,
+            }}
+            onClick={() => navigate(tab.path)}
+            whileTap={{ scale: 0.85 }}
+            transition={SPRING.tactile}
+          >
+            <motion.span
+              style={styles.tabIcon}
+              animate={isActive ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+              transition={SPRING.bouncy}
+            >
+              {tab.icon}
+            </motion.span>
+            <span style={styles.tabLabel}>{tab.label}</span>
+            {isActive && (
+              <motion.div
+                layoutId="tab-dot"
+                style={styles.tabDot}
+                transition={SPRING.snappy}
+              />
+            )}
+          </motion.div>
+        )
+      })}
     </motion.div>
   )
 }
 
-// 路由内容（需要 location 作为 key 给 AnimatePresence）
+// 路由内容
 const RoutesContent = () => {
   const location = useLocation()
 
   return (
-    <AnimatePresence initial={false}>
+    <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<AnimatedPage><CoverPage /></AnimatedPage>} />
         <Route path="/login" element={<AnimatedPage><LoginPage /></AnimatedPage>} />
@@ -118,50 +147,28 @@ const RoutesContent = () => {
         <Route path="/payment/:id" element={<AnimatedPage><PaymentPage /></AnimatedPage>} />
         <Route path="/notifications" element={<AnimatedPage><NotificationPage /></AnimatedPage>} />
         <Route path="/settings" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
-
-        {/* Phase 7 - 角色系统 */}
         <Route path="/apply-player" element={<AnimatedPage><ApplyPlayerPage /></AnimatedPage>} />
         <Route path="/apply-status" element={<AnimatedPage><ApplyStatusPage /></AnimatedPage>} />
         <Route path="/favorites" element={<AnimatedPage><FavoritesPage /></AnimatedPage>} />
         <Route
           path="/player-home"
-          element={
-            <AnimatedPage>
-              <PlayerRouteGuard><PlayerHomePage /></PlayerRouteGuard>
-            </AnimatedPage>
-          }
+          element={<AnimatedPage><PlayerRouteGuard><PlayerHomePage /></PlayerRouteGuard></AnimatedPage>}
         />
         <Route
           path="/player-orders"
-          element={
-            <AnimatedPage>
-              <PlayerRouteGuard><PlayerOrdersPage /></PlayerRouteGuard>
-            </AnimatedPage>
-          }
+          element={<AnimatedPage><PlayerRouteGuard><PlayerOrdersPage /></PlayerRouteGuard></AnimatedPage>}
         />
         <Route
           path="/player-profile"
-          element={
-            <AnimatedPage>
-              <PlayerRouteGuard><PlayerProfilePage /></PlayerRouteGuard>
-            </AnimatedPage>
-          }
+          element={<AnimatedPage><PlayerRouteGuard><PlayerProfilePage /></PlayerRouteGuard></AnimatedPage>}
         />
         <Route
           path="/player-earnings"
-          element={
-            <AnimatedPage>
-              <PlayerRouteGuard><PlayerEarningsPage /></PlayerRouteGuard>
-            </AnimatedPage>
-          }
+          element={<AnimatedPage><PlayerRouteGuard><PlayerEarningsPage /></PlayerRouteGuard></AnimatedPage>}
         />
         <Route
           path="/player-reviews"
-          element={
-            <AnimatedPage>
-              <PlayerRouteGuard><PlayerReviewsPage /></PlayerRouteGuard>
-            </AnimatedPage>
-          }
+          element={<AnimatedPage><PlayerRouteGuard><PlayerReviewsPage /></PlayerRouteGuard></AnimatedPage>}
         />
       </Routes>
     </AnimatePresence>
@@ -179,43 +186,54 @@ function App() {
   )
 }
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
   app: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif',
-    maxWidth: '480px',
+    maxWidth: 480,
     margin: '0 auto',
-    backgroundColor: '#16213e',
+    backgroundColor: COLORS.background,
     minHeight: '100vh',
-    position: 'relative' as const,
+    position: 'relative',
   },
   tabBar: {
-    position: 'fixed' as const,
+    position: 'fixed',
     bottom: 0,
     left: 0,
     right: 0,
-    maxWidth: '480px',
+    maxWidth: 480,
     margin: '0 auto',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: COLORS.card,
     display: 'flex',
     justifyContent: 'space-around',
     padding: '10px 0 16px',
-    borderTop: '1px solid rgba(255,255,255,0.1)',
+    borderTop: `1px solid ${COLORS.border}`,
     zIndex: 100,
   },
   tabItem: {
-    textAlign: 'center' as const,
-    fontSize: '11px',
+    textAlign: 'center',
+    fontSize: 11,
     cursor: 'pointer',
     flex: 1,
     padding: '4px 0',
+    position: 'relative',
   },
   tabIcon: {
     display: 'block',
-    fontSize: '22px',
-    marginBottom: '2px',
+    fontSize: 22,
+    marginBottom: 2,
   },
   tabLabel: {
     display: 'block',
+  },
+  tabDot: {
+    position: 'absolute',
+    bottom: -4,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.primary,
   },
 }
 

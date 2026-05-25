@@ -1,12 +1,12 @@
-import { useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { usePlayerStore } from '@/store'
 import { getPlayers } from '@/api/players'
 import { COLORS, GAME_NAMES, GAME_TABS } from '@/constants'
-import { Styles } from '@/utils/styles'
-import { normalizePlayer } from '@/utils/playerMapper'
-import { listStagger, listItem } from '@/utils/animations'
+import type { SortOption } from '@/types'
+import { listStagger, listItem, SPRING } from '@/utils/animations'
+import { styles } from './PlayerListPage.styles'
 
 
 
@@ -32,10 +32,8 @@ const PlayerListPage = () => {
   useEffect(() => {
     const loadPlayers = async () => {
       try {
-        const rawList = await getPlayers()
-        // 统一字段
-        const normalized = ((rawList as any).players || []).map(normalizePlayer)
-        setPlayers(normalized)
+        const result = await getPlayers()
+        setPlayers(result.players || [])
       } catch (err) {
         console.error('[PlayerList] 加载陪玩列表失败:', err)
       }
@@ -46,22 +44,21 @@ const PlayerListPage = () => {
   }, [players.length, setPlayers])
 
   // ========== 筛选逻辑 ==========
-  const handleGameChange = (gameValue) => {
+  const handleGameChange = (gameValue: string | undefined) => {
     setFilters({ game: gameValue })
   }
 
-  const handleQuickFilterToggle = (key) => {
+  const handleQuickFilterToggle = (key: string) => {
     if (key === 'onlineOnly') {
       setFilters({ onlineOnly: !filters.onlineOnly })
     }
-    // 其他快捷筛选...
   }
 
   const handleSort = () => {
-    const sortOptions = ['comprehensive', 'price_asc', 'price_desc', 'rating']
+    const sortOptions: SortOption[] = ['comprehensive', 'price_asc', 'price_desc', 'rating']
     const currentIndex = sortOptions.indexOf(filters.sortBy || 'comprehensive')
     const nextSort = sortOptions[(currentIndex + 1) % sortOptions.length]
-    setFilters({ sortBy: nextSort as any })
+    setFilters({ sortBy: nextSort })
   }
 
   // 获取排序后的列表（前端排序）
@@ -167,8 +164,9 @@ const PlayerListPage = () => {
             style={styles.playerCard}
             onClick={() => navigate(`/player/${player.id}`)}
             variants={listItem}
-            whileHover={{ scale: 1.015, boxShadow: '0px 8px 24px rgba(255,107,157,0.25)' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            whileHover={{ scale: 1.015, boxShadow: '0 6px 20px rgba(255,107,157,0.2)' }}
+            whileTap={{ scale: 0.975 }}
+            transition={SPRING.snappy}
           >
             {/* 头像 */}
             <div style={styles.cardHeader}>
@@ -236,8 +234,8 @@ const PlayerListPage = () => {
               </div>
               <motion.div
                 style={styles.orderBtn}
-                whileTap={{ scale: 0.96, opacity: 0.85 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                whileTap={{ scale: 0.93, opacity: 0.85 }}
+                transition={SPRING.tactile}
                 onClick={(e) => {
                   e.stopPropagation()
                   navigate(`/player/${player.id}`)
@@ -253,247 +251,5 @@ const PlayerListPage = () => {
   )
 }
 
-// ========== 样式 ==========
-const styles: Styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: COLORS.background,
-    paddingBottom: '70px',
-  },
-  header: {
-    backgroundColor: COLORS.card,
-    padding: '12px 16px',
-    display: 'flex',
-    gap: '10px',
-    alignItems: 'center',
-    position: 'sticky',
-    top: 0,
-    zIndex: 10,
-  },
-  searchBar: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: '20px',
-    padding: '8px 14px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  searchIcon: {
-    fontSize: '16px',
-  },
-  searchInput: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    border: 'none',
-    outline: 'none',
-    color: '#fff',
-    fontSize: '14px',
-  },
-  filterBtn: {
-    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-    color: '#fff',
-    padding: '8px 14px',
-    borderRadius: '16px',
-    fontSize: '13px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-  },
-  gameTabs: {
-    display: 'flex',
-    gap: '6px',
-    padding: '12px 16px',
-    overflowX: 'auto',
-    backgroundColor: COLORS.card,
-  },
-  gameTab: {
-    padding: '6px 14px',
-    borderRadius: '14px',
-    fontSize: '13px',
-    color: COLORS.textSecondary,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    whiteSpace: 'nowrap',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  gameTabActive: {
-    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  filterRow: {
-    display: 'flex',
-    gap: '8px',
-    padding: '0 16px 12px',
-    backgroundColor: COLORS.card,
-    alignItems: 'center',
-    overflowX: 'auto',
-  },
-  filterChip: {
-    padding: '5px 12px',
-    borderRadius: '12px',
-    fontSize: '12px',
-    color: COLORS.textSecondary,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    whiteSpace: 'nowrap',
-    cursor: 'pointer',
-  },
-  filterChipActive: {
-    backgroundColor: 'rgba(255,107,157,0.2)',
-    borderColor: COLORS.primary,
-    color: COLORS.primary,
-  },
-  sortBtn: {
-    marginLeft: 'auto',
-    padding: '5px 12px',
-    borderRadius: '12px',
-    fontSize: '12px',
-    color: COLORS.textSecondary,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    whiteSpace: 'nowrap',
-    cursor: 'pointer',
-  },
-  playerList: {
-    padding: '12px 16px',
-  },
-  playerCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: '16px',
-    padding: '16px',
-    marginBottom: '14px',
-    border: `1px solid ${COLORS.border}`,
-    cursor: 'pointer',
-  },
-  cardHeader: {
-    display: 'flex',
-    gap: '14px',
-    marginBottom: '14px',
-  },
-  avatarWrapper: {
-    position: 'relative',
-    flexShrink: 0,
-  },
-  avatar: {
-    width: '64px',
-    height: '64px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-  },
-  onlineBadge: {
-    position: 'absolute',
-    bottom: '2px',
-    right: '2px',
-    width: '14px',
-    height: '14px',
-    backgroundColor: COLORS.success,
-    borderRadius: '50%',
-    border: `2px solid ${COLORS.card}`,
-  },
-  playerInfo: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-  },
-  nameRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  name: {
-    fontSize: '17px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
-  rankBadge: {
-    fontSize: '11px',
-    color: COLORS.textSecondary,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    padding: '2px 6px',
-    borderRadius: '4px',
-  },
-  gameRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  gameTag: {
-    backgroundColor: 'rgba(255,107,157,0.2)',
-    color: COLORS.primary,
-    padding: '2px 8px',
-    borderRadius: '6px',
-    fontSize: '11px',
-  },
-  rank: {
-    fontSize: '12px',
-    color: 'rgba(255,255,255,0.5)',
-  },
-  tags: {
-    display: 'flex',
-    gap: '6px',
-    flexWrap: 'wrap',
-    marginTop: '4px',
-  },
-  tag: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    color: 'rgba(255,255,255,0.7)',
-    padding: '3px 8px',
-    borderRadius: '8px',
-    fontSize: '11px',
-  },
-  cardStats: {
-    display: 'flex',
-    justifyContent: 'space-around',
-    padding: '12px 0',
-    borderTop: `1px solid ${COLORS.border}`,
-    borderBottom: `1px solid ${COLORS.border}`,
-    marginBottom: '12px',
-  },
-  statItem: {
-    textAlign: 'center',
-  },
-  statLabel: {
-    display: 'block',
-    fontSize: '11px',
-    color: 'rgba(255,255,255,0.4)',
-    marginBottom: '2px',
-  },
-  statValue: {
-    fontSize: '14px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
-  cardFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  priceSection: {
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: '2px',
-  },
-  price: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    color: COLORS.primary,
-  },
-  priceUnit: {
-    fontSize: '12px',
-    color: 'rgba(255,255,255,0.4)',
-  },
-  orderBtn: {
-    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-    color: '#fff',
-    padding: '10px 20px',
-    borderRadius: '20px',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    boxShadow: `0 4px 12px ${COLORS.primary}40`,
-    border: 'none',
-  },
-}
 
 export default PlayerListPage

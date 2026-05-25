@@ -2,10 +2,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { COLORS } from '@/constants'
 import { getFavorites, removeFavorite } from '@/api/favorites'
 import { useFavoritesStore } from '@/store'
-import { Styles } from '@/utils/styles'
+import { styles } from './FavoritesPage.styles'
+import { SPRING, backButtonProps, listStagger, listItem } from '@/utils/animations'
+import { ListSkeleton } from '@/components'
 
 interface FavPlayer {
   id: string
@@ -48,7 +49,7 @@ const FavoritesPage = () => {
           style={styles.backBtn}
           onClick={() => navigate(-1)}
           whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={SPRING.tactile}
         >
           ←
         </motion.span>
@@ -69,7 +70,7 @@ const FavoritesPage = () => {
             style={styles.goHomeBtn}
             onClick={() => navigate('/home')}
             whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             浏览陪玩师
           </motion.div>
@@ -83,7 +84,7 @@ const FavoritesPage = () => {
               onClick={() => navigate(`/player/${item.playerId}`)}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              transition={SPRING.gentle}
               whileTap={{ scale: 0.98 }}
             >
               <div style={styles.cardLeft}>
@@ -118,7 +119,7 @@ const FavoritesPage = () => {
                 style={styles.removeBtn}
                 onClick={(e) => handleRemove(e, item.playerId)}
                 whileTap={{ scale: 0.9 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                transition={SPRING.tactile}
               >
                 ❤️ 已收藏
               </motion.div>
@@ -130,177 +131,5 @@ const FavoritesPage = () => {
   )
 }
 
-const styles: Styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: COLORS.background,
-  },
-  header: {
-    backgroundColor: COLORS.card,
-    padding: '14px 16px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    position: 'sticky',
-    top: 0,
-    zIndex: 10,
-  },
-  backBtn: {
-    fontSize: '24px',
-    cursor: 'pointer',
-    color: COLORS.text,
-  },
-  headerTitle: {
-    fontSize: '17px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
-  count: {
-    fontSize: '13px',
-    color: COLORS.textSecondary,
-  },
-  list: {
-    padding: '12px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  card: {
-    backgroundColor: COLORS.card,
-    borderRadius: '12px',
-    padding: '14px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    border: `1px solid ${COLORS.border}`,
-    cursor: 'pointer',
-  },
-  cardLeft: {
-    display: 'flex',
-    gap: '12px',
-    alignItems: 'center',
-    flex: 1,
-    minWidth: 0,
-  },
-  avatarWrapper: {
-    position: 'relative',
-    flexShrink: 0,
-  },
-  avatar: {
-    width: '56px',
-    height: '56px',
-    borderRadius: '50%',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  avatarImg: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-  },
-  avatarEmoji: {
-    fontSize: '28px',
-  },
-  onlineBadge: {
-    position: 'absolute',
-    bottom: '-2px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    backgroundColor: COLORS.success,
-    color: '#fff',
-    fontSize: '9px',
-    padding: '1px 5px',
-    borderRadius: '8px',
-    whiteSpace: 'nowrap',
-  },
-  info: {
-    flex: 1,
-    minWidth: 0,
-  },
-  nameRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    marginBottom: '4px',
-  },
-  name: {
-    fontSize: '15px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-  },
-  rank: {
-    fontSize: '11px',
-    color: COLORS.textSecondary,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    padding: '1px 6px',
-    borderRadius: '6px',
-  },
-  gamesRow: {
-    display: 'flex',
-    gap: '4px',
-    marginBottom: '4px',
-    flexWrap: 'wrap',
-  },
-  gameTag: {
-    fontSize: '11px',
-    color: COLORS.textSecondary,
-    backgroundColor: 'rgba(255,107,157,0.12)',
-    padding: '2px 6px',
-    borderRadius: '4px',
-  },
-  statsRow: {
-    display: 'flex',
-    gap: '10px',
-    fontSize: '12px',
-    color: COLORS.textSecondary,
-  },
-  price: {
-    color: '#FFD700',
-    fontWeight: 'bold',
-  },
-  removeBtn: {
-    padding: '6px 12px',
-    borderRadius: '16px',
-    fontSize: '12px',
-    color: COLORS.primary,
-    backgroundColor: `${COLORS.primary}20`,
-    border: `1px solid ${COLORS.primary}40`,
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-    flexShrink: 0,
-  },
-  emptyState: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: '80px',
-    gap: '12px',
-  },
-  emptyIcon: {
-    fontSize: '56px',
-  },
-  emptyText: {
-    fontSize: '16px',
-    color: COLORS.text,
-  },
-  emptySub: {
-    fontSize: '13px',
-    color: COLORS.textSecondary,
-  },
-  goHomeBtn: {
-    marginTop: '8px',
-    padding: '10px 24px',
-    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-    borderRadius: '20px',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-}
 
 export default FavoritesPage

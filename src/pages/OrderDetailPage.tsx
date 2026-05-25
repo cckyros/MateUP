@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { COLORS, GAME_NAMES } from '@/constants'
 import { getOrderDetail, cancelOrder, completeOrder, rateOrder } from '@/api/order'
-import OrderRating from '@/components/OrderRating'
+import { OrderRating } from '@/components'
+import { SPRING, backButtonProps } from '@/utils/animations'
 import { styles } from './OrderDetailPage.styles'
 
 const STATUS_MAP: Record<string, { label: string; color: string; desc: string }> = {
@@ -110,7 +111,7 @@ const OrderDetailPage = () => {
           style={styles.backBtn}
           onClick={() => navigate(-1)}
           whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={SPRING.tactile}
         >
           ←
         </motion.span>
@@ -149,7 +150,7 @@ const OrderDetailPage = () => {
               style={styles.chatBtn}
               onClick={() => navigate('/chat')}
               whileTap={{ scale: 0.88, opacity: 0.8 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              transition={SPRING.tactile}
             >
               💬
             </motion.div>
@@ -200,7 +201,7 @@ const OrderDetailPage = () => {
               style={styles.cancelBtn}
               onClick={() => setShowCancelModal(true)}
               whileTap={{ scale: 0.95, opacity: 0.8 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              transition={SPRING.tactile}
             >
               取消订单
             </motion.div>
@@ -211,7 +212,7 @@ const OrderDetailPage = () => {
             style={styles.chatMainBtn}
             onClick={() => navigate('/chat')}
             whileTap={{ scale: 0.95, opacity: 0.85 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             💬 联系陪玩
           </motion.div>
@@ -223,7 +224,7 @@ const OrderDetailPage = () => {
                 style={styles.rateBtn}
                 onClick={() => setShowRating(true)}
                 whileTap={{ scale: 0.95, opacity: 0.85 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                transition={SPRING.tactile}
               >
                 ⭐ 立即评价
               </motion.div>
@@ -232,7 +233,7 @@ const OrderDetailPage = () => {
               style={styles.reOrderBtn}
               onClick={() => navigate('/home')}
               whileTap={{ scale: 0.95, opacity: 0.85 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              transition={SPRING.tactile}
             >
               再次预约
             </motion.div>

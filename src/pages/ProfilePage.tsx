@@ -6,8 +6,8 @@ import { COLORS } from '@/constants'
 import { useApplyStore } from '@/store'
 import { useUserStore } from '@/store'
 import { getApplyStatus } from '@/api/apply'
-import { Styles } from '@/utils/styles'
-import { listStagger, listItem } from '@/utils/animations'
+import { listStagger, listItem, SPRING, scaleIn } from '@/utils/animations'
+import { styles } from './ProfilePage.styles'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
@@ -27,8 +27,8 @@ const ProfilePage = () => {
           3: 'approved',
           4: 'rejected',
         }
-        const s = statusMap[(res as any).step] || 'none'
-        setStatus(s, (res as any).submittedAt || null, (res as any).rejectedReason || null)
+        const s = statusMap[res.step] || 'none'
+        setStatus(s, res.submittedAt || null, res.rejectedReason || null)
         if (user) {
           setUser({ ...user, playerStatus: s, isPlayer: s === 'approved' })
         }
@@ -48,8 +48,15 @@ const ProfilePage = () => {
     playTime: '126小时',
   }
 
+  interface MenuItem {
+    icon: string
+    label: string
+    sub: string
+    path?: string
+  }
+
   // 陪玩师菜单
-  const playerMenuItems = [
+  const playerMenuItems: MenuItem[] = [
     { icon: '🏠', label: '陪玩师工作台', sub: '管理订单和收入', path: '/player-home' },
     { icon: '💰', label: '收入中心', sub: '查看和提现收入', path: '/player-earnings' },
     { icon: '⭐', label: '评价管理', sub: '查看和回复评价', path: '/player-reviews' },
@@ -58,7 +65,7 @@ const ProfilePage = () => {
   ]
 
   // 普通用户菜单
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     { icon: '💰', label: '我的钱包', sub: '余额 ¥856.00' },
     { icon: '🎁', label: '优惠券', sub: '5张可用' },
     { icon: '❤️', label: '我的收藏', sub: '收藏的陪玩师', path: '/favorites' },
@@ -138,10 +145,10 @@ const ProfilePage = () => {
           <motion.div
             key={i}
             style={styles.menuItem}
-            onClick={() => navigate((item as any).path || '/settings')}
+            onClick={() => navigate(item.path || '/settings')}
             variants={listItem}
             whileTap={{ opacity: 0.7, scale: 0.99 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             <div style={styles.menuLeft}>
               <span style={styles.menuIcon}>{item.icon}</span>
@@ -161,7 +168,7 @@ const ProfilePage = () => {
             onClick={() => navigate('/apply-player')}
             variants={listItem}
             whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             <span style={styles.applyIcon}>🎮</span>
             <div style={styles.applyInfo}>
@@ -179,7 +186,7 @@ const ProfilePage = () => {
             onClick={() => navigate('/apply-status')}
             variants={listItem}
             whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             <span style={styles.applyIcon}>⏳</span>
             <div style={styles.applyInfo}>
@@ -199,226 +206,5 @@ const ProfilePage = () => {
   )
 }
 
-// ========== 暗色风格 ==========
-const styles: Styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: COLORS.background,
-    paddingBottom: '70px',
-  },
-  header: {
-    background: `linear-gradient(135deg, ${COLORS.primary} 0%, #c44569 100%)`,
-    paddingBottom: '20px',
-  },
-  profileSection: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '24px 16px 16px',
-    gap: '14px',
-  },
-  avatarArea: {
-    position: 'relative',
-    flexShrink: 0,
-  },
-  avatar: {
-    width: '72px',
-    height: '72px',
-    borderRadius: '50%',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '40px',
-    border: '3px solid rgba(255,255,255,0.3)',
-  },
-  editBadge: {
-    position: 'absolute',
-    bottom: '2px',
-    right: '2px',
-    width: '24px',
-    height: '24px',
-    borderRadius: '50%',
-    backgroundColor: '#fff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '12px',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-  },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: '22px',
-    fontWeight: 'bold',
-    color: '#fff',
-    margin: '0 0 6px 0',
-  },
-  riderBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  levelTag: {
-    padding: '3px 10px',
-    borderRadius: '12px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  phone: {
-    fontSize: '13px',
-    color: 'rgba(255,255,255,0.8)',
-  },
-  settingsIcon: {
-    fontSize: '24px',
-    cursor: 'pointer',
-  },
-  dataCards: {
-    display: 'flex',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    margin: '0 12px',
-    borderRadius: '16px',
-    padding: '16px 8px',
-    justifyContent: 'space-around',
-  },
-  dataCard: {
-    textAlign: 'center',
-    flex: 1,
-  },
-  dataValue: {
-    display: 'block',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  dataLabel: {
-    fontSize: '11px',
-    color: 'rgba(255,255,255,0.7)',
-    marginTop: '2px',
-    display: 'block',
-  },
-  badges: {
-    backgroundColor: COLORS.card,
-    margin: '12px 12px',
-    borderRadius: '16px',
-    padding: '16px',
-    border: `1px solid ${COLORS.border}`,
-  },
-  badgeTitle: {
-    fontSize: '14px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-    margin: '0 0 12px 0',
-  },
-  badgeList: {
-    display: 'flex',
-    gap: '8px',
-    flexWrap: 'wrap',
-  },
-  badgeItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    padding: '6px 12px',
-    borderRadius: '20px',
-  },
-  badgeIcon: {
-    fontSize: '14px',
-  },
-  badgeText: {
-    fontSize: '12px',
-    color: COLORS.text,
-  },
-  menuSection: {
-    backgroundColor: COLORS.card,
-    margin: '0 12px',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    border: `1px solid ${COLORS.border}`,
-  },
-  menuItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 14px',
-    borderBottom: `1px solid ${COLORS.border}`,
-    cursor: 'pointer',
-  },
-  menuLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-  },
-  menuIcon: {
-    fontSize: '22px',
-  },
-  menuLabel: {
-    fontSize: '15px',
-    fontWeight: '500',
-    color: COLORS.text,
-    margin: 0,
-  },
-  menuSub: {
-    fontSize: '12px',
-    color: COLORS.textSecondary,
-    margin: '2px 0 0 0',
-  },
-  menuArrow: {
-    color: COLORS.textSecondary,
-    fontSize: '16px',
-  },
-  logoutArea: {
-    margin: '20px 12px 0',
-  },
-  logoutBtn: {
-    width: '100%',
-    padding: '15px',
-    backgroundColor: 'transparent',
-    border: `1px solid ${COLORS.border}`,
-    borderRadius: '25px',
-    fontSize: '15px',
-    color: COLORS.textSecondary,
-    cursor: 'pointer',
-  },
-  applyBanner: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '14px',
-    background: `linear-gradient(135deg, ${COLORS.primary}22 0%, ${COLORS.secondary}22 100%)`,
-    border: `1px solid ${COLORS.primary}44`,
-    borderRadius: '12px',
-    marginTop: '12px',
-    cursor: 'pointer',
-  },
-  applyIcon: {
-    fontSize: '28px',
-  },
-  applyInfo: {
-    flex: 1,
-  },
-  applyTitle: {
-    fontSize: '14px',
-    fontWeight: 'bold',
-    color: COLORS.text,
-    margin: '0 0 2px 0',
-  },
-  applySub: {
-    fontSize: '12px',
-    color: COLORS.textSecondary,
-    margin: 0,
-  },
-  applyBtn: {
-    padding: '6px 16px',
-    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-    borderRadius: '16px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-}
 
 export default ProfilePage

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { User } from '@/types'
+import { STORAGE_KEYS } from '@/constants'
 
 interface UserState {
   user: User | null
@@ -12,16 +13,16 @@ interface UserState {
 
 export const useUserStore = create<UserState>((set) => ({
   user: null,
-  token: localStorage.getItem('token') || null,
-  isLoggedIn: !!localStorage.getItem('token'),
+  token: localStorage.getItem(STORAGE_KEYS.TOKEN) || null,
+  isLoggedIn: !!localStorage.getItem(STORAGE_KEYS.TOKEN),
   setUser: (user) => set({ user, isLoggedIn: true }),
   setToken: (token) => {
-    localStorage.setItem('token', token)
+    localStorage.setItem(STORAGE_KEYS.TOKEN, token)
     set({ token, isLoggedIn: true })
   },
   logout: () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('playerStatus')
+    localStorage.removeItem(STORAGE_KEYS.TOKEN)
+    localStorage.removeItem(STORAGE_KEYS.PLAYER_STATUS)
     set({ user: null, token: null, isLoggedIn: false })
   },
 }))
