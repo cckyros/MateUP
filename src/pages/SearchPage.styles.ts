@@ -1,0 +1,171 @@
+import { COLORS } from '@/constants'
+import { Styles } from '@/utils/styles'
+
+export const styles: Styles = {
+  container: {
+    minHeight: '100vh',
+    backgroundColor: COLORS.background,
+    paddingBottom: '80px',
+  },
+  header: {
+    backgroundColor: COLORS.card,
+    padding: '14px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+  },
+  backBtn: {
+    fontSize: '24px',
+    cursor: 'pointer',
+    color: COLORS.text,
+  },
+  headerTitle: {
+    fontSize: '17px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  resetBtn: {
+    fontSize: '14px',
+    color: COLORS.primary,
+    cursor: 'pointer',
+  },
+  searchSection: {
+    padding: '12px 16px',
+    backgroundColor: COLORS.card,
+  },
+  searchBar: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: '20px',
+    padding: '10px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  searchIcon: {
+    fontSize: '16px',
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    border: 'none',
+    outline: 'none',
+    color: COLORS.text,
+    fontSize: '14px',
+  },
+  section: {
+    padding: '16px',
+    borderBottom: `1px solid ${COLORS.border}`,
+  },
+  sectionTitle: {
+    fontSize: '15px',
+    fontWeight: 'bold',
+    color: COLORS.text,
+    margin: '0 0 14px 0',
+  },
+  chipList: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
+  },
+  chip: {
+    padding: '8px 16px',
+    borderRadius: '20px',
+    fontSize: '13px',
+    color: COLORS.textSecondary,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    cursor: 'pointer',
+    border: `1px solid ${COLORS.border}`,
+  },
+  chipActive: {
+    backgroundColor: COLORS.primary,
+    color: '#fff',
+    borderColor: COLORS.primary,
+    fontWeight: 'bold',
+  },
+  rangeSlider: {
+    display: 'flex',
+    gap: '20px',
+    padding: '0 10px',
+  },
+  slider: {
+    flex: 1,
+    accentColor: COLORS.primary,
+  },
+  rangeLabels: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: '8px',
+  },
+  rangeLabel: {
+    fontSize: '12px',
+    color: COLORS.textSecondary,
+  },
+  toggleRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  toggleLabel: {
+    fontSize: '15px',
+    color: COLORS.text,
+  },
+  toggle: {
+    width: '48px',
+    height: '28px',
+    borderRadius: '14px',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    padding: '2px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
+    border: `1px solid ${COLORS.border}`,
+  },
+  toggleActive: {
+    backgroundColor: COLORS.primary,
+  },
+  toggleDot: {
+    width: '22px',
+    height: '22px',
+    borderRadius: '50%',
+    backgroundColor: '#fff',
+    transition: 'transform 0.2s',
+  },
+  toggleDotActive: {
+    transform: 'translateX(20px)',
+  },
+  bottomBar: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    maxWidth: '480px',
+    margin: '0 auto',
+    backgroundColor: COLORS.card,
+    padding: '12px 16px',
+    display: 'flex',
+    gap: '12px',
+    borderTop: `1px solid ${COLORS.border}`,
+    zIndex: 100,
+  },
+  resultCount: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '14px',
+    color: COLORS.textSecondary,
+  },
+  confirmBtn: {
+    background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
+    color: '#fff',
+    padding: '14px 32px',
+    borderRadius: '24px',
+    fontSize: '15px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: `0 4px 15px ${COLORS.primary}40`,
+    border: 'none',
+  },
+}
+
