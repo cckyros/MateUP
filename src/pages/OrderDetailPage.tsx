@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { COLORS, GAME_NAMES } from '@/constants'
 import { getOrderDetail, cancelOrder, completeOrder, rateOrder } from '@/api/order'
-import OrderRating from '@/components/OrderRating'
+import { OrderRating } from '@/components'
 import { SPRING, backButtonProps } from '@/utils/animations'
 import { styles } from './OrderDetailPage.styles'
 

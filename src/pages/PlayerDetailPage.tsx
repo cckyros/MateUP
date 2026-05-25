@@ -9,7 +9,7 @@ import { useFavoritesStore } from '@/store'
 import { request } from '@/api'
 import { getLevelColor } from '@/utils/playerMapper'
 import { SPRING, backButtonProps, tabContent, heartBeat, listStagger, listItem } from '@/utils/animations'
-import { Skeleton } from '@/components/Skeleton'
+import { Skeleton } from '@/components'
 import type { Review, Player, Order } from '@/types'
 import { styles } from './PlayerDetailPage.styles'
 

@@ -5,7 +5,7 @@ import { useChatStore, useUserStore, wsManager } from '@/store'
 import { getConversationList } from '@/api/chat'
 import { styles } from './ChatPage.styles'
 import { listStagger, listItem, chatBubble, SPRING, backButtonProps, badgePop } from '@/utils/animations'
-import { ListSkeleton } from '@/components/Skeleton'
+import { ListSkeleton } from '@/components'
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat')

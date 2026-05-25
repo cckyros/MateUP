@@ -6,7 +6,7 @@ import { getFavorites, removeFavorite } from '@/api/favorites'
 import { useFavoritesStore } from '@/store'
 import { styles } from './FavoritesPage.styles'
 import { SPRING, backButtonProps, listStagger, listItem } from '@/utils/animations'
-import { ListSkeleton } from '@/components/Skeleton'
+import { ListSkeleton } from '@/components'
 
 interface FavPlayer {
   id: string

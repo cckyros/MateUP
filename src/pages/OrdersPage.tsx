@@ -5,7 +5,7 @@ import { COLORS, GAME_NAMES, ORDER_TABS } from '@/constants'
 import { getOrderList, cancelOrder, completeOrder } from '@/api/order'
 import { styles } from './OrdersPage.styles'
 import { listStagger, listItem, SPRING } from '@/utils/animations'
-import { ListSkeleton } from '@/components/Skeleton'
+import { ListSkeleton } from '@/components'
 import { formatRelativeTime } from '@/utils/formatTime'
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {

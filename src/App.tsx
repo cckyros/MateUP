@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useUserStore } from '@/store'
 import { pageTransition, SPRING } from '@/utils/animations'
 import { COLORS } from '@/constants'
-import { ListSkeleton } from '@/components/Skeleton'
+import { ListSkeleton } from '@/components'
 
 // ========== 路由懒加载 ==========
 const CoverPage = lazy(() => import('./pages/CoverPage'))
