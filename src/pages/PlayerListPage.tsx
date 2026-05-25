@@ -1,12 +1,12 @@
-import { useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { usePlayerStore } from '@/store'
 import { getPlayers } from '@/api/players'
 import { COLORS, GAME_NAMES, GAME_TABS } from '@/constants'
+import type { SortOption } from '@/types'
 import { Styles } from '@/utils/styles'
-import { normalizePlayer } from '@/utils/playerMapper'
-import { listStagger, listItem } from '@/utils/animations'
+import { listStagger, listItem, SPRING } from '@/utils/animations'
 
 
 
@@ -32,10 +32,8 @@ const PlayerListPage = () => {
   useEffect(() => {
     const loadPlayers = async () => {
       try {
-        const rawList = await getPlayers()
-        // 统一字段
-        const normalized = ((rawList as any).players || []).map(normalizePlayer)
-        setPlayers(normalized)
+        const result = await getPlayers()
+        setPlayers(result.players || [])
       } catch (err) {
         console.error('[PlayerList] 加载陪玩列表失败:', err)
       }
@@ -46,22 +44,21 @@ const PlayerListPage = () => {
   }, [players.length, setPlayers])
 
   // ========== 筛选逻辑 ==========
-  const handleGameChange = (gameValue) => {
+  const handleGameChange = (gameValue: string | undefined) => {
     setFilters({ game: gameValue })
   }
 
-  const handleQuickFilterToggle = (key) => {
+  const handleQuickFilterToggle = (key: string) => {
     if (key === 'onlineOnly') {
       setFilters({ onlineOnly: !filters.onlineOnly })
     }
-    // 其他快捷筛选...
   }
 
   const handleSort = () => {
-    const sortOptions = ['comprehensive', 'price_asc', 'price_desc', 'rating']
+    const sortOptions: SortOption[] = ['comprehensive', 'price_asc', 'price_desc', 'rating']
     const currentIndex = sortOptions.indexOf(filters.sortBy || 'comprehensive')
     const nextSort = sortOptions[(currentIndex + 1) % sortOptions.length]
-    setFilters({ sortBy: nextSort as any })
+    setFilters({ sortBy: nextSort })
   }
 
   // 获取排序后的列表（前端排序）
@@ -167,8 +164,9 @@ const PlayerListPage = () => {
             style={styles.playerCard}
             onClick={() => navigate(`/player/${player.id}`)}
             variants={listItem}
-            whileHover={{ scale: 1.015, boxShadow: '0px 8px 24px rgba(255,107,157,0.25)' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            whileHover={{ scale: 1.015, boxShadow: '0 6px 20px rgba(255,107,157,0.2)' }}
+            whileTap={{ scale: 0.975 }}
+            transition={SPRING.snappy}
           >
             {/* 头像 */}
             <div style={styles.cardHeader}>
@@ -236,8 +234,8 @@ const PlayerListPage = () => {
               </div>
               <motion.div
                 style={styles.orderBtn}
-                whileTap={{ scale: 0.96, opacity: 0.85 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                whileTap={{ scale: 0.93, opacity: 0.85 }}
+                transition={SPRING.tactile}
                 onClick={(e) => {
                   e.stopPropagation()
                   navigate(`/player/${player.id}`)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { COLORS, GAME_CN_TO_KEY, GAME_KEY_TO_CN } from '@/constants'
 import { getPlayerDetail } from '@/api/players'
 import { createOrder } from '@/api/order'
@@ -8,7 +8,9 @@ import { addFavorite, removeFavorite } from '@/api/favorites'
 import { useFavoritesStore } from '@/store'
 import { request } from '@/api'
 import { getLevelColor } from '@/utils/playerMapper'
-import type { Review, Player } from '@/types'
+import { SPRING, backButtonProps, tabContent, heartBeat, listStagger, listItem } from '@/utils/animations'
+import { Skeleton } from '@/components/Skeleton'
+import type { Review, Player, Order } from '@/types'
 import { styles } from './PlayerDetailPage.styles'
 
 const PlayerDetailPage: React.FC = () => {
@@ -35,16 +37,18 @@ const PlayerDetailPage: React.FC = () => {
     const load = async () => {
       try {
         const data = await getPlayerDetail(id)
+        const rawData = data as Player & Record<string, unknown>
         const p = {
           ...data,
-          online: (data as any).online ?? data.isOnline,
-          game: GAME_KEY_TO_CN[(data as any).game] || data.games?.[0] || '王者荣耀',
+          online: (rawData.online as boolean | undefined) ?? data.isOnline,
+          game: GAME_KEY_TO_CN[(rawData.game as string) || ''] || data.games?.[0] || '王者荣耀',
         }
         setPlayer(p)
         if (data.games?.length > 0) {
           setSelectedGame(GAME_KEY_TO_CN[data.games[0]] || data.games[0])
         }
-        loadSimilarPlayers((data as any).game, id)
+        const gameKey = (rawData.game as string) || data.games?.[0] || ''
+        loadSimilarPlayers(gameKey, id)
       } catch (err) {
         setError('加载失败')
       } finally {
@@ -124,9 +128,10 @@ const PlayerDetailPage: React.FC = () => {
         duration: selectedHours,
         game: GAME_CN_TO_KEY[selectedGame] || selectedGame,
       })
-      navigate(`/payment/${(order as any).id}`)
-    } catch (err) {
-      alert(err?.response?.data?.message || '创建订单失败')
+      navigate(`/payment/${(order as Order).id}`)
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } }
+      alert(axiosErr?.response?.data?.message || '创建订单失败')
     } finally {
       setCreating(false)
     }
@@ -141,8 +146,25 @@ const PlayerDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: COLORS.textSecondary }}>加载中...</span>
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <motion.span style={styles.backBtn} onClick={() => navigate(-1)} {...backButtonProps}>←</motion.span>
+          <span style={styles.headerTitle}>陪玩师详情</span>
+          <span style={styles.shareBtn}>分享</span>
+        </div>
+        <div style={{ padding: '20px 16px', display: 'flex', gap: 16 }}>
+          <Skeleton width={80} height={80} borderRadius={40} />
+          <div style={{ flex: 1 }}>
+            <Skeleton width="50%" height={20} />
+            <Skeleton width="70%" height={14} style={{ marginTop: 10 }} />
+            <Skeleton width="40%" height={14} style={{ marginTop: 8 }} />
+          </div>
+        </div>
+        <div style={{ padding: '0 16px' }}>
+          <Skeleton height={40} style={{ marginTop: 16 }} />
+          <Skeleton height={120} style={{ marginTop: 16 }} />
+          <Skeleton height={80} style={{ marginTop: 16 }} />
+        </div>
       </div>
     )
   }
@@ -163,8 +185,7 @@ const PlayerDetailPage: React.FC = () => {
         <motion.span
           style={styles.backBtn}
           onClick={() => navigate(-1)}
-          whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          {...backButtonProps}
         >
           ←
         </motion.span>
@@ -201,22 +222,24 @@ const PlayerDetailPage: React.FC = () => {
 
       {/* Tab切换 */}
       <div style={styles.tabBar}>
-        <motion.div
-          style={{ ...styles.tab, ...(activeTab === 'intro' ? styles.tabActive : {}) }}
-          onClick={() => handleTabSwitch('intro')}
-          whileTap={{ opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        >
-          简介
-        </motion.div>
-        <motion.div
-          style={{ ...styles.tab, ...(activeTab === 'reviews' ? styles.tabActive : {}) }}
-          onClick={() => handleTabSwitch('reviews')}
-          whileTap={{ opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        >
-          评价
-        </motion.div>
+        {(['intro', 'reviews'] as const).map((tab) => (
+          <motion.div
+            key={tab}
+            style={{ ...styles.tab, ...(activeTab === tab ? styles.tabActive : {}) }}
+            onClick={() => handleTabSwitch(tab)}
+            whileTap={{ scale: 0.95 }}
+            transition={SPRING.tactile}
+          >
+            {tab === 'intro' ? '简介' : '评价'}
+            {activeTab === tab && (
+              <motion.div
+                layoutId="detail-tab-indicator"
+                style={styles.tabIndicator}
+                transition={SPRING.snappy}
+              />
+            )}
+          </motion.div>
+        ))}
       </div>
 
       {/* 简介内容 */}
@@ -234,8 +257,9 @@ const PlayerDetailPage: React.FC = () => {
                     ...(selectedGame === game ? styles.gameOptionActive : {}),
                   }}
                   onClick={() => setSelectedGame(game)}
-                  whileTap={{ scale: 0.94 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  whileTap={{ scale: 0.93 }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={SPRING.snappy}
                 >
                   {game}
                 </motion.div>
@@ -255,9 +279,9 @@ const PlayerDetailPage: React.FC = () => {
                     ...(selectedHours === hour ? styles.hourOptionActive : {}),
                   }}
                   onClick={() => setSelectedHours(hour)}
-                  whileTap={{ scale: 0.94 }}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  whileTap={{ scale: 0.93 }}
+                  whileHover={{ scale: 1.03 }}
+                  transition={SPRING.snappy}
                 >
                   <span style={styles.hourValue}>{hour}</span>
                   <span style={styles.hourLabel}>小时</span>
@@ -298,8 +322,9 @@ const PlayerDetailPage: React.FC = () => {
                     key={p.id}
                     style={styles.similarCard}
                     onClick={() => navigate(`/player/${p.id}`)}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    whileTap={{ scale: 0.94 }}
+                    whileHover={{ scale: 1.03 }}
+                    transition={SPRING.snappy}
                   >
                     <div style={styles.similarAvatar}>
                       {p.avatar ? (
@@ -365,17 +390,25 @@ const PlayerDetailPage: React.FC = () => {
             ...(isCurrentlyFavorited ? styles.favoriteBtnActive : {}),
           }}
           onClick={handleToggleFavorite}
-          whileTap={{ scale: 0.92 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          whileTap={{ scale: 0.88 }}
+          transition={SPRING.tactile}
         >
-          <span style={styles.favoriteIcon}>{isCurrentlyFavorited ? '❤️' : '🤍'}</span>
+          <motion.span
+            style={styles.favoriteIcon}
+            key={isCurrentlyFavorited ? 'fav' : 'unfav'}
+            variants={heartBeat}
+            initial="initial"
+            animate="animate"
+          >
+            {isCurrentlyFavorited ? '❤️' : '🤍'}
+          </motion.span>
           <span style={styles.favoriteLabel}>{isCurrentlyFavorited ? '已收藏' : '收藏'}</span>
         </motion.div>
         <motion.div
           style={styles.chatBtn}
           onClick={() => navigate('/chat')}
-          whileTap={{ scale: 0.92, opacity: 0.8 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          whileTap={{ scale: 0.88, opacity: 0.8 }}
+          transition={SPRING.tactile}
         >
           <span style={styles.chatIcon}>💬</span>
           <span>聊天</span>
@@ -384,8 +417,8 @@ const PlayerDetailPage: React.FC = () => {
           style={{ ...styles.orderBtn, ...(creating ? styles.orderBtnDisabled : {}) }}
           onClick={creating ? undefined : handleOrder}
           disabled={creating}
-          whileTap={creating ? {} : { scale: 0.96, opacity: 0.85 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          whileTap={creating ? {} : { scale: 0.95, opacity: 0.85 }}
+          transition={SPRING.tactile}
         >
           {creating ? '创建中...' : '立即预约'}
         </motion.button>

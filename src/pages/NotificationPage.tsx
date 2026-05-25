@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { COLORS } from '@/constants'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem } from '@/utils/animations'
+import { listStagger, listItem, SPRING, backButtonProps } from '@/utils/animations'
 
 const NotificationPage = () => {
   const navigate = useNavigate()
@@ -35,7 +35,7 @@ const NotificationPage = () => {
           style={styles.backBtn}
           onClick={() => navigate(-1)}
           whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={SPRING.tactile}
         >
           ←
         </motion.span>
@@ -54,7 +54,7 @@ const NotificationPage = () => {
             }}
             onClick={() => setActiveTab(tab)}
             whileTap={{ scale: 0.92 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             {tab}
             {tab === '消息' && unreadCount > 0 && <span style={styles.tabBadge}>{unreadCount}</span>}

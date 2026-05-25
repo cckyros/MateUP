@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { COLORS, GAME_NAMES } from '@/constants'
 import { getOrderDetail, payOrder } from '@/api/order'
+import { SPRING, backButtonProps } from '@/utils/animations'
 import { styles } from './PaymentPage.styles'
 
 // 下单须知规则
@@ -139,7 +140,7 @@ const PaymentPage = () => {
           style={styles.backBtn}
           onClick={() => navigate(-1)}
           whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={SPRING.tactile}
         >
           ←
         </motion.span>
@@ -180,7 +181,7 @@ const PaymentPage = () => {
             }}
             onClick={() => setSelectedMethod(method.id)}
             whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             <div style={styles.methodLeft}>
               <span style={styles.methodIcon}>{method.icon}</span>
@@ -212,7 +213,7 @@ const PaymentPage = () => {
           onClick={handlePayClick}
           disabled={paying}
           whileTap={paying ? {} : { scale: 0.97, opacity: 0.85 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={SPRING.tactile}
         >
           {paying ? '支付中...' : `确认支付 ¥${order.price}`}
         </motion.button>
@@ -240,7 +241,7 @@ const PaymentPage = () => {
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              transition={SPRING.gentle}
             >
               <div style={styles.sheetHandle} />
               <div style={styles.sheetHeader}>
@@ -249,7 +250,7 @@ const PaymentPage = () => {
                   style={styles.sheetClose}
                   onClick={closeRules}
                   whileTap={{ scale: 0.85, opacity: 0.7 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  transition={SPRING.tactile}
                 >
                   ✕
                 </motion.span>
@@ -269,7 +270,7 @@ const PaymentPage = () => {
                 style={styles.agreeRow}
                 onClick={() => setRulesAccepted(!rulesAccepted)}
                 whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                transition={SPRING.tactile}
               >
                 <div style={{
                   ...styles.checkbox,
@@ -287,7 +288,7 @@ const PaymentPage = () => {
                 onClick={handlePayConfirm}
                 disabled={!rulesAccepted || paying}
                 whileTap={rulesAccepted && !paying ? { scale: 0.97, opacity: 0.85 } : {}}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                transition={SPRING.tactile}
               >
                 {paying ? '支付中...' : `确认支付 ¥${order.price}`}
               </motion.button>

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { COLORS } from '@/constants'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem } from '@/utils/animations'
+import { listStagger, listItem, SPRING, backButtonProps } from '@/utils/animations'
 
 const SettingsPage = () => {
   const navigate = useNavigate()
@@ -45,7 +45,7 @@ const SettingsPage = () => {
           style={styles.backBtn}
           onClick={() => navigate(-1)}
           whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={SPRING.tactile}
         >
           ←
         </motion.span>
@@ -74,7 +74,7 @@ const SettingsPage = () => {
                 }}
                 onClick={() => toggle(item.key)}
                 whileTap={{ scale: 0.92 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                transition={SPRING.tactile}
               >
                 <div style={{
                   ...styles.toggleDot,
@@ -102,7 +102,7 @@ const SettingsPage = () => {
               onClick={item.action || (() => {})}
               variants={listItem}
               whileTap={{ opacity: 0.7, scale: 0.99 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              transition={SPRING.tactile}
             >
               <div style={styles.menuLeft}>
                 <span style={styles.menuIcon}>{item.icon}</span>

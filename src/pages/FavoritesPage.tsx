@@ -6,6 +6,8 @@ import { COLORS } from '@/constants'
 import { getFavorites, removeFavorite } from '@/api/favorites'
 import { useFavoritesStore } from '@/store'
 import { Styles } from '@/utils/styles'
+import { SPRING, backButtonProps, listStagger, listItem } from '@/utils/animations'
+import { ListSkeleton } from '@/components/Skeleton'
 
 interface FavPlayer {
   id: string
@@ -48,7 +50,7 @@ const FavoritesPage = () => {
           style={styles.backBtn}
           onClick={() => navigate(-1)}
           whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={SPRING.tactile}
         >
           ←
         </motion.span>
@@ -69,7 +71,7 @@ const FavoritesPage = () => {
             style={styles.goHomeBtn}
             onClick={() => navigate('/home')}
             whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             浏览陪玩师
           </motion.div>
@@ -83,7 +85,7 @@ const FavoritesPage = () => {
               onClick={() => navigate(`/player/${item.playerId}`)}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              transition={SPRING.gentle}
               whileTap={{ scale: 0.98 }}
             >
               <div style={styles.cardLeft}>
@@ -118,7 +120,7 @@ const FavoritesPage = () => {
                 style={styles.removeBtn}
                 onClick={(e) => handleRemove(e, item.playerId)}
                 whileTap={{ scale: 0.9 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                transition={SPRING.tactile}
               >
                 ❤️ 已收藏
               </motion.div>

@@ -125,12 +125,20 @@ export const styles: Styles = {
     fontSize: '15px',
     color: COLORS.textSecondary,
     cursor: 'pointer',
-    borderBottom: '2px solid transparent',
+    position: 'relative',
   },
   tabActive: {
     color: COLORS.primary,
     fontWeight: 'bold',
-    borderBottomColor: COLORS.primary,
+  },
+  tabIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    left: '25%',
+    right: '25%',
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: COLORS.primary,
   },
   section: {
     padding: '16px',

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { COLORS } from '@/constants'
 import { rateOrder } from '@/api/order'
-import { modalAnimate, overlayAnimate } from '@/utils/animations'
+import { modalAnimate, overlayAnimate, SPRING } from '@/utils/animations'
 
 interface OrderRatingProps {
   orderId: string
@@ -125,7 +125,7 @@ const OrderRating: React.FC<OrderRatingProps> = ({ orderId, playerName, onSubmit
           onClick={handleSubmit}
           disabled={submitting}
           whileTap={{ scale: 0.96 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          transition={SPRING.tactile}
         >
           {submitting ? '提交中...' : '提交评价'}
         </motion.button>

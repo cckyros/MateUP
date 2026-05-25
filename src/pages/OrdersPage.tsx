@@ -4,7 +4,8 @@ import { motion } from 'framer-motion'
 import { COLORS, GAME_NAMES, ORDER_TABS } from '@/constants'
 import { getOrderList, cancelOrder, completeOrder } from '@/api/order'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem } from '@/utils/animations'
+import { listStagger, listItem, SPRING } from '@/utils/animations'
+import { ListSkeleton } from '@/components/Skeleton'
 import { formatRelativeTime } from '@/utils/formatTime'
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
@@ -118,7 +119,7 @@ const OrdersPage = () => {
         animate="animate"
       >
         {loading ? (
-          <div style={{ ...styles.empty, color: COLORS.textSecondary }}>加载中...</div>
+          <ListSkeleton count={4} />
         ) : getFilteredOrders().length === 0 ? (
           <motion.div style={styles.empty} variants={listItem}>
             <span style={styles.emptyIcon}>📋</span>
@@ -133,8 +134,9 @@ const OrdersPage = () => {
                 style={styles.orderCard}
                 onClick={() => navigate(`/order-detail/${order.id}`)}
                 variants={listItem}
-                whileHover={{ scale: 1.01, boxShadow: '0px 6px 20px rgba(0,0,0,0.3)' }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                whileHover={{ scale: 1.01, boxShadow: '0 6px 20px rgba(0,0,0,0.3)' }}
+                whileTap={{ scale: 0.98 }}
+                transition={SPRING.snappy}
               >
                 <div style={styles.orderTop}>
                   <span style={styles.gameTag}>
@@ -177,8 +179,8 @@ const OrdersPage = () => {
                     <motion.span
                       style={styles.cancelBtn}
                       onClick={(e) => { e.stopPropagation(); handleCancel(order.id) }}
-                      whileTap={{ scale: 0.94, opacity: 0.7 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                      whileTap={{ scale: 0.92, opacity: 0.7 }}
+                      transition={SPRING.tactile}
                     >
                       取消订单
                     </motion.span>
@@ -189,8 +191,8 @@ const OrdersPage = () => {
                     <motion.span
                       style={styles.finishBtn}
                       onClick={(e) => { e.stopPropagation(); handleComplete(order.id) }}
-                      whileTap={{ scale: 0.94, opacity: 0.8 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                      whileTap={{ scale: 0.92, opacity: 0.8 }}
+                      transition={SPRING.tactile}
                     >
                       确认完成
                     </motion.span>

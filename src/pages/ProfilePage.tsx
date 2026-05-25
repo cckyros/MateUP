@@ -7,7 +7,7 @@ import { useApplyStore } from '@/store'
 import { useUserStore } from '@/store'
 import { getApplyStatus } from '@/api/apply'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem } from '@/utils/animations'
+import { listStagger, listItem, SPRING, scaleIn } from '@/utils/animations'
 
 const ProfilePage = () => {
   const navigate = useNavigate()
@@ -141,7 +141,7 @@ const ProfilePage = () => {
             onClick={() => navigate((item as any).path || '/settings')}
             variants={listItem}
             whileTap={{ opacity: 0.7, scale: 0.99 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             <div style={styles.menuLeft}>
               <span style={styles.menuIcon}>{item.icon}</span>
@@ -161,7 +161,7 @@ const ProfilePage = () => {
             onClick={() => navigate('/apply-player')}
             variants={listItem}
             whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             <span style={styles.applyIcon}>🎮</span>
             <div style={styles.applyInfo}>
@@ -179,7 +179,7 @@ const ProfilePage = () => {
             onClick={() => navigate('/apply-status')}
             variants={listItem}
             whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            transition={SPRING.tactile}
           >
             <span style={styles.applyIcon}>⏳</span>
             <div style={styles.applyInfo}>

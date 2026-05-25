@@ -4,7 +4,8 @@ import { COLORS, WS_BASE_URL } from '@/constants'
 import { useChatStore, useUserStore, wsManager } from '@/store'
 import { getConversationList } from '@/api/chat'
 import { Styles } from '@/utils/styles'
-import { listStagger, listItem, fadeIn } from '@/utils/animations'
+import { listStagger, listItem, chatBubble, SPRING, backButtonProps, badgePop } from '@/utils/animations'
+import { ListSkeleton } from '@/components/Skeleton'
 
 const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat')
@@ -130,15 +131,15 @@ const ChatPage = () => {
               key={tab}
               style={{ ...styles.tab, ...(activeTab === tab ? styles.tabActive : {}) }}
               onClick={() => setActiveTab(tab)}
-              whileTap={{ scale: 0.92 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              whileTap={{ scale: 0.93 }}
+              transition={SPRING.tactile}
             >
               {tab === 'chat' ? '聊天' : tab === 'friend' ? '好友' : '匹配'}
               {activeTab === tab && (
                 <motion.div
                   style={styles.tabIndicator}
                   layoutId="chatTabIndicator"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={SPRING.snappy}
                 />
               )}
             </motion.div>
@@ -152,12 +153,7 @@ const ChatPage = () => {
           animate="animate"
         >
           {loadingConv ? (
-            <motion.div
-              variants={listItem}
-              style={{ ...styles.chatItem, justifyContent: 'center', color: COLORS.textSecondary, fontSize: '13px', padding: '40px' }}
-            >
-              加载中...
-            </motion.div>
+            <ListSkeleton count={5} />
           ) : conversations.length === 0 ? (
             <motion.div
               variants={listItem}
@@ -203,8 +199,7 @@ const ChatPage = () => {
         <motion.span
           style={styles.backBtn}
           onClick={() => setSelectedChat(null)}
-          whileTap={{ scale: 0.85, opacity: 0.7 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          {...backButtonProps}
         >
           ←
         </motion.span>
@@ -236,15 +231,15 @@ const ChatPage = () => {
                 <motion.div
                   key={msg.id}
                   style={styles.selfMsgWrapper}
-                  initial={{ opacity: 0, x: 20, scale: 0.95 }}
+                  initial={{ opacity: 0, x: 16, scale: 0.95 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                  exit={{ opacity: 0, x: -8 }}
+                  transition={SPRING.snappy}
                 >
                   <motion.div
                     style={styles.selfBubble}
                     whileHover={{ scale: 1.01 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    transition={SPRING.tactile}
                   >
                     {msg.content}
                   </motion.div>
@@ -258,15 +253,15 @@ const ChatPage = () => {
               <motion.div
                 key={msg.id}
                 style={styles.otherMsgWrapper}
-                initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                initial={{ opacity: 0, x: -16, scale: 0.95 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={SPRING.snappy}
               >
                 <motion.span
                   style={styles.otherAvatar}
                   whileHover={{ scale: 1.05 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  transition={SPRING.tactile}
                 >
                   {selectedChat.partnerAvatar || '💫'}
                 </motion.span>
@@ -275,7 +270,7 @@ const ChatPage = () => {
                   <motion.div
                     style={styles.otherBubble}
                     whileHover={{ scale: 1.01 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    transition={SPRING.tactile}
                   >
                     {msg.content}
                   </motion.div>
@@ -293,8 +288,8 @@ const ChatPage = () => {
       <div style={styles.inputBar}>
         <motion.span
           style={styles.inputIcon}
-          whileTap={{ scale: 0.88 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          whileTap={{ scale: 0.85 }}
+          transition={SPRING.tactile}
         >
           ➕
         </motion.span>
@@ -307,16 +302,16 @@ const ChatPage = () => {
         />
         <motion.span
           style={styles.inputIcon}
-          whileTap={{ scale: 0.88 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          whileTap={{ scale: 0.85 }}
+          transition={SPRING.tactile}
         >
           😊
         </motion.span>
         <motion.button
           style={styles.sendBtn}
           onClick={sendMessage}
-          whileTap={{ scale: 0.92, opacity: 0.8 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          whileTap={{ scale: 0.9, opacity: 0.8 }}
+          transition={SPRING.tactile}
           disabled={!message.trim()}
         >
           发送
