@@ -1,158 +1,89 @@
 /**
- * animations.ts - Telegram风格的弹簧物理动画工具
- * 
- * 基于 Framer Motion 的统一动画配置
- * 弹簧物理参数参考 Telegram/微信小程序的设计语言
+ * animations.ts - Telegram 风格非线性弹簧动画系统
+ *
+ * 核心理念：
+ * - 所有动画使用弹簧物理（spring），拒绝线性/贝塞尔
+ * - 小元素用高刚度（快速响应），大元素用低刚度（柔和过渡）
+ * - 交互反馈即时（< 50ms 感知），回弹自然
+ * - 级联动画错开时间，营造流动感
  */
 
-import { Variants, Transition } from 'framer-motion'
+import type { Variants, Transition } from 'framer-motion'
 
 // ============================================================
-// 弹簧动画配置（可调参数）
+// 弹簧物理预设
 // ============================================================
 
 export const SPRING = {
-  /** 默认弹簧：快速且有弹性，适合页面元素 */
-  default: { type: 'spring' as const, stiffness: 400, damping: 30, mass: 1 },
-  /** 柔和弹簧：适合大型页面过渡 */
-  gentle: { type: 'spring' as const, stiffness: 200, damping: 25, mass: 1 },
-  /** 强硬弹簧：适合小元素交互 */
-  snappy: { type: 'spring' as const, stiffness: 600, damping: 35, mass: 0.8 },
-  /** 弹性弹簧：适合 Modal/Toast 弹窗 */
-  bouncy: { type: 'spring' as const, stiffness: 400, damping: 20, mass: 1 },
+  /** 触觉反馈：极快响应，按下/松开瞬间完成 */
+  tactile: { type: 'spring' as const, stiffness: 800, damping: 35, mass: 0.5 },
+  /** 快速弹簧：按钮、标签切换、小卡片 */
+  snappy: { type: 'spring' as const, stiffness: 500, damping: 30, mass: 0.8 },
+  /** 默认弹簧：通用元素动画 */
+  default: { type: 'spring' as const, stiffness: 400, damping: 28, mass: 1 },
+  /** 柔和弹簧：页面过渡、大区块 */
+  gentle: { type: 'spring' as const, stiffness: 260, damping: 26, mass: 1 },
+  /** 慢速弹簧：全屏 Modal、底部面板 */
+  slow: { type: 'spring' as const, stiffness: 200, damping: 24, mass: 1.2 },
+  /** 弹性：有明显回弹（overshoot），用于弹窗入场、点赞等强调 */
+  bouncy: { type: 'spring' as const, stiffness: 400, damping: 15, mass: 0.8 },
+  /** 橡皮筋：下拉刷新、边界回弹 */
+  rubber: { type: 'spring' as const, stiffness: 150, damping: 15, mass: 1 },
 } satisfies Record<string, Transition>
 
-// 动画时长（毫秒），当 type 为 "tween" 时使用
-export const DURATION = {
-  fast: 150,
-  normal: 250,
-  slow: 400,
-}
-
 // ============================================================
-// 页面过渡动画
+// 页面过渡（Telegram 风格：从右滑入，有轻微纵深缩放）
 // ============================================================
 
-/** 页面入场：从右滑入 + 淡入 */
 export const pageTransition: Variants = {
   initial: {
+    x: '8%',
     opacity: 0,
-    x: 30,
-    scale: 0.98,
+    scale: 0.96,
   },
   animate: {
-    opacity: 1,
     x: 0,
+    opacity: 1,
     scale: 1,
     transition: SPRING.gentle,
   },
   exit: {
+    x: '-4%',
     opacity: 0,
-    x: -20,
-    scale: 0.98,
-    transition: { duration: DURATION.fast, ease: 'easeOut' },
+    scale: 0.97,
+    transition: { ...SPRING.snappy, stiffness: 350 },
   },
 }
 
-/** 页面入场：从底部滑入（适合 Modal 类页面） */
+/** 从底部滑入（Modal 类页面：支付、设置） */
 export const slideUpTransition: Variants = {
   initial: {
+    y: '12%',
     opacity: 0,
-    y: 60,
-    scale: 0.96,
+    scale: 0.94,
   },
   animate: {
-    opacity: 1,
     y: 0,
+    opacity: 1,
     scale: 1,
-    transition: SPRING.bouncy,
+    transition: SPRING.slow,
   },
   exit: {
+    y: '6%',
     opacity: 0,
-    y: 30,
     scale: 0.96,
-    transition: { duration: DURATION.fast, ease: 'easeOut' },
-  },
-}
-
-// ============================================================
-// 卡片悬停动画
-// ============================================================
-
-/** 卡片 hover：轻微放大 + 阴影增强 */
-export const cardHover: Variants = {
-  rest: {
-    scale: 1,
-    boxShadow: '0px 2px 8px rgba(0,0,0,0.3)',
-    transition: SPRING.default,
-  },
-  hover: {
-    scale: 1.02,
-    boxShadow: '0px 8px 24px rgba(255,107,157,0.25)',
-    transition: SPRING.snappy,
-  },
-}
-
-export const cardHoverProps = {
-  initial: 'rest',
-  whileHover: 'hover',
-  variants: cardHover,
-}
-
-// ============================================================
-// 按钮点击动画
-// ============================================================
-
-/** 按钮点击：缩小 + 透明度变化 */
-export const buttonTap = {
-  whileTap: {
-    scale: 0.96,
-    opacity: 0.85,
     transition: SPRING.snappy,
   },
 }
 
 // ============================================================
-// Modal / Toast 弹窗动画
+// 列表级联动画（Telegram 消息列表/联系人列表风格）
 // ============================================================
 
-/** Modal 入退场：scale + opacity 弹簧动画 */
-export const modalAnimate: Variants = {
-  initial: {
-    opacity: 0,
-    scale: 0.88,
-    y: 20,
-  },
-  animate: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: SPRING.bouncy,
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.92,
-    y: 10,
-    transition: { duration: DURATION.fast, ease: 'easeOut' },
-  },
-}
-
-/** Modal 遮罩层动画 */
-export const overlayAnimate = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: DURATION.fast },
-}
-
-// ============================================================
-// 列表级联（Stagger）动画
-// ============================================================
-
-/** 列表容器 stagger 配置 */
+/** 列表容器：子元素错开入场 */
 export const listStagger = (
-  staggerChildren = 0.06,
-  delayChildren = 0.1
+  staggerChildren = 0.04,
+  delayChildren = 0.06,
 ): Variants => ({
   initial: {},
   animate: {
@@ -163,11 +94,11 @@ export const listStagger = (
   },
 })
 
-/** 列表 item 入场动画 */
+/** 列表项：从下方滑入 + 淡入 */
 export const listItem: Variants = {
   initial: {
     opacity: 0,
-    y: 20,
+    y: 16,
     scale: 0.97,
   },
   animate: {
@@ -178,35 +109,220 @@ export const listItem: Variants = {
   },
   exit: {
     opacity: 0,
-    y: -10,
+    y: -8,
     scale: 0.97,
-    transition: { duration: DURATION.fast },
+    transition: SPRING.snappy,
+  },
+}
+
+/** 紧凑列表项（聊天消息气泡） */
+export const chatBubble: Variants = {
+  initial: {
+    opacity: 0,
+    y: 10,
+    scale: 0.95,
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: SPRING.snappy,
   },
 }
 
 // ============================================================
-// 通用过渡动画
+// 卡片交互
+// ============================================================
+
+/** 卡片 hover + press */
+export const cardHover: Variants = {
+  rest: {
+    scale: 1,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+    transition: SPRING.default,
+  },
+  hover: {
+    scale: 1.015,
+    boxShadow: '0 6px 20px rgba(255,107,157,0.2)',
+    transition: SPRING.snappy,
+  },
+  tap: {
+    scale: 0.975,
+    boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+    transition: SPRING.tactile,
+  },
+}
+
+export const cardHoverProps = {
+  initial: 'rest',
+  whileHover: 'hover',
+  whileTap: 'tap',
+  variants: cardHover,
+}
+
+// ============================================================
+// 按钮 / 可按压元素
+// ============================================================
+
+/** 主按钮按压 */
+export const buttonTap = {
+  whileTap: {
+    scale: 0.95,
+    opacity: 0.85,
+    transition: SPRING.tactile,
+  },
+}
+
+/** 图标按钮按压（更小幅度） */
+export const iconTap = {
+  whileTap: {
+    scale: 0.88,
+    opacity: 0.7,
+    transition: SPRING.tactile,
+  },
+}
+
+/** 返回按钮动画 */
+export const backButtonProps = {
+  whileTap: { scale: 0.82, opacity: 0.6 },
+  transition: SPRING.tactile,
+}
+
+// ============================================================
+// Tab 指示器
+// ============================================================
+
+/** Tab 底部滑块 — 使用 layoutId 自动过渡 */
+export const tabIndicatorTransition: Transition = {
+  ...SPRING.snappy,
+}
+
+/** Tab 内容切换 */
+export const tabContent: Variants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: SPRING.default },
+  exit: { opacity: 0, y: -6, transition: SPRING.snappy },
+}
+
+// ============================================================
+// Modal / Bottom Sheet
+// ============================================================
+
+/** 遮罩层 */
+export const overlayAnimate: Variants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+}
+
+/** Modal 弹窗（中心弹出） */
+export const modalAnimate: Variants = {
+  initial: {
+    opacity: 0,
+    scale: 0.85,
+    y: 20,
+  },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: SPRING.bouncy,
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.9,
+    y: 10,
+    transition: SPRING.snappy,
+  },
+}
+
+/** Bottom Sheet（从底部弹出） */
+export const bottomSheetAnimate: Variants = {
+  initial: {
+    y: '100%',
+    borderRadius: '20px 20px 0 0',
+  },
+  animate: {
+    y: 0,
+    transition: SPRING.slow,
+  },
+  exit: {
+    y: '100%',
+    transition: { ...SPRING.gentle, stiffness: 300 },
+  },
+}
+
+// ============================================================
+// 微交互
 // ============================================================
 
 /** 淡入 */
 export const fadeIn: Variants = {
   initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: DURATION.normal } },
-  exit: { opacity: 0, transition: { duration: DURATION.fast } },
+  animate: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
 }
 
-/** 缩放淡入 */
+/** 缩放淡入（头像、徽章、图标） */
 export const scaleIn: Variants = {
-  initial: { opacity: 0, scale: 0.9 },
+  initial: { opacity: 0, scale: 0.6 },
   animate: { opacity: 1, scale: 1, transition: SPRING.bouncy },
-  exit: { opacity: 0, scale: 0.9, transition: { duration: DURATION.fast } },
+  exit: { opacity: 0, scale: 0.8, transition: SPRING.snappy },
+}
+
+/** 收藏心跳动画 */
+export const heartBeat: Variants = {
+  initial: { scale: 1 },
+  animate: {
+    scale: [1, 1.3, 0.95, 1.05, 1],
+    transition: {
+      duration: 0.5,
+      times: [0, 0.2, 0.4, 0.6, 1],
+      ease: 'easeOut',
+    },
+  },
+}
+
+/** 数字变化脉冲 */
+export const numberPop: Variants = {
+  initial: { scale: 1 },
+  animate: {
+    scale: [1, 1.15, 1],
+    transition: SPRING.bouncy,
+  },
+}
+
+/** 通知红点入场 */
+export const badgePop: Variants = {
+  initial: { scale: 0, opacity: 0 },
+  animate: {
+    scale: 1,
+    opacity: 1,
+    transition: SPRING.bouncy,
+  },
+  exit: {
+    scale: 0,
+    opacity: 0,
+    transition: SPRING.tactile,
+  },
+}
+
+/** 骨架屏闪烁 */
+export const shimmer = {
+  animate: {
+    opacity: [0.3, 0.6, 0.3],
+    transition: {
+      duration: 1.5,
+      repeat: Infinity,
+      ease: 'easeInOut' as const,
+    },
+  },
 }
 
 // ============================================================
-// AnimatePresence 包装器组件 Props
+// 页面容器 Props
 // ============================================================
 
-/** 页面容器 Props，配合 AnimatePresence 使用 */
 export const pageDivProps = {
   variants: pageTransition,
   initial: 'initial',
